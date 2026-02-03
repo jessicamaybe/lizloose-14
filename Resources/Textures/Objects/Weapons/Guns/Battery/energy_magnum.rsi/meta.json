@@ -48,6 +48,22 @@
         {
             "name": "equipped-SUITSTORAGE",
             "directions": 4
+        },
+        {
+            "name": "inhand-left-color",
+            "directions": 4
+        },
+        {
+            "name": "inhand-right-color",
+            "directions": 4
+        },
+        {
+            "name": "equipped-BELT-color",
+            "directions": 4
+        },
+        {
+            "name": "equipped-SUITSTORAGE-color",
+            "directions": 4
         }
     ]
 }

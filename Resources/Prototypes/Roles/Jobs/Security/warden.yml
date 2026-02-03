@@ -35,11 +35,11 @@
     eyes: ClothingEyesGlassesSecurity
     id: WardenPDA
     ears: ClothingHeadsetSecurity
-    pocket1: WeaponPistolMk58
+    pocket1: UMWeaponEnergyGun # Changed from wizden
   storage:
     back:
     - Flash
-    - MagazinePistol
+#    - MagazinePistol
 
 - type: chameleonOutfit
   id: WardenChameleonOutfit
