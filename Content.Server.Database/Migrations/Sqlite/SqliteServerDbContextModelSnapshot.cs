@@ -798,6 +798,35 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.ToTable("connection_log", (string)null);
                 });
 
+            modelBuilder.Entity("Content.Server.Database.DripTrack", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("drip_track_id");
+
+                    b.Property<string>("DripName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("drip_name");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("player_id");
+
+                    b.Property<int>("RoundsLeft")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("rounds_left");
+
+                    b.HasKey("Id")
+                        .HasName("PK_drip_track");
+
+                    b.HasIndex("PlayerId", "DripName")
+                        .IsUnique();
+
+                    b.ToTable("drip_track", (string)null);
+                });
+
             modelBuilder.Entity("Content.Server.Database.IPIntelCache", b =>
                 {
                     b.Property<int>("Id")

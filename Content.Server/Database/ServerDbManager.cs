@@ -35,6 +35,14 @@ namespace Content.Server.Database
 
         Task<bool> HasPendingModelChanges();
 
+        #region UM
+
+        Task<List<DripTrack>> GetDrip(Guid player, CancellationToken cancel = default);
+        Task UpdateDrip(Guid player, string drip, int rounds, CancellationToken cancel = default);
+
+
+        #endregion
+
         #region Preferences
         Task<PlayerPreferences> InitPrefsAsync(
             NetUserId userId,
@@ -555,6 +563,23 @@ namespace Content.Server.Database
             DbWriteOpsMetric.Inc();
             return RunDbCommand(() => _db.UpdatePlayTimes(updates));
         }
+
+        #endregion
+
+        #region UM
+
+        public Task<List<DripTrack>> GetDrip(Guid player, CancellationToken cancel)
+        {
+            DbReadOpsMetric.Inc();
+            return RunDbCommand(() => _db.GetDrip(player, cancel));
+        }
+
+        public Task UpdateDrip(Guid player, string drip, int rounds, CancellationToken cancel = default)
+        {
+            DbReadOpsMetric.Inc();
+            return RunDbCommand(() => _db.UpdateDrip(player, drip, rounds, cancel));
+        }
+
 
         #endregion
 

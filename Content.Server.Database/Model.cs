@@ -49,6 +49,9 @@ namespace Content.Server.Database
         public DbSet<RoleWhitelist> RoleWhitelists { get; set; } = null!;
         public DbSet<BanTemplate> BanTemplate { get; set; } = null!;
         public DbSet<IPIntelCache> IPIntelCache { get; set; } = null!;
+        //UM START
+        public DbSet<DripTrack> DripTrack { get; set; } = default!;
+        //UM END
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -294,7 +297,11 @@ namespace Content.Server.Database
                 .OwnsOne(p => p.HWId)
                 .Property(p => p.Type)
                 .HasDefaultValue(HwidType.Legacy);
-
+            //UM START
+            modelBuilder.Entity<DripTrack>()
+                .HasIndex(v => new { v.PlayerId, Role = v.DripName })
+                .IsUnique();
+            //UM END
             ModelBan.OnModelCreating(modelBuilder);
         }
 
@@ -1054,4 +1061,22 @@ namespace Content.Server.Database
         /// </summary>
         public float Score { get; set; }
     }
+
+    #region UM
+
+    [Table("drip_track")]
+    public class DripTrack
+    {
+        public int Id { get; set; }
+
+        [Required, ForeignKey("player")]
+        public Guid PlayerId { get; set; }
+
+        public string DripName { get; set; } = null!;
+
+        public int RoundsLeft { get; set; }
+    }
+
+
+    #endregion
 }

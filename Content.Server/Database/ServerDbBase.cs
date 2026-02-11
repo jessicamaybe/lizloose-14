@@ -43,6 +43,42 @@ namespace Content.Server.Database
             _opsLog = opsLog;
         }
 
+        #region UM
+
+        public async Task<List<DripTrack>> GetDrip(Guid player, CancellationToken cancel = default)
+        {
+            await using var db = await GetDb(cancel);
+
+            return await db.DbContext.DripTrack
+                .Where(p => p.PlayerId == player)
+                .ToListAsync(cancel);
+        }
+
+        public async Task UpdateDrip(Guid player, string drip, int rounds, CancellationToken cancel = default)
+        {
+            await using var db = await GetDb();
+
+            var entry = new DripTrack
+            {
+                PlayerId = player,
+                DripName = drip,
+                RoundsLeft = rounds
+            };
+
+            var trackedDrips = db.DbContext.DripTrack.Where(p => p.PlayerId == player);
+
+            foreach (var drips in trackedDrips)
+            {
+                if (drips.DripName == drip)
+                    drips.RoundsLeft = rounds;
+                await db.DbContext.SaveChangesAsync();
+                return;
+            }
+            db.DbContext.DripTrack.Add(entry);
+            await db.DbContext.SaveChangesAsync();
+        }
+        #endregion
+
         #region Preferences
         public async Task<PlayerPreferences?> GetPlayerPreferencesAsync(
             NetUserId userId,
