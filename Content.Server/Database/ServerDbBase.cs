@@ -69,8 +69,10 @@ namespace Content.Server.Database
 
             foreach (var drips in trackedDrips)
             {
-                if (drips.DripName == drip)
-                    drips.RoundsLeft = rounds;
+                if (drips.DripName != drip)
+                    continue;
+
+                drips.RoundsLeft = rounds;
                 await db.DbContext.SaveChangesAsync();
                 return;
             }
