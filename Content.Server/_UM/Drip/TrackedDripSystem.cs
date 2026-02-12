@@ -64,11 +64,17 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
             return;
         */
         Log.Debug("Succecssful drip check");
-        RecordDrip(session.UserId, prototype.ID, ent.Comp.Rounds);
+        UpdateDrip(session.UserId, prototype.ID, ent.Comp.Rounds);
     }
 
-    private void RecordDrip(NetUserId playerId, string drip, int rounds)
+    public void UpdateDrip(NetUserId playerId, string dripId, int rounds)
     {
-        _db.UpdateDrip(playerId, drip, rounds);
+        _db.UpdateDrip(playerId, dripId, rounds);
+    }
+
+    public async void GetDrip(NetUserId playerId)
+    {
+        var drip = _db.GetDrip(playerId);
+
     }
 }

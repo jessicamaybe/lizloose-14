@@ -1,3 +1,4 @@
+using Content.Server._UM.Drip;
 using Content.Server.Acz;
 using Content.Server.Administration;
 using Content.Server.Administration.Logs;
@@ -80,6 +81,9 @@ namespace Content.Server.Entry
         [Dependency] private readonly ServerInfoManager _serverInfo = default!;
         [Dependency] private readonly ServerUpdateManager _updateManager = default!;
         [Dependency] private readonly ServerFeedbackManager _feedbackManager = null!;
+        //UM START
+        [Dependency] private readonly DripTrackingManager _dripTracking = default!;
+        //UM END
 
         public override void PreInit()
         {
@@ -133,6 +137,9 @@ namespace Content.Server.Entry
             _voteManager.Initialize();
             _updateManager.Initialize();
             _playTimeTracking.Initialize();
+            //UM START
+            _dripTracking.Initialize();
+            //UM END
             _watchlistWebhookManager.Initialize();
             _job.Initialize();
             _rateLimit.Initialize();
@@ -190,6 +197,9 @@ namespace Content.Server.Entry
                 case ModUpdateLevel.FramePostEngine:
                     _updateManager.Update();
                     _playTimeTracking.Update();
+                    //UM START
+                    _dripTracking.Update();
+                    //UM END
                     _watchlistWebhookManager.Update();
                     _connection.Update();
                     break;
@@ -202,6 +212,9 @@ namespace Content.Server.Entry
             if (!string.IsNullOrEmpty(dest))
             {
                 _playTimeTracking.Shutdown();
+                //UM START
+                _dripTracking.Shutdown();
+                //UM END
                 _dbManager.Shutdown();
             }
 

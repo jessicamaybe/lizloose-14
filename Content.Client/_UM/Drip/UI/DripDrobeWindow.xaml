@@ -1,0 +1,20 @@
+<ui:DripDrobeWindow
+    xmlns="https://spacestation14.io"
+    xmlns:ui="clr-namespace:Content.Client._UM.Drip.UI"
+    xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+    MinHeight="450"
+    MinWidth="500"
+    Title="Drip Drobe">
+    <controls:StripeBack>
+        <BoxContainer Name="MainContainer" Orientation="Vertical">
+                <ScrollContainer HorizontalExpand="True" VerticalExpand="True" HScrollEnabled="True">
+                    <BoxContainer Orientation="Vertical"
+                                  VerticalExpand="True"
+                                  HorizontalExpand="True"
+                                  MinSize="50 50"
+                                  Name="ProgramList"
+                                  Margin="10"/>
+                </ScrollContainer>
+        </BoxContainer>
+    </controls:StripeBack>
+</ui:DripDrobeWindow>

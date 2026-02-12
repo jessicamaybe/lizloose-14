@@ -1,3 +1,4 @@
+using Content.Client._UM.Drip;
 using Content.Client.Administration.Managers;
 using Content.Client.Changelog;
 using Content.Client.Chat.Managers;
@@ -79,6 +80,9 @@ namespace Content.Client.Entry
         [Dependency] private readonly IEntitySystemManager _entitySystemManager = default!;
         [Dependency] private readonly ClientsidePlaytimeTrackingManager _clientsidePlaytimeManager = default!;
         [Dependency] private readonly ClientFeedbackManager _feedbackManager = null!;
+        //UM START
+        [Dependency] private readonly DripTrackingManager _dripTracking = default!;
+        //UM END
 
         public override void PreInit()
         {
@@ -141,6 +145,9 @@ namespace Content.Client.Entry
             _ghostKick.Initialize();
             _extendedDisconnectInformation.Initialize();
             _jobRequirements.Initialize();
+            //UM START
+            _dripTracking.Initialize();
+            //UM END
             _playbackMan.Initialize();
             _clientsidePlaytimeManager.Initialize();
 

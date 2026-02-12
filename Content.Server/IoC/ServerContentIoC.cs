@@ -1,3 +1,4 @@
+using Content.Server._UM.Drip;
 using Content.Server.Administration;
 using Content.Server.Administration.Logs;
 using Content.Server.Administration.Managers;
@@ -24,6 +25,7 @@ using Content.Server.ServerInfo;
 using Content.Server.ServerUpdates;
 using Content.Server.Voting.Managers;
 using Content.Server.Worldgen.Tools;
+using Content.Shared._UM.Drip;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Administration.Managers;
 using Content.Shared.Chat;
@@ -64,6 +66,9 @@ internal static class ServerContentIoC
         deps.Register<ISharedAdminLogManager, AdminLogManager>();
         deps.Register<IAdminLogManager, AdminLogManager>();
         deps.Register<PlayTimeTrackingManager>();
+        //UM START
+        deps.Register<DripTrackingManager>();
+        //UM END
         deps.Register<UserDbDataManager>();
         deps.Register<ServerInfoManager>();
         deps.Register<PoissonDiskSampler>();
@@ -71,6 +76,9 @@ internal static class ServerContentIoC
         deps.Register<VoteWebhooks>();
         deps.Register<ServerDbEntryManager>();
         deps.Register<ISharedPlaytimeManager, PlayTimeTrackingManager>();
+        //UM START
+        deps.Register<ISharedDripTrackingManager, DripTrackingManager>();
+        //UM END
         deps.Register<ServerApi>();
         deps.Register<JobWhitelistManager>();
         deps.Register<PlayerRateLimitManager>();

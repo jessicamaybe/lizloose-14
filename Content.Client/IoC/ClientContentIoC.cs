@@ -1,3 +1,4 @@
+using Content.Client._UM.Drip;
 using Content.Client.Administration.Managers;
 using Content.Client.Changelog;
 using Content.Client.Chat.Managers;
@@ -22,6 +23,7 @@ using Content.Client.Voting;
 using Content.Shared.Administration.Logs;
 using Content.Client.Lobby;
 using Content.Client.Players.RateLimiting;
+using Content.Shared._UM.Drip;
 using Content.Shared.Administration.Managers;
 using Content.Shared.Chat;
 using Content.Shared.FeedbackSystem;
@@ -55,9 +57,15 @@ namespace Content.Client.IoC
             collection.Register<GhostKickManager>();
             collection.Register<ExtendedDisconnectInformationManager>();
             collection.Register<JobRequirementsManager>();
+            //UM START
+            collection.Register<DripTrackingManager>();
+            //UM END
             collection.Register<DocumentParsingManager>();
             collection.Register<ContentReplayPlaybackManager>();
             collection.Register<ISharedPlaytimeManager, JobRequirementsManager>();
+            //UM START
+            collection.Register<ISharedDripTrackingManager, DripTrackingManager>();
+            //UM END
             collection.Register<MappingManager>();
             collection.Register<DebugMonitorManager>();
             collection.Register<PlayerRateLimitManager>();
