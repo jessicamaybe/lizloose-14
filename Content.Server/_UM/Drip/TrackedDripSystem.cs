@@ -1,14 +1,11 @@
-using Content.Server.Database;
 using Content.Server.Shuttles.Systems;
 using Content.Shared._UM.Drip;
 using Content.Shared._UM.Drip.Components;
 using Content.Shared.GameTicking;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
-using Content.Shared.Trigger.Systems;
 using Robust.Server.Player;
 using Robust.Shared.Containers;
-using Robust.Shared.Network;
 using Robust.Shared.Player;
 
 namespace Content.Server._UM.Drip;
@@ -18,7 +15,6 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
 {
     [Dependency] private readonly EmergencyShuttleSystem _eShuttle = default!;
     [Dependency] private readonly SharedContainerSystem _container = default!;
-    [Dependency] private readonly IServerDbManager _db = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
     [Dependency] private readonly DripTrackingManager _dripTracking = default!;

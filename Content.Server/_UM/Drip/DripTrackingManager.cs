@@ -277,9 +277,6 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
         public bool IsDirty;
         public bool NeedSendTimers;
 
-        public readonly HashSet<string> ActiveTrackers = new();
-        public TimeSpan LastUpdate;
-
         // Stored tracked time info.
 
         /// <summary>

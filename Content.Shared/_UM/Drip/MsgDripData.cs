@@ -1,6 +1,5 @@
 using Lidgren.Network;
 using Robust.Shared.Network;
-using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared._UM.Drip;

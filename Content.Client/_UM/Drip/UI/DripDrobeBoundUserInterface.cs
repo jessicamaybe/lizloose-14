@@ -45,13 +45,6 @@ namespace Content.Client._UM.Drip.UI
                 SendMessage(new DripDrobeDispenseItemMessage(item));
             };
         }
-        protected override void UpdateState(BoundUserInterfaceState state)
-        {
-            base.UpdateState(state);
-
-            //var castState = (AmeControllerBoundUserInterfaceState) state;
-            //_window?.UpdateState(castState); //Update window state
-        }
 
         private void OnOpened()
         {

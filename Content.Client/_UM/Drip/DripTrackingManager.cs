@@ -1,5 +1,4 @@
 using Content.Shared._UM.Drip;
-using Content.Shared.Players.PlayTimeTracking;
 using Robust.Client;
 using Robust.Client.Player;
 using Robust.Shared.Network;
@@ -14,13 +13,11 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager
     [Dependency] private readonly IPlayerManager _playerManager = default!;
 
     private readonly Dictionary<string, int> _drip = new();
-    private ISawmill _sawmill = default!;
 
     public event Action? Updated;
 
     public void Initialize()
     {
-        _sawmill = Logger.GetSawmill("drip_tracker");
         _net.RegisterNetMessage<MsgDripData>(RxPlayTime);
         _client.RunLevelChanged += ClientOnRunLevelChanged;
     }
