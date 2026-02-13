@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Taken from https://github.com/tgstation/tgstation",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "cocoon_large1"
+    },
+    {
+      "name": "cocoon_large2"
+    },
+    {
+      "name": "cocoon_large3"
+    },
+    {
+      "name": "cocoon1"
+    },
+    {
+      "name": "cocoon2"
+    },
+    {
+      "name": "cocoon3"
+    },
+    {
+      "name": "effigy",
+      "directions": 4
+    },
+    {
+      "name": "cobweb1",
+      "delays": [
+        [
+          25.5,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.2,
+          0.1,
+          0.1,
+          0.1,
+          0.3,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "cobweb2",
+      "delays": [
+        [
+          15,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          5,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          15
+        ]
+      ]
+    },
+    {
+      "name": "sticky_overlay"
+    },
+    {
+      "name": "webpassage"
+    }
+  ]
+}

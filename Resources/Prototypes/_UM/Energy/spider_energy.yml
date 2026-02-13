@@ -1,0 +1,64 @@
+- type: entity
+  id: BaseSpiderEnergy
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Energy
+    name: spider
+    amount: 50
+    passiveRegen: 1
+    maxRegen: 100
+    alert: SpiderEnergy
+
+- type: entity
+  id: BroodmotherEnergy
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Energy
+    name: spider
+    amount: 65
+    passiveRegen: 0
+    alert: SpiderEnergy
+
+- type: entity
+  id: UndecidedEnergy
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Energy
+    name: spider
+    amount: 0
+    passiveRegen: 1
+    maxRegen: 50
+    alert: SpiderEnergy
+
+- type: entity
+  id: WeaverEnergy
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Energy
+    name: spider
+    amount: 50
+    passiveRegen: 1
+    maxRegen: 100
+    alert: SpiderEnergy
+
+- type: entity
+  id: ViperEnergy
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Energy
+    name: spider
+    amount: 80
+    passiveRegen: 5
+    maxRegen: 80
+    alert: SpiderEnergy
+
+- type: entity
+  id: NurseEnergy
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Energy
+    name: spider
+    amount: 70
+    passiveRegen: 2
+    maxRegen: 70
+    alert: SpiderEnergy

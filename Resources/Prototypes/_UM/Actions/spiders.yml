@@ -1,0 +1,181 @@
+- type: entity
+  parent: BaseAction
+  id: ActionDeployBroodmother
+  name: "[color=red]Deploy[/color]"
+  description: Become the broodmother
+  components:
+  - type: Action
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: defensive_mode }
+    itemIconStyle: BigAction
+    priority: 3
+  - type: ConfirmableAction
+    popup: deploy-action-popup
+  - type: InstantAction
+    event: !type:DeployAntagActionEvent
+
+- type: entity
+  parent: BaseAction
+  id: ActionCocoon
+  name: "[color=red]Cocoon[/color]"
+  description: put that bitch into a cocoon
+  components:
+  - type: Action
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: wrap_0 }
+    iconOn: { sprite : _UM/Actions/broodmother.rsi, state: wrap_1 }
+    itemIconStyle: BigAction
+    priority: 3
+  - type: TargetAction
+  - type: EntityTargetAction
+    canTargetSelf: false
+    whitelist:
+      components:
+      - MobState
+    event: !type:OnCocoonWrapActionEvent
+
+- type: entity
+  parent: BaseAction
+  id: ActionLayEggs
+  name: "[color=red]Lay Eggs[/color]"
+  description: Lay your fucked up spider eggs
+  components:
+  - type: Action
+    useDelay: 60
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: lay_eggs }
+    itemIconStyle: BigAction
+    priority: 3
+  - type: DoAfterArgs
+    breakOnMove: true
+    breakOnDamage: true
+    delay: 3
+  - type: InstantAction
+    event: !type:OnLayEggActionEvent
+  - type: EnergyActionRequirement
+    energyName: spider
+    fancyName: spider energy
+    amount: 20
+
+- type: entity
+  parent: BaseAction
+  id: ActionSpiderSelectBuild
+  name: "[color=red]Select what you're building[/color]"
+  description: Build your fucked up spider walls
+  components:
+  - type: Action
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: spider_mirror }
+    itemIconStyle: BigAction
+    priority: 5
+  - type: InstantAction
+    event: !type:HiveBuilderSelectTypeActionEvent
+
+- type: entity
+  parent: BaseAction
+  id: ActionSpiderBuildSelected
+  name: "[color=orange]Build your fucked up shit[/color]"
+  description: Build the thing you selected
+  components:
+  - type: Action
+    # TODO: actual sprite and iconOn
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: spider_wall }
+    itemIconStyle: BigAction
+    priority: 2
+  - type: TargetAction
+    checkCanAccess: false
+    range: 0
+  - type: WorldTargetAction
+    event: !type:HiveBuilderBuildActionEvent
+  - type: EnergyActionRequirement
+    energyName: spider
+    fancyName: spider energy
+    onlyCheck: true
+    amount: 5
+
+- type: entity
+  parent: BaseAction
+  id: ActionSpiderEvolve
+  name: "[color=red]Evolve[/color]"
+  description: Requires 50 energy
+  components:
+  - type: Action
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: defensive_mode }
+    itemIconStyle: BigAction
+    priority: 3
+  - type: InstantAction
+    event: !type:SpiderEvolveActionEvent
+
+- type: entity
+  parent: BaseAction
+  id: ActionSpiderCloak
+  name: "[color=red]Stealth[/color]"
+  description: Activates your cloak.
+  components:
+  - type: Action
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: cloak }
+    itemIconStyle: BigAction
+    priority: 3
+  - type: InstantAction
+    event: !type:ToggleActionEvent
+
+- type: entity
+  parent: BaseAction
+  id: ActionSpiderHealBolt
+  name: Healing Spit
+  description: Spit on your fellow spiders to heal them. Does damage to normal people
+  components:
+  - type: Action
+    useDelay: 3
+    itemIconStyle: BigAction
+    raiseOnUser: false
+    icon:
+      sprite: Objects/Weapons/Guns/Projectiles/magic.rsi
+      state: declone
+    priority: 3
+    sound: !type:SoundPathSpecifier
+      path: /Audio/Weapons/Xeno/alien_spitacid.ogg
+  - type: TargetAction
+    range: 60
+    checkCanAccess: false
+  - type: WorldTargetAction
+    event: !type:ProjectileSpellEvent
+      prototype: ProjectileSpiderBolt
+  - type: EnergyActionRequirement
+    energyName: spider
+    fancyName: spider energy
+    amount: 10
+
+- type: entity
+  parent: BaseAction
+  id: ActionWebMend
+  name: "[color=red]Web mend[/color]"
+  description: Tend a spiders wounds using your webs
+  components:
+  - type: Action
+    icon: { sprite : Objects/Specific/Medical/medical.rsi, state: gauze }
+    itemIconStyle: BigAction
+    priority: 3
+  - type: TargetAction
+  - type: EntityTargetAction
+    canTargetSelf: true
+    whitelist:
+      components:
+      - MobState
+    event: !type:OnSpiderMendActionEvent
+  - type: EnergyActionRequirement
+    energyName: spider
+    fancyName: spider energy
+    amount: 20
+
+- type: entity
+  parent: BaseAction
+  id: ActionSpiderEyes
+  name: "[color=red]Spider Vision[/color]"
+  description: Spider vision?
+  components:
+  - type: Action
+    useDelay: 2
+    icon: { sprite : _UM/Actions/broodmother.rsi, state: adjust_vision }
+    itemIconStyle: BigAction
+    priority: 1
+    clientExclusive: true
+  - type: InstantAction
+    event: !type:ToggleSpiderEyesActionEvent
+

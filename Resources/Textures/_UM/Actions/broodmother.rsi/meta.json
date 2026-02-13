@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Taken from https://github.com/tgstation/tgstation",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "wrap_0"
+    },
+    {
+      "name": "wrap_1"
+    },
+    {
+      "name": "lay_eggs"
+    },
+    {
+      "name": "lay_abnormal_eggs"
+    },
+    {
+      "name": "lay_enriched_eggs"
+    },
+    {
+      "name": "adjust_vision"
+    },
+    {
+      "name": "web_sneak"
+    },
+    {
+      "name": "shed_web_carcass"
+    },
+    {
+      "name": "defensive_mode"
+    },
+    {
+      "name": "spider_wall"
+    },
+    {
+      "name": "spider_ropes"
+    },
+    {
+      "name": "spider_spikes"
+    },
+    {
+      "name": "spider_roof"
+    },
+    {
+      "name": "spider_mirror"
+    },
+    {
+      "name": "spider_web"
+    },
+    {
+      "name": "cloak"
+    }
+  ]
+}

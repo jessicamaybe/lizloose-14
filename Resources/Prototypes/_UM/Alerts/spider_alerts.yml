@@ -1,0 +1,64 @@
+- type: alert
+  id: SpiderEnergy
+  category: SpiderEnergy
+  icons:
+  - sprite: /Textures/_UM/Actions/broodmother.rsi
+    state: defensive_mode
+  alertViewEntity: AlertSpiderEnergySpriteView
+  name: alerts-spider-energy-name
+  description: alerts-spider-essence-desc
+
+- type: alertCategory
+  id: SpiderEnergy
+
+- type: entity
+  id: AlertSpiderEnergySpriteView
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: GenericCounterAlert
+    centerGlyph: false
+    hideLeadingZeroes: false
+  - type: Sprite
+    sprite: /Textures/Interface/Alerts/essence_counter.rsi
+    layers:
+    - map: [ "enum.AlertVisualLayers.Base" ]
+    - map: [ "1" ]
+      offset: 0.25, 0
+    - map: [ "10" ]
+      offset: 0.125, 0
+    - map: [ "100" ]
+
+- type: alert
+  id: SpiderHealth
+  category: Health
+  icons:
+  - sprite: /Textures/_UM/Alerts/spider_alive.rsi
+    state: health0
+  - sprite: /Textures/_UM/Alerts/spider_alive.rsi
+    state: health1
+  - sprite: /Textures/_UM/Alerts/spider_alive.rsi
+    state: health2
+  - sprite: /Textures/_UM/Alerts/spider_alive.rsi
+    state: health3
+  name: alerts-health-name
+  description: alerts-health-desc
+  minSeverity: 0
+  maxSeverity: 3
+
+- type: alert
+  id: SpiderCrit
+  category: Health
+  icons:
+  - sprite: /Textures/_UM/Alerts/spider_crit.rsi
+    state: critical
+  name: alerts-crit-name
+  description: alerts-crit-desc
+
+- type: alert
+  id: SpiderDead
+  category: Health
+  icons:
+  - sprite: /Textures/_UM/Alerts/spider_dead.rsi
+    state: dead
+  name: alerts-dead-name
+  description: alerts-dead-desc

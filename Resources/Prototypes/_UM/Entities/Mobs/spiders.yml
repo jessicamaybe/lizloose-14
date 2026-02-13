@@ -1,0 +1,450 @@
+- type: Tag
+  id: Spider
+
+- type: entity
+  parent: [ MobAtmosStandard, BaseMob, MobDamageable, BaseMobHemocyanin, MobBloodstream, MobPolymorphable, MobCombat ]
+  id: UMMobSpiderBase
+  suffix: UM, SpiderAntag
+  abstract: true
+  components:
+  - type: Respirator
+    damage:
+      types:
+        Asphyxiation: 2
+    damageRecovery:
+      types:
+        Asphyxiation: -1.0
+  - type: StatusEffects
+    allowed:
+    - Electrocution
+    - TemporaryBlindness
+    - Pacified
+    - Flashed
+    - RadiationProtection
+    - Adrenaline
+  - type: MobPrice
+    price: 150
+  - type: FloatingVisuals
+  - type: Physics
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeCircle
+          radius: 0.35
+        density: 130
+        mask:
+        - MobMask
+        layer:
+        - MobLayer
+  - type: Butcherable
+    spawned:
+    - id: FoodMeatSpider
+      amount: 2
+  - type: CombatMode
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      150: Critical
+      200: Dead
+    stateAlertDict:
+      Alive: SpiderHealth
+      Critical: SpiderCrit
+      Dead: SpiderDead
+  - type: Puller
+    needsHands: false
+  - type: NoSlip
+  - type: IgnoreSpiderWeb
+  - type: Bloodstream
+    bloodReferenceSolution:
+      reagents:
+      - ReagentId: CopperBlood
+        Quantity: 150
+  - type: NameIdentifier
+    group: GenericNumber
+  - type: Speech
+    speechVerb: Arachnid
+    speechSounds: Arachnid
+    allowedEmotes: ['Click', 'Chitter']
+  - type: Vocal
+    sounds:
+      Male: UnisexArachnid
+      Female: UnisexArachnid
+      Unsexed: UnisexArachnid
+  - type: Emoting
+  - type: TypingIndicator
+    proto: spider
+  - type: Tag
+    tags:
+    - DoorBumpOpener
+    - FootstepSound
+    - Spider
+  - type: Prying # Open door from xeno.yml.
+    pryPowered: true
+    force: true
+    speedModifier: 1.5
+    useSound:
+      path: /Audio/Items/crowbar.ogg
+  - type: PassiveDamage # Slight passive regen. Assuming one damage type, comes out to about 4 damage a minute from base.yml.
+    allowedStates:
+    - Alive
+    damageCap: 89
+    damage:
+      types:
+        Poison: -0.07
+      groups:
+        Brute: -0.07
+        Burn: -0.07
+  - type: IntrinsicRadioReceiver
+  - type: IntrinsicRadioTransmitter
+    channels:
+    - SpiderMind
+  - type: ActiveRadio
+    channels:
+    - SpiderMind
+  - type: EnergyContainer
+    types:
+    - BaseSpiderEnergy
+  - type: SpiderEyes
+  - type: PointLight
+    color: MediumPurple
+    netsync: false
+    radius: 50
+    energy: 3
+    castShadows: false
+    enabled: false
+  - type: Spider
+
+- type: entity
+  parent: MobMouse
+  id: MobMouseBroodmother
+  suffix: UM, SpiderAntag
+  components:
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      450: Critical
+      500: Dead
+  - type: DeployableAntag
+    protoId: MobBroodmother
+
+- type: entity
+  name: Broodmother
+  parent: UMMobSpiderBase
+  id: MobBroodmother
+  description: Widely recognized to be the literal worst thing in existence.
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base", "movement"]
+      state: midwife
+      sprite: Mobs/Animals/spider.rsi
+  - type: SpriteMovement
+    movementLayers:
+      movement:
+        state: midwife-moving
+    noMovementLayers:
+      movement:
+        state: midwife
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      450: Critical
+      500: Dead
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: midwife
+      Critical:
+        Base: midwife_dead
+      Dead:
+        Base: midwife_dead
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Piercing: 15
+  - type: CocoonMaker
+    damage:
+      types:
+        Blunt: 100
+  - type: SpiderEggLayer
+    layEggCost: 30
+  - type: EnergyContainer
+    types:
+    - BroodmotherEnergy
+
+- type: entity
+  name: tarantula
+  parent: UMMobSpiderBase
+  id: MobSpiderUndecided
+  description: Widely recognized to be the literal worst thing in existence.
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base", "movement"]
+      state: tarantula
+      sprite: Mobs/Animals/spider.rsi
+  - type: SpriteMovement
+    movementLayers:
+      movement:
+        state: tarantula-moving
+    noMovementLayers:
+      movement:
+        state: tarantula
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: tarantula
+      Critical:
+        Base: tarantula_dead
+      Dead:
+        Base: tarantula_dead
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Piercing: 10
+        Structural: 10
+  - type: EnergyContainer
+    types:
+    - UndecidedEnergy
+  - type: SpiderEvolution
+    evolutionTypes:
+    - MobSpiderWeaver
+    - MobSpiderViper
+    - MobSpiderHunter
+    - MobSpiderNurse
+
+- type: entity
+  name: weaver
+  parent: UMMobSpiderBase
+  id: MobSpiderWeaver
+  description: Build the nest, serve the broodmother
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base", "movement"]
+      state: guard
+      sprite: Mobs/Animals/spider.rsi
+  - type: SpriteMovement
+    movementLayers:
+      movement:
+        state: guard-moving
+    noMovementLayers:
+      movement:
+        state: guard
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: guard
+      Critical:
+        Base: guard_dead
+      Dead:
+        Base: guard_dead
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Piercing: 6
+        Structural: 35
+  - type: EnergyContainer
+    types:
+    - WeaverEnergy
+  - type: HiveBuilder
+    buildTypes:
+      - WebWall
+      - Web
+      - WebPassage
+
+- type: entity
+  name: viper
+  parent: UMMobSpiderBase
+  id: MobSpiderViper
+  description: Fast, and hard to see. A deadly creature.
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base", "movement"]
+      state: viper
+      sprite: Mobs/Animals/spider.rsi
+  - type: SpriteMovement
+    movementLayers:
+      movement:
+        state: viper-moving
+    noMovementLayers:
+      movement:
+        state: viper
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      135: Critical
+      150: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed : 3
+    baseSprintSpeed : 6
+  - type: SolutionContainerManager
+    solutions:
+      melee:
+        maxVol: 30
+  - type: SolutionRegeneration
+    solution: melee
+    generated:
+      reagents:
+      - ReagentId: ChloralHydrate
+        Quantity: 4
+  - type: MeleeChemicalInjector
+    transferAmount: 4
+    solution: melee
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: viper
+      Critical:
+        Base: viper_dead
+      Dead:
+        Base: viper_dead
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Piercing: 4
+  - type: ItemToggle
+    onUse: false
+    onActivate: false
+    predictable: false
+  - type: SpiderToggleAction
+    action: ActionSpiderCloak
+    energyDrain: 20
+  - type: ComponentToggler
+    components:
+    - type: Stealth
+      minVisibility: 0.001 #basically completely invisible
+      lastVisibility: 0.001
+  - type: EnergyContainer
+    types:
+    - ViperEnergy
+
+- type: entity
+  name: nurse
+  parent: UMMobSpiderBase
+  id: MobSpiderNurse
+  description: Heal the nest
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base", "movement"]
+      state: nurse
+      sprite: Mobs/Animals/spider.rsi
+  - type: SpriteMovement
+    movementLayers:
+      movement:
+        state: nurse-moving
+    noMovementLayers:
+      movement:
+        state: nurse
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: nurse
+      Critical:
+        Base: nurse_dead
+      Dead:
+        Base: nurse_dead
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Piercing: 10
+  - type: ShowHealthBars
+    damageContainers:
+    - Biological
+  - type: ActionGrant
+    actions:
+    - ActionSpiderHealBolt
+  - type: EnergyContainer
+    types:
+      - NurseEnergy
+  - type: SpiderMender
+    whitelist:
+      tags:
+      - Spider
+    healAmount:
+      groups:
+        Brute: -25
+        Burn: -25
+        Airloss: -25
+        Toxin: -25
+      types:
+        Bloodloss: -10
+
+- type: entity
+  name: hunter
+  parent: UMMobSpiderBase
+  id: MobSpiderHunter
+  description: Hunt people to bring back to the mother
+  components:
+  - type: Sprite
+    drawdepth: Mobs
+    layers:
+    - map: ["enum.DamageStateVisualLayers.Base", "movement"]
+      state: hunter
+      sprite: Mobs/Animals/spider.rsi
+  - type: SpriteMovement
+    movementLayers:
+      movement:
+        state: hunter-moving
+    noMovementLayers:
+      movement:
+        state: hunter
+  - type: MobThresholds
+    thresholds:
+      0: Alive
+      300: Critical
+      350: Dead
+  - type: MovementSpeedModifier
+    baseWalkSpeed : 1.5
+    baseSprintSpeed : 3
+  - type: DamageStateVisuals
+    states:
+      Alive:
+        Base: hunter
+      Critical:
+        Base: hunter_dead
+      Dead:
+        Base: hunter_dead
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Blunt: 15
+        Slash: 15
