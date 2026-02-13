@@ -145,6 +145,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/ace.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/ace.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -156,6 +159,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/aro.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/aro.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -167,6 +173,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/aroace.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/aroace.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -178,6 +187,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/bi.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/bi.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -189,6 +201,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/gay.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/gay.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -200,6 +215,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/inter.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/inter.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -211,6 +229,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/lesbian.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/lesbian.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -222,6 +243,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/pan.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/pan.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -233,6 +257,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/non.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/non.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -244,6 +271,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/rainbow.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/rainbow.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -255,6 +285,9 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/trans.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/trans.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: ClothingScarfBase
@@ -266,3 +299,6 @@
     sprite: Clothing/Neck/Scarfs/PrideScarfs/lesbian-long.rsi
   - type: Clothing
     sprite: Clothing/Neck/Scarfs/PrideScarfs/lesbian-long.rsi
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM

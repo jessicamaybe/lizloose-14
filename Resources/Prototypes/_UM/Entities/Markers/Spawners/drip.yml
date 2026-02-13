@@ -1,0 +1,93 @@
+- type: entityTable
+  id: DripGayScarvesTable
+  table: !type:GroupSelector
+    children:
+    - !type:GroupSelector
+      weight: 85
+      children:
+      - id: ClothingNeckScarfStripedAce
+      - id: ClothingNeckScarfStripedAro
+      - id: ClothingNeckScarfStripedAroace
+      - id: ClothingNeckScarfStripedBiSexual
+      - id: ClothingNeckScarfStripedGay
+      - id: ClothingNeckScarfStripedInter
+      - id: ClothingNeckScarfStripedLesbian
+      - id: ClothingNeckScarfStripedPan
+      - id: ClothingNeckScarfStripedNonBinary
+      - id: ClothingNeckScarfStripedRainbow
+      - id: ClothingNeckScarfStripedTrans
+    - !type:GroupSelector
+      weight: 15
+      children:
+      - id: ClothingNeckScarfStripedLesbianLong
+
+- type: entityTable
+  id: DripPinsTable
+  table: !type:GroupSelector
+    children:
+    - !type:GroupSelector
+      weight: 85
+      children:
+      - id: ClothingNeckLGBTPin
+      - id: ClothingNeckAllyPin
+      - id: ClothingNeckAromanticPin
+      - id: ClothingNeckAsexualPin
+      - id: ClothingNeckAroacePin
+      - id: ClothingNeckBisexualPin
+      - id: ClothingNeckGayPin
+      - id: ClothingNeckIntersexPin
+      - id: ClothingNeckLesbianPin
+      - id: ClothingNeckNonBinaryPin
+      - id: ClothingNeckPansexualPin
+      - id: ClothingNeckPluralPin
+      - id: ClothingNeckOmnisexualPin
+      - id: ClothingNeckGenderqueerPin
+      - id: ClothingNeckGenderfluidPin
+      - id: ClothingNeckTransPin
+      - id: ClothingNeckAutismPin
+      - id: ClothingNeckGoldAutismPin
+    - !type:GroupSelector
+      weight: 15
+      children:
+      - id: ClothingNeckGoldAutismPin
+      - id: ClothingNeckAutismPin
+
+
+- type: entityTable
+  id: DripPlushieTable
+  table: !type:GroupSelector
+    children:
+    - !type:GroupSelector
+      weight: 99
+      children:
+      - id: PlushieSharkBlue
+      - id: PlushieSharkPink
+      - id: PlushieSharkGrey
+      - id: PlushieGhost
+      - id: PlushieBee
+      - id: PlushieRGBee
+      - id: PlushieNuke
+      - id: PlushieRouny
+      - id: PlushieLizard
+      - id: PlushieRainbowLizard
+      - id: PlushieNar
+      - id: PlushieCarp
+      - id: PlushieMagicarp
+      - id: PlushieHolocarp
+      - id: PlushieRainbowCarp
+      - id: PlushieSlime
+      - id: PlushieSnake
+      - id: PlushieVox
+      - id: PlushieRatvar
+      - id: PlushieSpaceLizard
+      - id: PlushieSharkBlue
+      - id: PlushieSharkPink
+      - id: PlushieSharkGrey
+      - id: ToyAmongPequeno
+      - id: PlushieDiona
+      - id: PlushieArachind
+    - !type:GroupSelector
+      weight: 1
+      children:
+      - id: PlushieLizardInversed
+

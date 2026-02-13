@@ -17,15 +17,16 @@
   id: ClothingGenderPinBase
   abstract: true
   components:
-  - type: ChameleonClothing
-    slot: Neck
+  #- type: ChameleonClothing
+  #  slot: Neck
 #    default: ClothingNeckLGBTPin
-    requireTag: GenderPin
-    affectedByEmp: false
-  - type: UserInterface
-    interfaces:
-      enum.ChameleonUiKey.Key:
-        type: ChameleonBoundUserInterface
+  #  requireTag: GenderPin
+  #  affectedByEmp: false
+  #- type: UserInterface
+  #  interfaces:
+  #    enum.ChameleonUiKey.Key:
+  #      type: ChameleonBoundUserInterface
+  - type: TrackedDrip
   - type: Tag
     tags:
     - ClothMade #idk man its on the parent

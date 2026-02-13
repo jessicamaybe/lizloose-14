@@ -39,7 +39,6 @@
   parent: ClothingNeckBase
   id: ClothingScarfBase
   components:
-  - type: TrackedDrip
   - type: Tag
     tags:
     - Scarf

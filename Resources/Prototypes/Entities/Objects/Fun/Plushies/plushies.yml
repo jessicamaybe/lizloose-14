@@ -50,6 +50,9 @@
     tags:
     - Payload
     - ClothMade
+  #BEGIN UM
+  - type: TrackedDrip
+  #END UM
 
 - type: entity
   parent: BasePlushie
