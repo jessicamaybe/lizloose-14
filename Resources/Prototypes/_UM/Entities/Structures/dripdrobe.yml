@@ -10,38 +10,36 @@
     hideChat: true
   - type: VocalizerRequiresPower
   - type: DatasetVocalizer
-    dataset: SmartFridgeAds
+    dataset: PrideDrobeAds
   - type: Speech
   - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.PowerDeviceVisuals.Powered:
+        powered:
+          True: { visible: true }
+          False: { visible: false }
+        screen:
+          True: { visible: true }
+          False: { visible: false }
   - type: Sprite
-    sprite: Structures/Machines/smartfridge.rsi
-    snapCardinals: true
+    sprite: Structures/Machines/VendingMachines/pride.rsi
     layers:
-    - state: smartfridge
-      map: ["enum.StorageVisualLayers.Base"]
-    - state: smartfridge_door
-      map: ["enum.StorageVisualLayers.Door"]
+    - state: "off"
+    - state: "off"
+      map: ["powered"]
+      shader: unshaded
+    - state: "normal-unshaded"
+      map: ["screen"]
       shader: unshaded
     - state: panel
       map: ["enum.WiresVisualLayers.MaintenancePanel"]
   - type: PointLight
-    radius: 1.2
-    energy: 3.0
-    color: "#9dc5c9"
+    radius: 1.5
+    energy: 2.0 # reduced energy since the color is pure white
+    color: "#FFFFFF"
   - type: Machine
     board: SmartFridgeCircuitboard
-  - type: ContainerContainer
-    containers:
-      smart_fridge_inventory: !type:Container
-      machine_board: !type:Container
-      machine_parts: !type:Container
-  - type: Construction
-    graph: Machine
-    node: machine
-    containers:
-    - machine_parts
-    - machine_board
-    - smart_fridge_inventory
   - type: LitOnPowered
   - type: ApcPowerReceiver
     powerLoad: 200
