@@ -3,6 +3,7 @@
   id: DripDrobe
   name: Drip Drobe
   description: Fresh Drip
+  suffix: UM
   components:
   - type: DripDrobe
   - type: StationAiWhitelist
@@ -44,17 +45,13 @@
   - type: ApcPowerReceiver
     powerLoad: 200
   - type: ExtensionCableReceiver
-
   - type: ActivatableUI
     key: enum.DripDrobeUiKey.Key
-
   - type: ActivatableUIRequiresPower
   - type: UserInterface
     interfaces:
       enum.DripDrobeUiKey.Key:
         type: DripDrobeBoundUserInterface
-
-
   - type: WiresPanel
   - type: WiresVisuals
   - type: AccessReader
@@ -62,7 +59,6 @@
     delay: 1
   - type: AntiRottingContainer
   - type: ResistLocker
-
   - type: Physics
     bodyType: Static
   - type: Transform
