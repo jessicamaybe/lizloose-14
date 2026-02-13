@@ -24,7 +24,7 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
     private ISawmill _sawmill = default!;
 
     // DB auto-saving logic.
-    private TimeSpan _saveInterval;
+    private TimeSpan _saveInterval = TimeSpan.FromSeconds(5);
     private TimeSpan _lastSave;
 
     private ValueList<ICommonSession> _playersDirty;
@@ -95,11 +95,11 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
         {
             foreach (var tracker in data.DbTrackersDirty)
             {
-                if (!data.AvailableEntities.TryGetValue(tracker, out var rounds))
-                    continue;
-
-                await _db.UpdateDrip(player.UserId, tracker, rounds);
-                count++;
+                if (data.AvailableEntities.TryGetValue(tracker, out var rounds))
+                {
+                    count++;
+                    await _db.UpdateDrip(player.UserId, tracker, rounds);
+                }
             }
             data.DbTrackersDirty.Clear();
         }
@@ -116,10 +116,8 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
 
         foreach (var tracker in data.DbTrackersDirty)
         {
-            if (!data.AvailableEntities.TryGetValue(tracker, out var rounds))
-                continue;
-
-            await _db.UpdateDrip(session.UserId, tracker, rounds);
+            if (data.AvailableEntities.TryGetValue(tracker, out var rounds))
+                await _db.UpdateDrip(session.UserId, tracker, rounds);
         }
 
         data.DbTrackersDirty.Clear();
@@ -249,10 +247,24 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
         return true;
     }
 
-    private static void AddRoundsToTracker(DripData data, string entId, int redemptions)
+    public void AddRoundsToTracker(ICommonSession id, string entId, int redemptions)
     {
+        if (!_dripData.TryGetValue(id, out var data) || !data.Initialized)
+            return;
+
         ref var rounds = ref CollectionsMarshal.GetValueRefOrAddDefault(data.AvailableEntities, entId, out _);
         rounds += redemptions;
+
+        data.DbTrackersDirty.Add(entId);
+    }
+
+    public void SetDripRounds(ICommonSession id, string entId, int redemptions)
+    {
+        if (!_dripData.TryGetValue(id, out var data) || !data.Initialized)
+            return;
+
+        ref var rounds = ref CollectionsMarshal.GetValueRefOrAddDefault(data.AvailableEntities, entId, out _);
+        rounds = redemptions;
 
         data.DbTrackersDirty.Add(entId);
     }

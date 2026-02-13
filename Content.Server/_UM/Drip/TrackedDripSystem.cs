@@ -9,6 +9,7 @@ using Content.Shared.Trigger.Systems;
 using Robust.Server.Player;
 using Robust.Shared.Containers;
 using Robust.Shared.Network;
+using Robust.Shared.Player;
 
 namespace Content.Server._UM.Drip;
 
@@ -20,6 +21,7 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
     [Dependency] private readonly IServerDbManager _db = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
+    [Dependency] private readonly DripTrackingManager _dripTracking = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -63,18 +65,12 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
         if (Transform(shuttle.Value).MapID != _xform.GetMapCoordinates(player).MapId)
             return;
         */
-        Log.Debug("Succecssful drip check");
-        UpdateDrip(session.UserId, prototype.ID, ent.Comp.Rounds);
+
+        UpdateDrip(session, prototype.ID, ent.Comp.Rounds);
     }
 
-    public void UpdateDrip(NetUserId playerId, string dripId, int rounds)
+    public void UpdateDrip(ICommonSession playerId, string dripId, int rounds)
     {
-        _db.UpdateDrip(playerId, dripId, rounds);
-    }
-
-    public async void GetDrip(NetUserId playerId)
-    {
-        var drip = _db.GetDrip(playerId);
-
+        _dripTracking.SetDripRounds(playerId, dripId, rounds);
     }
 }
