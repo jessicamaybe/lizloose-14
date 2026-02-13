@@ -3,6 +3,10 @@
     <BoxContainer Margin="8,0,8,8" Orientation="Vertical">
         <BoxContainer Orientation="Horizontal">
             <Label Name="ItemName" HorizontalExpand="True" HorizontalAlignment="Left"/>
+            <BoxContainer Orientation="Horizontal">
+                <Label HorizontalExpand="True" HorizontalAlignment="Center" Text="Stock: "/>
+                <Label Name="ItemStock" HorizontalExpand="True" HorizontalAlignment="Center" Access="Public" />
+            </BoxContainer>
         </BoxContainer>
         <PanelContainer StyleClasses="HighDivider" Margin="0,1,0,2"/>
         <BoxContainer HorizontalExpand="True" Orientation="Horizontal">
@@ -10,11 +14,8 @@
                 <EntityPrototypeView
                     Name="ItemView"
                     Margin="0,0,4,0"
-                    MinSize="48 48"/>
-                <BoxContainer Orientation="Horizontal">
-                    <Label HorizontalExpand="True" HorizontalAlignment="Center" Text="Stock: "/>
-                    <Label Name="ItemStock" HorizontalExpand="True" HorizontalAlignment="Center" Access="Public" />
-                </BoxContainer>
+                    MinSize="80 80"
+                    Scale="2 2"/>
                 <Button
                     Name="ItemRedeemButton"
                     Text="Redeem"
