@@ -1,0 +1,162 @@
+- type: entity
+  name: energy gun
+  parent: [BaseWeaponBatterySmall]
+  id: UMWeaponEnergyGun
+  description: A weapon with dual fire modes, for non-lethal stun bolts or lethal laser fire.
+  suffix: UM
+  components:
+  - type: Sprite
+    sprite: _UM/Objects/Weapons/Guns/Battery/energygun.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+    - state: mag-unshaded-0
+      map: ["color", "enum.GunVisualLayers.MagUnshaded"]
+      shader: unshaded
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.BatteryWeaponFireModeVisuals.State:
+        color:
+          BulletDisabler: { color: "#5fcde4" }
+          BulletLaser: { color: "#ff0006" }
+  - type: Clothing
+    sprite: _UM/Objects/Weapons/Guns/Battery/energygun.rsi
+    quickEquip: false
+    slots:
+    - back
+  - type: Gun
+    minAngle: 1
+    maxAngle: 4
+    fireRate: 2
+    projectileSpeed: 35 # any higher and this causes issues in lag
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/taser2.ogg
+  - type: BatteryAmmoProvider
+    proto: BulletDisabler
+    fireCost: 50
+  - type: BatteryWeaponFireModes
+    fireModes:
+    - proto: BulletDisabler
+      fireCost: 50
+      pacifismAllowedMode: true
+      color: "#5fcde4"
+    - proto: BulletLaser
+      fireCost: 100
+      color: "#ff0006"
+  - type: FireModeVisuals
+    inhandVisuals:
+      left:
+      - state: inhand-left-color
+      right:
+      - state: inhand-right-color
+    clothingVisuals:
+      back:
+      - state: equipped-BACKPACK-color
+  - type: MagazineVisuals
+    magState: mag
+    steps: 5
+    zeroVisible: true
+  - type: Item
+    storedOffset: -2,0
+    size: Huge
+    shape:
+    - 0,0,2,1
+  - type: GuideHelp
+    guides:
+    - Security
+    - Antagonists
+
+- type: entity
+  name: ion rifle
+  parent: [BaseWeaponBattery, BaseMajorContraband]
+  id: UMWeaponIonRifle
+  description: The ion rifle description
+  suffix: UM
+  components:
+  - type: Sprite
+    sprite: _UM/Objects/Weapons/Guns/Battery/ionrifle.rsi
+    layers:
+    - state: ionrifle
+      map: ["enum.GunVisualLayers.Base"]
+    - state: mag-unshaded-4
+      map: ["enum.GunVisualLayers.MagUnshaded"]
+      shader: unshaded
+  - type: Item
+    storedOffset: 0,-5
+  - type: Clothing
+    sprite: _UM/Objects/Weapons/Guns/Battery/ionrifle.rsi
+    clothingVisuals:
+      back:
+      - state: ionrifle-back
+    quickEquip: false
+    slots:
+    - Back
+  - type: BatteryAmmoProvider
+    proto: UMIonBolt
+    fireCost: 125
+  - type: MagazineVisuals
+    magState: mag
+    steps: 5
+    zeroVisible: true
+  - type: Appearance
+  - type: Tag
+    tags:
+    - LaserWeapon
+
+- type: entity
+  parent: [BaseWeaponBattery]
+  id: UMBaseLaserRifle
+  abstract: true
+  suffix: UM
+  components:
+  - type: Item
+    size: Large
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Battery/laser_gun.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+    - state: mag-unshaded-4
+      map: ["enum.GunVisualLayers.MagUnshaded"]
+      shader: unshaded
+  - type: MagazineVisuals
+    magState: mag
+    steps: 5
+    zeroVisible: false
+  - type: Appearance
+  - type: Clothing
+    sprite: Objects/Weapons/Guns/Battery/laser_gun.rsi
+  - type: Gun
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+  - type: BatteryAmmoProvider
+    proto: RedLaser
+    fireCost: 62.5
+  - type: StaticPrice
+    price: 420
+  - type: Tag
+    tags:
+    - LaserWeapon
+
+- type: entity
+  name: laser carbine
+  parent: [UMBaseLaserRifle, BaseSecurityContraband]
+  id: UMWeaponLaserCarbine
+  description: Favoured by Nanotrasen Security for being cheap and easy to use.
+  suffix: UM
+
+- type: entity
+  name: practice laser carbine
+  parent: [UMBaseLaserRifle]
+  id: UMWeaponLaserCarbinePractice
+  description: This modified laser carbine fires nearly harmless beams in the 40-watt range, for target practice.
+  suffix: UM
+  components:
+  - type: StaticPrice
+    price: 300
+  - type: BatteryAmmoProvider
+    proto: RedLaserPractice
+    fireCost: 62.5
+  - type: PacifismAllowedGun
