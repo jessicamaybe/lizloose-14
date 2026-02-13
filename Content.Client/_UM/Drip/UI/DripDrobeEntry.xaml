@@ -11,7 +11,10 @@
                     Name="ItemView"
                     Margin="0,0,4,0"
                     MinSize="48 48"/>
-                <Label Name="ItemStock" HorizontalExpand="True" HorizontalAlignment="Center" Text="Stock: 3"/>
+                <BoxContainer Orientation="Horizontal">
+                    <Label HorizontalExpand="True" HorizontalAlignment="Center" Text="Stock: "/>
+                    <Label Name="ItemStock" HorizontalExpand="True" HorizontalAlignment="Center" Access="Public" />
+                </BoxContainer>
                 <Button
                     Name="ItemRedeemButton"
                     Text="Redeem"

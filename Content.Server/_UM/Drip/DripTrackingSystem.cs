@@ -17,12 +17,12 @@ public sealed class DripTrackingSystem : EntitySystem
 
     private void OnPlayerAttached(PlayerAttachedEvent ev)
     {
-        _tracking.QueueRefreshTrackers(ev.Player);
+        _tracking.QueueSendUpdate(ev.Player);
     }
 
     private void OnPlayerDetached(PlayerDetachedEvent ev)
     {
-        _tracking.QueueRefreshTrackers(ev.Player);
+        _tracking.QueueSendUpdate(ev.Player);
     }
 
     public Dictionary<EntProtoId, int> GetAvailableItems(ICommonSession player)

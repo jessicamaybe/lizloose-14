@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared._UM.Drip.Components;
@@ -15,4 +16,14 @@ public sealed partial class DripDrobeComponent : Component
 public enum DripDrobeUiKey : byte
 {
     Key,
+}
+
+
+/// <summary>
+/// Send by the client when trying to dispense an item inside the fridge.
+/// </summary>
+[Serializable, NetSerializable]
+public sealed class DripDrobeDispenseItemMessage(EntProtoId protoId) : BoundUserInterfaceMessage
+{
+    public EntProtoId Item = protoId;
 }

@@ -16,7 +16,17 @@ public sealed partial class DripDrobeEntry : Control
 
         ItemName.Text = name;
 
+        ItemStock.Text = amount.ToString();
+
         ItemDescription.SetMessage(description);
+    }
+
+    public void SetStock(int amount)
+    {
+        ItemStock.Text = amount.ToString();
+
+        if (amount <= 0)
+            ItemRedeemButton.Disabled = true;
     }
 }
 

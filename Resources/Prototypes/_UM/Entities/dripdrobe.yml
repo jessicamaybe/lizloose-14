@@ -4,6 +4,7 @@
   name: Drip Drobe
   description: Fresh Drip
   components:
+  - type: DripDrobe
   - type: StationAiWhitelist
   - type: Vocalizer
     hideChat: true

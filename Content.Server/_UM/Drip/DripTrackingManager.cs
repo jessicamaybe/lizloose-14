@@ -140,23 +140,13 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
 
         data.Initialized = true;
 
-       QueueRefreshTrackers(session);
-       QueueSendTimers(session);
-    }
-
-    /// <summary>
-    /// Queue for play time trackers to be refreshed on a player, in case the set of active trackers may have changed.
-    /// </summary>
-    public void QueueRefreshTrackers(ICommonSession player)
-    {
-        if (DirtyPlayer(player) is { } data)
-            data.NeedRefreshTackers = true;
+       QueueSendUpdate(session);
     }
 
     /// <summary>
     /// Queue for play time information to be sent to a client, for showing in UIs etc.
     /// </summary>
-    public void QueueSendTimers(ICommonSession player)
+    public void QueueSendUpdate(ICommonSession player)
     {
         if (DirtyPlayer(player) is { } data)
             data.NeedSendTimers = true;
@@ -175,7 +165,6 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
 
         return data;
     }
-
 
     public void ClientDisconnected(ICommonSession session)
     {
@@ -196,13 +185,13 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
 
             DebugTools.Assert(data.IsDirty);
 
-
             if (data.NeedSendTimers)
             {
                 SendDripData(player);
                 data.NeedSendTimers = false;
             }
 
+            SendDripData(player);
             data.IsDirty = false;
         }
 
@@ -267,6 +256,7 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
         rounds = redemptions;
 
         data.DbTrackersDirty.Add(entId);
+        QueueSendUpdate(id);
     }
 
     /// <summary>
@@ -285,7 +275,6 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
     {
         // Queued update flags
         public bool IsDirty;
-        public bool NeedRefreshTackers;
         public bool NeedSendTimers;
 
         public readonly HashSet<string> ActiveTrackers = new();

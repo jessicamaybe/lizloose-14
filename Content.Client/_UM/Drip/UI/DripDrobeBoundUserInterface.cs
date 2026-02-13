@@ -1,3 +1,4 @@
+using Content.Shared._UM.Drip.Components;
 using JetBrains.Annotations;
 using Robust.Client.Player;
 using Robust.Client.UserInterface;
@@ -38,6 +39,11 @@ namespace Content.Client._UM.Drip.UI
             var drip = _dripTrackingManager.GetAvailableEntities(session);
 
             menu.Populate(drip);
+
+            _window.OnItemSelected += (_, item) =>
+            {
+                SendMessage(new DripDrobeDispenseItemMessage(item));
+            };
         }
         protected override void UpdateState(BoundUserInterfaceState state)
         {
