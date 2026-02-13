@@ -121,6 +121,10 @@
     sprite: Clothing/Shoes/Misc/snakeskin.rsi
   - type: Clothing
     sprite: Clothing/Shoes/Misc/snakeskin.rsi
+  #UM START
+  - type: TrackedDrip
+    rounds: 2
+  #UM END
 
 - type: entity
   parent: [ClothingShoesBase, PowerCellSlotSmallItem, BaseToggleClothing]

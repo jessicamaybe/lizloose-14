@@ -19,6 +19,10 @@
     sprite: Clothing/Head/Misc/cake.rsi
   - type: Clothing
     sprite: Clothing/Head/Misc/cake.rsi
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
 
 - type: entity
   parent: ClothingHeadBase

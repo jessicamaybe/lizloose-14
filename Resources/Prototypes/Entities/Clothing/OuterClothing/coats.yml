@@ -111,6 +111,10 @@
     sprite: Clothing/OuterClothing/Coats/jensencoat.rsi
   - type: ToggleableClothing
     clothingPrototype: ClothingHeadHatHoodChaplainHood
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
 
 - type: entity
   parent: ClothingOuterCoatJensen

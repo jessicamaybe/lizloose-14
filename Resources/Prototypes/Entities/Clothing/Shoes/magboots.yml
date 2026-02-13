@@ -86,6 +86,10 @@
     sprintModifier: 1.1
   - type: StaticPrice
     price: 3000
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
 
 - type: entity
   parent: [ClothingShoesBootsMagBase, BaseJetpack, BaseSyndicateContraband]

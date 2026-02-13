@@ -81,6 +81,10 @@
       params:
         volume: -6
         variation: 0.09
+  #UM START
+  - type: TrackedDrip
+    rounds: 2
+  #UM END
 
 - type: entity
   parent: [ ClothingShoesMilitaryBase ]
@@ -221,6 +225,10 @@
       params:
         variation: 0.09
         volume: -6
+  #UM START
+  - type: TrackedDrip
+    rounds: 2
+  #UM END
 
 - type: entity
   parent: ClothingShoesBootsCowboyBrown

@@ -99,6 +99,10 @@
   - type: Tag
     tags:
     - WhitelistChameleon
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
 
 - type: entity
   parent: ClothingEyesBase
