@@ -1,4 +1,13 @@
 - type: entityTable
+  id: RandomValuableDripTable
+  table: !type:GroupSelector
+    children:
+    - !type:NestedSelector
+      tableId: DripGayScarvesTable
+    - !type:NestedSelector
+      tableId: DripPinsTable
+
+- type: entityTable
   id: DripGayScarvesTable
   table: !type:GroupSelector
     children:
@@ -90,4 +99,3 @@
       weight: 1
       children:
       - id: PlushieLizardInversed
-

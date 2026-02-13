@@ -189,6 +189,11 @@
     children:
     - id: StrangePill
       prob: 0.20
+    #BEGIN UM
+    - !type:NestedSelector
+      prob: 0.20
+      tableId: RandomValuableDripTable
+    #END UM
     # Tools
     - !type:NestedSelector
       tableId: MaintToolsTable
@@ -199,7 +204,7 @@
       tableId: MaintFluffTable
       prob: 0.33
       rolls: !type:RangeNumberSelector
-        range: 0, 2
+        range: 0, 4
     # Plushies
     - !type:NestedSelector
       tableId: AllPlushiesTable
