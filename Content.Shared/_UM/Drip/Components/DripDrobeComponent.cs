@@ -5,12 +5,11 @@ using Robust.Shared.Serialization;
 namespace Content.Shared._UM.Drip.Components;
 
 /// <summary>
-/// This is used for...
+/// This is used for handling "drip drobe" machines.
 /// </summary>
 [RegisterComponent]
 public sealed partial class DripDrobeComponent : Component
 {
-
     /// <summary>
     /// Sound that plays when ejecting an item
     /// </summary>

@@ -30,7 +30,6 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
     {
         var dripQuery = EntityQueryEnumerator<TrackedDripComponent>();
 
-        // trigger everything with the component
         while (dripQuery.MoveNext(out var uid, out var comp))
         {
             TrackTheDrip((uid, comp));
@@ -57,13 +56,14 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
         if (!TryComp<MobStateComponent>(player, out var mobState) || mobState.CurrentState == MobState.Dead)
             return;
 
-        /* shuttle check
-        var shuttle = _eShuttle.GetShuttle();
-        if (shuttle == null)
-            return;
-        if (Transform(shuttle.Value).MapID != _xform.GetMapCoordinates(player).MapId)
-            return;
-        */
+        if (ent.Comp.RequireShuttle)
+        {
+            var shuttle = _eShuttle.GetShuttle();
+            if (shuttle == null)
+                return;
+            if (Transform(shuttle.Value).MapID != _xform.GetMapCoordinates(player).MapId)
+                return;
+        }
 
         UpdateDrip(session, prototype.ID, ent.Comp.Rounds);
     }
