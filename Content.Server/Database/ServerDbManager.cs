@@ -38,7 +38,7 @@ namespace Content.Server.Database
         #region UM
 
         Task<List<DripTrack>> GetDrip(Guid player, CancellationToken cancel = default);
-        Task UpdateDrip(Guid player, string drip, int rounds, CancellationToken cancel = default);
+        Task UpdateDrip(IReadOnlyCollection<DripTrackingUpdate> updates);
 
 
         #endregion
@@ -574,10 +574,10 @@ namespace Content.Server.Database
             return RunDbCommand(() => _db.GetDrip(player, cancel));
         }
 
-        public Task UpdateDrip(Guid player, string drip, int rounds, CancellationToken cancel = default)
+        public Task UpdateDrip(IReadOnlyCollection<DripTrackingUpdate> updates)
         {
             DbReadOpsMetric.Inc();
-            return RunDbCommand(() => _db.UpdateDrip(player, drip, rounds, cancel));
+            return RunDbCommand(() => _db.UpdateDrip(updates));
         }
 
 
@@ -1216,6 +1216,10 @@ namespace Content.Server.Database
     }
 
     public sealed record PlayTimeUpdate(NetUserId User, string Tracker, TimeSpan Time);
+
+    //UM START
+    public sealed record DripTrackingUpdate(NetUserId User, string ProtoId, int Rounds);
+    //UM END
 
     internal sealed class SyncAsyncEnumerable<T> : IAsyncEnumerable<T>
     {

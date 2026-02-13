@@ -48,8 +48,6 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
 
     public void Update()
     {
-        // NOTE: This is run **out** of simulation. This is intentional.
-
         UpdateDirtyPlayers();
 
         if (_timing.RealTime < _lastSave + _saveInterval)
@@ -59,7 +57,7 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
     }
 
     /// <summary>
-    /// Save all modified time trackers for all players to the database.
+    /// Save all modified trackers for all players to the database.
     /// </summary>
     public async void Save()
     {
@@ -89,39 +87,38 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
 
     private async Task DoSaveAsync()
     {
-        int count = 0;
+        var log = new List<DripTrackingUpdate>();
 
         foreach (var (player, data) in _dripData)
         {
             foreach (var tracker in data.DbTrackersDirty)
             {
-                if (data.AvailableEntities.TryGetValue(tracker, out var rounds))
-                {
-                    count++;
-                    await _db.UpdateDrip(player.UserId, tracker, rounds);
-                }
+                log.Add(new DripTrackingUpdate(player.UserId, tracker, data.AvailableEntities[tracker]));
             }
+
             data.DbTrackersDirty.Clear();
         }
 
-        if (count == 0)
+        if (log.Count == 0)
             return;
 
-        _sawmill.Debug($"Saved {count} trackers");
+        _sawmill.Debug($"Saved {log.Count} trackers");
     }
 
     private async Task DoSaveSessionAsync(ICommonSession session)
     {
+        var log = new List<DripTrackingUpdate>();
+
         var data = _dripData[session];
 
         foreach (var tracker in data.DbTrackersDirty)
         {
-            if (data.AvailableEntities.TryGetValue(tracker, out var rounds))
-                await _db.UpdateDrip(session.UserId, tracker, rounds);
+            log.Add(new DripTrackingUpdate(session.UserId, tracker, data.AvailableEntities[tracker]));
         }
 
         data.DbTrackersDirty.Clear();
 
+        await _db.UpdateDrip(log);
         _sawmill.Debug($"Saved drip trackers for {session.Name}");
     }
 
@@ -144,7 +141,7 @@ public sealed class DripTrackingManager : ISharedDripTrackingManager, IPostInjec
     }
 
     /// <summary>
-    /// Queue for play time information to be sent to a client, for showing in UIs etc.
+    /// Queue for tracked information to be sent to a client, for showing in UIs etc.
     /// </summary>
     public void QueueSendUpdate(ICommonSession player)
     {

@@ -54,29 +54,36 @@ namespace Content.Server.Database
                 .ToListAsync(cancel);
         }
 
-        public async Task UpdateDrip(Guid player, string drip, int rounds, CancellationToken cancel = default)
+        public async Task UpdateDrip(IReadOnlyCollection<DripTrackingUpdate> updates)
         {
             await using var db = await GetDb();
 
-            var entry = new DripTrack
-            {
-                PlayerId = player,
-                DripName = drip,
-                RoundsLeft = rounds
-            };
+            var players = updates.Select(u => u.User.UserId).Distinct().ToArray();
 
-            var trackedDrips = db.DbContext.DripTrack.Where(p => p.PlayerId == player);
+            var dbRounds = (await db.DbContext.DripTrack
+                    .Where(p => players.Contains(p.PlayerId))
+                    .ToArrayAsync())
+                .GroupBy(p => p.PlayerId)
+                .ToDictionary(g => g.Key, g => g.ToDictionary(p => p.DripName, p => p));
 
-            foreach (var drips in trackedDrips)
+            foreach (var (user, protoId, rounds) in updates)
             {
-                if (drips.DripName != drip)
+                if (dbRounds.TryGetValue(user.UserId, out var userTracks)
+                    && userTracks.TryGetValue(protoId, out var dripTrack))
+                {
+                    dripTrack.RoundsLeft = rounds;
                     continue;
+                }
+                var entry = new DripTrack
+                {
+                    PlayerId = user,
+                    DripName = protoId,
+                    RoundsLeft = rounds
+                };
 
-                drips.RoundsLeft = rounds;
-                await db.DbContext.SaveChangesAsync();
-                return;
+                db.DbContext.DripTrack.Add(entry);
             }
-            db.DbContext.DripTrack.Add(entry);
+
             await db.DbContext.SaveChangesAsync();
         }
         #endregion
