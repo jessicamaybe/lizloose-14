@@ -1,9 +1,12 @@
+using Robust.Shared.GameStates;
+
 namespace Content.Shared._UM.Drip.Components;
 
 /// <summary>
 /// This is used for...
 /// </summary>
-[RegisterComponent]
+[RegisterComponent, NetworkedComponent]
+[AutoGenerateComponentState]
 public sealed partial class TrackedDripComponent : Component
 {
     /// <summary>
@@ -11,4 +14,11 @@ public sealed partial class TrackedDripComponent : Component
     /// </summary>
     [DataField]
     public int Rounds = 3;
+
+    /// <summary>
+    /// Is this drip spent? (Won't count towards tracking)
+    /// </summary>
+    [DataField]
+    [AutoNetworkedField]
+    public bool Spent = false;
 }

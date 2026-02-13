@@ -1,5 +1,7 @@
 using Content.Shared._UM.Drip.Components;
+using Content.Shared.Hands.EntitySystems;
 using Robust.Server.GameObjects;
+using Robust.Shared.Audio.Systems;
 using Robust.Shared.Player;
 
 namespace Content.Server._UM.Drip;
@@ -11,8 +13,8 @@ public sealed class DripDrobeSystem : EntitySystem
 {
     [Dependency] private readonly DripTrackingManager _dripTracking = default!;
     [Dependency] private readonly ISharedPlayerManager _playerManager = default!;
-    [Dependency] private readonly UserInterfaceSystem _userInterfaceSystem = default!;
-
+    [Dependency] private readonly SharedAudioSystem _audio = default!;
+    [Dependency] private readonly SharedHandsSystem _hands = default!;
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -30,8 +32,16 @@ public sealed class DripDrobeSystem : EntitySystem
         if (!availableEntities.TryGetValue(args.Item.Id, out var amount) || amount <= 0)
             return;
 
-        SpawnNextToOrDrop(args.Item.Id, ent.Owner);
+        var item = SpawnNextToOrDrop(args.Item.Id, ent.Owner);
+        if (TryComp<TrackedDripComponent>(item, out var drip))
+        {
+            drip.Spent = true;
+            Dirty(item, drip);
+        }
+
+        _hands.TryForcePickupAnyHand(args.Actor, item);
 
         _dripTracking.SetDripRounds(session, args.Item.Id, amount - 1);
+        _audio.PlayPvs(ent.Comp.SoundVend, ent.Owner);
     }
 }

@@ -20,7 +20,15 @@ public abstract class SharedTrackedDripSystem : EntitySystem
         if (!args.IsInDetailsRange)
             return;
 
+        if (ent.Comp.Spent)
+        {
+            var used = Loc.GetString("drip-examine-text-spent");
+            args.PushMarkup(used, 9);
+        }
+
         var str = Loc.GetString("drip-examine-text");
-        args.PushMarkup(str);
+        args.PushMarkup(str, 10);
+
+
     }
 }

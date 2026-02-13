@@ -43,6 +43,9 @@ public sealed class TrackedDripSystem : SharedTrackedDripSystem
 
     private void TrackTheDrip(Entity<TrackedDripComponent> ent)
     {
+        if (ent.Comp.Spent)
+            return;
+
         var prototype = MetaData(ent.Owner).EntityPrototype;
         if (prototype == null)
             return;
