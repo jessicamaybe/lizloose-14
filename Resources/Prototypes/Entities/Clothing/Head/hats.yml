@@ -1108,6 +1108,10 @@
     sprite: Clothing/Head/Hats/tacticalmaidheadband.rsi
   - type: Clothing
     sprite: Clothing/Head/Hats/tacticalmaidheadband.rsi
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
 
 - type: entity
   parent: ClothingHeadBase

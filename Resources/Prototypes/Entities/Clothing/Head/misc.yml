@@ -54,6 +54,10 @@
   - type: Construction
     graph: flowerwreath
     node: flowerwreath
+  #UM START
+  - type: TrackedDrip
+    rounds: 3
+  #UM END
 
 - type: entity
   parent: ClothingHeadLightBase
@@ -371,6 +375,9 @@
     sprite: Clothing/Head/Misc/hairflower.rsi
   - type: Clothing
     sprite: Clothing/Head/Misc/hairflower.rsi
+  #UM START
+  - type: TrackedDrip
+  #UM END
 
 - type: entity
   parent: ClothingHeadBase
@@ -387,3 +394,8 @@
     - Hair
     - HeadTop
     - HeadSide
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
+

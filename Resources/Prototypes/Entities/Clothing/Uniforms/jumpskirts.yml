@@ -477,6 +477,10 @@
     sprite: Clothing/Uniforms/Jumpskirt/performer.rsi
   - type: Clothing
     sprite: Clothing/Uniforms/Jumpskirt/performer.rsi
+  #UM START
+  - type: TrackedDrip
+    rounds: 1 #you only get 1 miku round
+  #UM END
 
 - type: entity
   parent: ClothingUniformSkirtBase
@@ -648,6 +652,10 @@
       sprite: Clothing/Uniforms/Jumpskirt/tacticalmaid.rsi
     - type: Clothing
       sprite: Clothing/Uniforms/Jumpskirt/tacticalmaid.rsi
+  #UM START
+    - type: TrackedDrip
+      rounds: 1
+  #UM END
 
 - type: entity
   parent: ClothingUniformSkirtBase

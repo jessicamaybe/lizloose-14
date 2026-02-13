@@ -3,42 +3,42 @@
   id: Trinkets
   name: loadout-group-trinkets
   minLimit: 0
-  maxLimit: 3
+  maxLimit: 1
   loadouts:
-  - FlowerWreath
-  - Hairflower
-  - Headphones
-  - PlushieLizard
-  - PlushieSpaceLizard
-  - ThreeCandles
-  - Lighter
-  - CigPackGreen
-  - CigPackRed
-  - CigPackBlue
-  - CigPackBlack
-  - CigarCase
-  - CigarGold
-  - BoxFolderBaseThreePapers
-  - BoxFolderPlasticClipboardThreePapers
-  - BoxFolderClipboardThreePapers
-  - ClothingNeckLGBTPin
-  - ClothingNeckAllyPin
-  - ClothingNeckAromanticPin
-  - ClothingNeckAsexualPin
-  - ClothingNeckAroacePin
-  - ClothingNeckBisexualPin
-  - ClothingNeckGayPin
-  - ClothingNeckIntersexPin
-  - ClothingNeckLesbianPin
-  - ClothingNeckNonBinaryPin
-  - ClothingNeckPansexualPin
-  - ClothingNeckPluralPin
-  - ClothingNeckOmnisexualPin
-  - ClothingNeckGenderqueerPin
-  - ClothingNeckGenderfluidPin
-  - ClothingNeckTransPin
-  - ClothingNeckAutismPin
-  - ClothingNeckGoldAutismPin
+#  - FlowerWreath
+#  - Hairflower
+#  - Headphones
+#  - PlushieLizard
+#  - PlushieSpaceLizard
+#  - ThreeCandles
+#  - Lighter
+#  - CigPackGreen
+#  - CigPackRed
+#  - CigPackBlue
+#  - CigPackBlack
+#  - CigarCase
+#  - CigarGold
+#  - BoxFolderBaseThreePapers
+#  - BoxFolderPlasticClipboardThreePapers
+#  - BoxFolderClipboardThreePapers
+#  - ClothingNeckLGBTPin
+#  - ClothingNeckAllyPin
+#  - ClothingNeckAromanticPin
+#  - ClothingNeckAsexualPin
+#  - ClothingNeckAroacePin
+#  - ClothingNeckBisexualPin
+#  - ClothingNeckGayPin
+#  - ClothingNeckIntersexPin
+#  - ClothingNeckLesbianPin
+#  - ClothingNeckNonBinaryPin
+#  - ClothingNeckPansexualPin
+#  - ClothingNeckPluralPin
+#  - ClothingNeckOmnisexualPin
+#  - ClothingNeckGenderqueerPin
+#  - ClothingNeckGenderfluidPin
+#  - ClothingNeckTransPin
+#  - ClothingNeckAutismPin
+#  - ClothingNeckGoldAutismPin
   - OffsetCane
   - OffsetCaneWood
   - OffsetCaneClown

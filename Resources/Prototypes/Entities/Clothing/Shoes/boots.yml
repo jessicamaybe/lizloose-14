@@ -45,6 +45,10 @@
     sprite: Clothing/Shoes/Boots/performer.rsi
   - type: Clothing
     sprite: Clothing/Shoes/Boots/performer.rsi
+  #UM START
+  - type: TrackedDrip
+    rounds: 1
+  #UM END
 
 - type: entity
   parent: [ClothingShoesMilitaryBase, BaseSecurityContraband]
