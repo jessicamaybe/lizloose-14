@@ -35,7 +35,7 @@ public sealed class SpecialPuddleSystem : EntitySystem
             return;
 
         if (args.Solution.Volume <= 0)
-            QueueDel(ent);
+            PredictedQueueDel(ent);
 
         if (args.Solution.Contents.Count == 1)
         {
@@ -44,7 +44,7 @@ public sealed class SpecialPuddleSystem : EntitySystem
                 if (content.Reagent.Prototype == "Water")
                 {
                     _puddle.TrySpillAt(ent.Owner, args.Solution, out _, false);
-                    QueueDel(ent);
+                    PredictedQueueDel(ent);
                     break;
                 }
             }
