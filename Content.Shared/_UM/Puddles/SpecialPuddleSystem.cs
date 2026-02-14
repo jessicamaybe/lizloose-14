@@ -76,8 +76,6 @@ public sealed class SpecialPuddleSystem : EntitySystem
 
     public bool TrySpillAt(EntityUid uid, Solution solution, EntProtoId protoId, out EntityUid puddleUid)
     {
-        Log.Debug("spill test0");
-
         if (solution.Volume <= 0)
         {
             puddleUid = EntityUid.Invalid;
@@ -95,8 +93,6 @@ public sealed class SpecialPuddleSystem : EntitySystem
         }
 
         var tileRef = _map.GetTileRef(gridUid.Value, mapGrid, xform.Coordinates);
-
-        Log.Debug("spill test1");
 
         if (tileRef.Tile.IsEmpty || _turf.IsSpace(tileRef))
         {
