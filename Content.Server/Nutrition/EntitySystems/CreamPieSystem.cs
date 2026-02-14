@@ -1,6 +1,7 @@
 using Content.Server.Fluids.EntitySystems;
 using Content.Server.Nutrition.Components;
 using Content.Server.Popups;
+using Content.Shared._UM.Puddles;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Nutrition;
@@ -28,6 +29,9 @@ namespace Content.Server.Nutrition.EntitySystems
         [Dependency] private readonly SharedAudioSystem _audio = default!;
         [Dependency] private readonly SharedSolutionContainerSystem _solutions = default!;
         [Dependency] private readonly TriggerSystem _trigger = default!;
+        //UM START
+        [Dependency] private readonly SpecialPuddleSystem _specialPuddle = default!;
+        //UM END
 
         public override void Initialize()
         {
@@ -47,7 +51,7 @@ namespace Content.Server.Nutrition.EntitySystems
             if (Resolve(entity, ref entity.Comp2, false))
             {
                 if (_solutions.TryGetSolution(entity.Owner, entity.Comp2.Solution, out _, out var solution))
-                    _puddle.TrySpillAt(entity.Owner, solution, out _, false);
+                    _specialPuddle.TrySpillAt(entity.Owner, solution, "SmashedPieSpecialPuddle"); //UM EDIT
 
                 _ingestion.SpawnTrash((entity, entity.Comp2));
             }
