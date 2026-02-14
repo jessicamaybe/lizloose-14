@@ -1,4 +1,5 @@
 using System.Numerics;
+using Content.Shared._UM.Puddles.Components;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.FixedPoint;
@@ -260,19 +261,16 @@ public abstract class SharedAbsorbentSystem : EntitySystem
         return anyTransferOccurred;
     }
 
-    /// <summary>
-    ///     Logic for an absorbing entity interacting with a puddle.
-    /// </summary>
+//UM START
+//slightly modified absorbent system to be able to mop things that aren't just puddles (special puddles)
     private bool TryPuddleInteract(Entity<AbsorbentComponent, UseDelayComponent?> absorbEnt,
         Entity<SolutionComponent> absorberSoln,
         EntityUid user,
-        EntityUid target)
+        EntityUid target,
+        Entity<SolutionComponent> targetSol,
+        Solution puddleSolution)
     {
-        if (!TryComp<PuddleComponent>(target, out var puddle))
-            return false;
-
-        if (!SolutionContainer.ResolveSolution(target, puddle.SolutionName, ref puddle.Solution, out var puddleSolution)
-            || puddleSolution.Volume <= 0)
+        if (puddleSolution.Volume <= 0)
             return false;
 
         var (_, absorber, useDelay) = absorbEnt;
@@ -321,7 +319,7 @@ public abstract class SharedAbsorbentSystem : EntitySystem
                 var tileRef = _mapSystem.GetTileRef(gridUid.Value, mapGrid, targetXform.Coordinates);
                 Puddle.DoTileReactions(tileRef, absorberSplit);
             }
-            SolutionContainer.AddSolution(puddle.Solution.Value, absorberSplit);
+            SolutionContainer.AddSolution(targetSol, absorberSplit);
         }
         else
         {
@@ -339,7 +337,7 @@ public abstract class SharedAbsorbentSystem : EntitySystem
 
         SolutionContainer.AddSolution(absorberSoln, puddleSplit);
 
-        _audio.PlayPredicted(absorber.PickupSound, isRemoved ? absorbEnt : target, user);
+        _audio.PlayPredicted(absorber.PickupSound, isRemoved ? absorbEnt : user, user);
 
         if (useDelay != null)
             _useDelay.TryResetDelay((absorbEnt, useDelay));
@@ -353,4 +351,35 @@ public abstract class SharedAbsorbentSystem : EntitySystem
 
         return true;
     }
+
+    /// <summary>
+    ///     Logic for an absorbing entity interacting with a puddle.
+    /// </summary>
+    private bool TryPuddleInteract(Entity<AbsorbentComponent, UseDelayComponent?> absorbEnt,
+        Entity<SolutionComponent> absorberSoln,
+        EntityUid user,
+        EntityUid target)
+    {
+        if (TryComp<PuddleComponent>(target, out var puddle))
+        {
+            if (!SolutionContainer.ResolveSolution(target, puddle.SolutionName, ref puddle.Solution, out var puddleSolution)
+                || puddleSolution.Volume <= 0)
+                return false;
+
+            return TryPuddleInteract(absorbEnt, absorberSoln, user, target, puddle.Solution.Value, puddleSolution);
+        }
+
+        if (TryComp<SpecialPuddleComponent>(target, out var specialPuddle))
+        {
+            if (!SolutionContainer.ResolveSolution(target, specialPuddle.SolutionName, ref specialPuddle.Solution, out var puddleSolution)
+                || puddleSolution.Volume <= 0)
+                return false;
+
+            return TryPuddleInteract(absorbEnt, absorberSoln, user, target, specialPuddle.Solution.Value, puddleSolution);
+        }
+
+        return false;
+    }
+
+    //UM END
 }

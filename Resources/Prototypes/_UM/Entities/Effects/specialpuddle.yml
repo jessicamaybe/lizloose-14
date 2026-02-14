@@ -1,0 +1,144 @@
+- type: entity
+  name: vomit
+  id: BaseSpecialPuddle
+  suffix: UM
+  abstract: true
+  placement:
+    mode: SnapgridCenter
+  components:
+  - type: Clickable
+  - type: Slippery
+    staminaDamage: 0
+    frictionStatusTime: 0
+  - type: Transform
+    noRot: true
+    anchored: true
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      slipFixture:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.4,-0.4,0.4,0.4"
+        mask:
+        - ItemMask
+        layer:
+        - SlipLayer
+        hard: false
+  - type: SolutionContainerManager
+    solutions:
+      puddle:
+        maxVol: 1000
+        reagents:
+        - ReagentId: Vomit
+          Quantity: 1
+  - type: Appearance
+  - type: StepTrigger
+  - type: Edible
+    edible: Drink
+    delay: 3
+    transferAmount: 1
+    solution: puddle
+    utensil: Spoon
+  - type: SpecialPuddle
+  - type: DrawableSolution
+    solution: puddle
+  - type: BadDrink
+  - type: IgnoresFingerprints
+  - type: Tag
+    tags:
+    - DNASolutionScannable
+
+
+- type: entity
+  id: VomitSpecialPuddle
+  parent: BaseSpecialPuddle
+  name: vomit
+  description: Gross dude
+  components:
+  - type: Sprite
+    layers:
+    - sprite: Fluids/vomit.rsi
+      state: vomit-0
+      map: ["puddle"]
+    drawdepth: Puddles
+  - type: RandomSprite
+    available:
+    - puddle:
+        vomit-0: ""
+        vomit-1: ""
+        vomit-2: ""
+        vomit-3: ""
+
+- type: entity
+  id: TomatoSpecialPuddle
+  parent: BaseSpecialPuddle
+  name: tomato smudge
+  description: It's red.
+  components:
+  - type: Sprite
+    layers:
+    - sprite: Fluids/tomato_splat.rsi
+      state: puddle-0
+      map: [ "puddle" ]
+    drawdepth: Puddles
+  - type: RandomSprite
+    available:
+    - puddle:
+        puddle-0: ""
+        puddle-1: ""
+        puddle-2: ""
+  - type: SolutionContainerManager
+    solutions:
+      puddle:
+        maxVol: 1000
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 1
+
+- type: entity
+  id: EggSplatSpecialPuddle
+  parent: BaseSpecialPuddle
+  name: smashed egg
+  description: Seems like this one won't hatch.
+  components:
+  - type: Sprite
+    layers:
+    - sprite: Fluids/egg_splat.rsi
+      state: egg-0
+      map: [ "puddle" ]
+    drawdepth: Puddles
+  - type: RandomSprite
+    available:
+    - puddle:
+        egg-0: ""
+        egg-1: ""
+        egg-2: ""
+        egg-3: ""
+  - type: SolutionContainerManager
+    solutions:
+      puddle:
+        maxVol: 1000
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 1
+
+- type: entity
+  id: SmashedPieSpecialPuddle
+  parent: BaseSpecialPuddle
+  name: smashed pie
+  description: It's pie cream from a cream pie.
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _UM/Fluids/smashed_pie.rsi
+      state: smashed_pie
+    drawdepth: Puddles
+  - type: SolutionContainerManager
+    solutions:
+      puddle:
+        maxVol: 1000
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 1

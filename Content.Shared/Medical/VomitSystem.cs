@@ -1,3 +1,4 @@
+using Content.Shared._UM.Puddles;
 using Content.Shared.Body;
 using Content.Shared.Body.Components;
 using Content.Shared.Body.Systems;
@@ -33,7 +34,9 @@ public sealed class VomitSystem : EntitySystem
     [Dependency] private readonly SharedPopupSystem _popup = default!;
     [Dependency] private readonly SharedPuddleSystem _puddle = default!;
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainer = default!;
-
+    //UM START
+    [Dependency] private readonly SpecialPuddleSystem _specialPuddle = default!;
+    //UM END
     public override void Initialize()
     {
         base.Initialize();
@@ -111,11 +114,18 @@ public sealed class VomitSystem : EntitySystem
             // Makes a vomit solution the size of 90% of the chemicals removed from the chemstream
             solution.AddReagent(new ReagentId(VomitPrototype, _bloodstream.GetEntityBloodData((uid, bloodStream))), vomitAmount);
         }
-
+        //UM START
+        /*
         if (_puddle.TrySpillAt(uid, solution, out var puddle, false))
         {
             _forensics.TransferDna(puddle, uid, false);
         }
+        */
+        if (_specialPuddle.TrySpillAt(uid, solution,"VomitSpecialPuddle", out var puddle))
+        {
+            _forensics.TransferDna(puddle, uid, false);
+        }
+        //UM END
 
 
         if (!_netManager.IsServer)

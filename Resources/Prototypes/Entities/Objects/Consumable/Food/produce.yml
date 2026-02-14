@@ -946,8 +946,9 @@
       - !type:PlaySoundBehavior
         sound:
           collection: desecration
-      - !type:SpillBehavior
+      - !type:SpecialSpillBehavior
         solution: food
+        protoId: TomatoSpecialPuddle
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
   - type: Tag
