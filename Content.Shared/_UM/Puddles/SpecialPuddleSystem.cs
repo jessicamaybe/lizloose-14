@@ -43,7 +43,7 @@ public sealed class SpecialPuddleSystem : EntitySystem
             {
                 if (content.Reagent.Prototype == "Water")
                 {
-                    _puddle.TrySpillAt(ent.Owner, args.Solution, out var puddle, false);
+                    _puddle.TrySpillAt(ent.Owner, args.Solution, out _, false);
                     QueueDel(ent);
                     break;
                 }

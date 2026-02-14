@@ -4,11 +4,14 @@ using Robust.Shared.Audio;
 namespace Content.Shared._UM.Puddles.Components;
 
 /// <summary>
-/// This is used for...
+/// This is used for special puddles. Similar to real puddles but have a specific sprite, vomit, thrown egg, etc
 /// </summary>
 [RegisterComponent]
 public sealed partial class SpecialPuddleComponent : Component
 {
+    /// <summary>
+    /// Sound to play when spilling
+    /// </summary>
     [DataField]
     public SoundSpecifier? SpillSound = new SoundPathSpecifier("/Audio/Effects/Fluids/splat.ogg");
 
