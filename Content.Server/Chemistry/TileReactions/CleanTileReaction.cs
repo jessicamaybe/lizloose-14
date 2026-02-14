@@ -7,6 +7,7 @@ using Content.Shared.Fluids.Components;
 using Robust.Shared.Map;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 using System.Linq;
+using Content.Shared._UM.Puddles.Components;
 
 namespace Content.Server.Chemistry.TileReactions;
 
@@ -34,31 +35,45 @@ public sealed partial class CleanTileReaction : ITileReaction
     FixedPoint2 ITileReaction.TileReact(TileRef tile,
         ReagentPrototype reagent,
         FixedPoint2 reactVolume,
-        IEntityManager entityManager
-        , List<ReagentData>? data)
+        IEntityManager entityManager,
+        List<ReagentData>? data)
     {
+        //UM START
         var entities = entityManager.System<EntityLookupSystem>().GetLocalEntitiesIntersecting(tile, 0f).ToArray();
         var puddleQuery = entityManager.GetEntityQuery<PuddleComponent>();
+        var specialPuddleQuery = entityManager.GetEntityQuery<SpecialPuddleComponent>();
         var solutionContainerSystem = entityManager.System<SharedSolutionContainerSystem>();
         // Multiply as the amount we can actually purge is higher than the react amount.
         var purgeAmount = reactVolume / CleanAmountMultiplier;
 
         foreach (var entity in entities)
         {
-            if (!puddleQuery.TryGetComponent(entity, out var puddle) ||
-                !solutionContainerSystem.TryGetSolution(entity, puddle.SolutionName, out var puddleSolution, out _))
+            if (puddleQuery.TryGetComponent(entity, out var puddle) &&
+                solutionContainerSystem.TryGetSolution(entity, puddle.SolutionName, out var puddleSolution, out _))
             {
-                continue;
+                var purgeable = solutionContainerSystem.SplitSolutionWithout(puddleSolution.Value, purgeAmount, ReplacementReagent, reagent.ID);
+
+                purgeAmount -= purgeable.Volume;
+
+                solutionContainerSystem.TryAddSolution(puddleSolution.Value, new Solution(ReplacementReagent, purgeable.Volume));
+
+                if (purgeable.Volume <= FixedPoint2.Zero)
+                    continue;
             }
 
-            var purgeable = solutionContainerSystem.SplitSolutionWithout(puddleSolution.Value, purgeAmount, ReplacementReagent, reagent.ID);
+            if (specialPuddleQuery.TryGetComponent(entity, out var specialPuddle) &&
+                solutionContainerSystem.TryGetSolution(entity, specialPuddle.SolutionName, out var specialPuddleSolution))
+            {
+                var specialPurgeable = solutionContainerSystem.SplitSolutionWithout(specialPuddleSolution.Value, purgeAmount, ReplacementReagent, reagent.ID);
 
-            purgeAmount -= purgeable.Volume;
+                purgeAmount -= specialPurgeable.Volume;
 
-            solutionContainerSystem.TryAddSolution(puddleSolution.Value, new Solution(ReplacementReagent, purgeable.Volume));
+                solutionContainerSystem.TryAddSolution(specialPuddleSolution.Value, new Solution(ReplacementReagent, specialPurgeable.Volume));
 
-            if (purgeable.Volume <= FixedPoint2.Zero)
-                break;
+                if (specialPurgeable.Volume <= FixedPoint2.Zero)
+                    continue;
+            }
+            //UM END
         }
 
         return (reactVolume / CleanAmountMultiplier - purgeAmount) * CleanAmountMultiplier;
