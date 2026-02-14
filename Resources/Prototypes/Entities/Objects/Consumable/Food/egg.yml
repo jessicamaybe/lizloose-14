@@ -48,9 +48,11 @@
       - !type:PlaySoundBehavior
         sound:
           collection: desecration
+      #UM START
       - !type:SpecialSpillBehavior
         solution: food
         protoId: EggSplatSpecialPuddle
+      #UM END
       - !type:SpawnEntitiesBehavior
         spawn:
           Eggshells:

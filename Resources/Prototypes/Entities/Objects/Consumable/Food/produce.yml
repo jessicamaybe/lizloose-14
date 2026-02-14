@@ -946,9 +946,11 @@
       - !type:PlaySoundBehavior
         sound:
           collection: desecration
+      #UM START
       - !type:SpecialSpillBehavior
         solution: food
         protoId: TomatoSpecialPuddle
+      #UM END
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
   - type: Tag
@@ -1048,8 +1050,11 @@
       - !type:PlaySoundBehavior
         sound:
           collection: desecration
-      - !type:SpillBehavior
+      #UM START
+      - !type:SpecialSpillBehavior
         solution: food
+        protoId: TomatoSpecialPuddle
+      #UM END
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
   - type: Tag
