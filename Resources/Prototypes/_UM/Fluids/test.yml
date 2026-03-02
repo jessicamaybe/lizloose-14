@@ -1,0 +1,114 @@
+- type: entity
+  id: FluidSource
+  name: Fluid Source 1000
+  description: fluiid
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Detective/evidence_marker.rsi
+  - type: FluidSource
+    solution:
+      reagents:
+      - ReagentId: Water
+        Quantity: 1000
+  - type: TimedDespawn
+    lifetime: 5
+
+- type: entity
+  id: FluidSource10000
+  name: Fluid Source 10000
+  description: fluiid
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Detective/evidence_marker.rsi
+  - type: FluidSource
+    solution:
+      reagents:
+      - ReagentId: Water
+        Quantity: 10000
+  - type: TimedDespawn
+    lifetime: 5
+
+
+- type: entity
+  id: FluidPool
+  name: Fluid Pool
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: Effects/fire_greyscale.rsi
+    layers:
+    - state: 2
+      color: "#FF00FFFF"
+  - type: FluidPool
+    overflowVolume: 50
+    solutionName: pool
+  - type: MixableSolution
+    solution: pool
+  - type: SolutionContainerManager
+    solutions:
+      pool:
+        maxVol: 100000000
+
+
+- type: entity
+  id: FluidTest100
+  suffix: FLUID
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: Effects/fire_greyscale.rsi
+    layers:
+    - state: 2
+      color: "#0000FFFF"
+
+- type: entity
+  id: FluidTest75
+  suffix: FLUID
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: Effects/fire_greyscale.rsi
+    layers:
+    - state: 2
+      color: "#0000FFBF"
+
+- type: entity
+  id: FluidTest50
+  suffix: FLUID
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: Effects/fire_greyscale.rsi
+    layers:
+    - state: 2
+      color: "#0000FF80"
+
+- type: entity
+  id: FluidTest25
+  suffix: FLUID
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: Effects/fire_greyscale.rsi
+    layers:
+    - state: 2
+      color: "#0000FF40"
+
+- type: entity
+  id: FluidTest0
+  suffix: FLUID
+  components:
+  - type: Sprite
+    noRot: true
+    sprite: Effects/fire_greyscale.rsi
+    layers:
+    - state: 2
+      color: "#0000FF10"

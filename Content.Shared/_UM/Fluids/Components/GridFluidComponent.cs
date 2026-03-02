@@ -4,7 +4,7 @@ namespace Content.Shared._UM.Fluids.Components;
 /// This is used for...
 /// </summary>
 [RegisterComponent]
-public sealed partial class GridFluidsComponent : Component
+public sealed partial class GridFluidComponent : Component
 {
     [ViewVariables]
     public Dictionary<EntityUid, List<Vector2i>> Pools;
