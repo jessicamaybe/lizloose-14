@@ -10,10 +10,26 @@ namespace Content.Shared._UM.Fluids.Components;
 public sealed partial class GridFluidComponent : Component
 {
     [ViewVariables]
-    public List<EntityUid> Pools = new();
+    public List<Entity<FluidPoolComponent>> Pools = new();
 
+    /// <summary>
+    /// List of pools that will be added next update cycle
+    /// </summary>
     [ViewVariables]
-    public List<EntityUid> DeleteQueue = new();
+    public HashSet<Entity<FluidPoolComponent>> AddedTiles = new();
+
+    /// <summary>
+    /// List of pools that will be deleted next update cycle
+    /// </summary>
+    [ViewVariables]
+    public HashSet<Entity<FluidPoolComponent>> DeletedTiles = new();
+
+    /// <summary>
+    /// List of pools that need to be updated
+    /// </summary>
+    public HashSet<Entity<FluidPoolComponent>> StalePools = new();
+
+
 
     [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))]
     [AutoPausedField]
@@ -23,4 +39,7 @@ public sealed partial class GridFluidComponent : Component
     [DataField]
     public TimeSpan UpdateInterval = TimeSpan.FromMilliseconds(100);
 
+
+    [ViewVariables]
+    public readonly Queue<Entity<FluidPoolComponent>> CurrentRunPools = new();
 }

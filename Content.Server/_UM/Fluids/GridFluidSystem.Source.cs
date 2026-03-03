@@ -11,6 +11,7 @@ public sealed partial class GridFluidSystem
     private void InitializeSource()
     {
         SubscribeLocalEvent<FluidSourceComponent, MapInitEvent>(OnMapInit);
+        SubscribeLocalEvent<FluidDeleteComponent, MapInitEvent>(OnMapInit);
     }
 
     private void OnMapInit(Entity<FluidSourceComponent> ent, ref MapInitEvent args)
@@ -26,6 +27,18 @@ public sealed partial class GridFluidSystem
         }
 
         AddFluid((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Solution);
+    }
 
+    private void OnMapInit(Entity<FluidDeleteComponent> ent, ref MapInitEvent args)
+    {
+        var xform = Transform(ent);
+
+        if (xform.GridUid == null || !TryComp<MapGridComponent>(xform.GridUid.Value, out var gridComponent))
+        {
+            Log.Debug("no whatever? wtf?");
+            return;
+        }
+
+        TryRemoveFluid((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Amount);
     }
 }

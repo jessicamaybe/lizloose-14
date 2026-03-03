@@ -1,4 +1,21 @@
 - type: entity
+  id: FluidDrain
+  name: Fluid delete 30
+  description: delete 30
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Detective/evidence_marker.rsi
+    color: "#FF0000"
+  - type: FluidDelete
+    amount: 30
+  - type: TimedDespawn
+    lifetime: 1
+
+- type: entity
   id: FluidSource
   name: Fluid Source 1000
   description: fluiid
@@ -18,24 +35,40 @@
     lifetime: 5
 
 - type: entity
+  id: FluidSource25
+  name: Fluid Source 25
+  parent: FluidSource
+  description: 25 fluids
+  components:
+  - type: FluidSource
+    solution:
+      reagents:
+      - ReagentId: Water
+        Quantity: 25
+
+- type: entity
+  id: FluidSource10
+  name: Fluid Source 10
+  parent: FluidSource
+  description: 10 fluids
+  components:
+  - type: FluidSource
+    solution:
+      reagents:
+      - ReagentId: Water
+        Quantity: 10
+
+- type: entity
   id: FluidSource10000
   name: Fluid Source 10000
-  description: fluiid
-  placement:
-    mode: SnapgridCenter
-    snap:
-    - Wall
+  parent: FluidSource
+  description: 10000 fluids
   components:
-  - type: Sprite
-    sprite: Objects/Specific/Detective/evidence_marker.rsi
   - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water
         Quantity: 10000
-  - type: TimedDespawn
-    lifetime: 5
-
 
 - type: entity
   id: FluidPool
@@ -43,10 +76,8 @@
   components:
   - type: Sprite
     noRot: true
-    sprite: Effects/fire_greyscale.rsi
-    layers:
-    - state: 2
-      color: "#FF00FFFF"
+    sprite: Objects/Specific/Janitorial/wet_floor_sign.rsi
+    state: icon
   - type: FluidPool
     overflowVolume: 50
     solutionName: pool
@@ -57,58 +88,84 @@
       pool:
         maxVol: 100000000
 
-
 - type: entity
-  id: FluidTest100
+  id: FluidTestOverlay
   suffix: FLUID
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
   components:
+  - type: Transform
+    noRot: true
+    anchored: true
   - type: Sprite
     noRot: true
-    sprite: Effects/fire_greyscale.rsi
     layers:
-    - state: 2
-      color: "#0000FFFF"
-
-- type: entity
-  id: FluidTest75
-  suffix: FLUID
-  components:
-  - type: Sprite
-    noRot: true
-    sprite: Effects/fire_greyscale.rsi
-    layers:
-    - state: 2
-      color: "#0000FFBF"
+    - sprite: _UM/Fluid/fluid.rsi
+      state: overlay_2
+    drawdepth: Overlays
+    color: "#75b1f0BF"
 
 - type: entity
   id: FluidTest50
   suffix: FLUID
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
   components:
+  - type: FloorOccluder
+  - type: Transform
+    noRot: true
+    anchored: true
   - type: Sprite
     noRot: true
-    sprite: Effects/fire_greyscale.rsi
     layers:
-    - state: 2
-      color: "#0000FF80"
+    - sprite: _UM/Fluid/fluid.rsi
+      state: splat0
+    drawdepth: BelowFloor
+    color: "#75b1f0BF"
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        layer:
+        - SlipLayer
+        mask:
+        - ItemMask
+        density: 1000
+        hard: false
+  - type: IconSmooth
+    key: puddles
+    additionalKeys:
+    - walls
+    base: splat
+    mode: CardinalFlags
+  - type: Appearance
 
 - type: entity
   id: FluidTest25
   suffix: FLUID
   components:
+  - type: Transform
+    noRot: true
+    anchored: true
   - type: Sprite
     noRot: true
-    sprite: Effects/fire_greyscale.rsi
     layers:
-    - state: 2
-      color: "#0000FF40"
-
-- type: entity
-  id: FluidTest0
-  suffix: FLUID
-  components:
-  - type: Sprite
-    noRot: true
-    sprite: Effects/fire_greyscale.rsi
-    layers:
-    - state: 2
-      color: "#0000FF10"
+    - sprite: _UM/Fluid/fluid.rsi
+      state: splat0
+    drawdepth: Puddles
+    color: "#75b1f080"
+  - type: IconSmooth
+    key: puddles
+    additionalKeys:
+    - walls
+    base: splat
+    mode: CardinalFlags
+  - type: Appearance

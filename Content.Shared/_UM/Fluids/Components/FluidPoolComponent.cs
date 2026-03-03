@@ -10,9 +10,31 @@ namespace Content.Shared._UM.Fluids.Components;
 [RegisterComponent]
 public sealed partial class FluidPoolComponent : Component
 {
+    /// <summary>
+    /// List of tiles that this pool occupies
+    /// </summary>
     [ViewVariables]
     public HashSet<TileRef> Tiles = new(1000);
 
+    /// <summary>
+    /// List of tiles which are considered to be the "edge"
+    /// </summary>
+    [ViewVariables]
+    public HashSet<TileRef> EdgeTiles = new(1000);
+
+    /// <summary>
+    /// Tiles we're removing on the next update
+    /// </summary>
+    public HashSet<TileRef> AddedTiles = new();
+
+    /// <summary>
+    /// Tiles we're removing on the next update
+    /// </summary>
+    public HashSet<TileRef> RemovedTiles = new();
+
+    /// <summary>
+    ///
+    /// </summary>
     [ViewVariables]
     public Dictionary<TileRef, EntityUid> DrawnTiles = new();
 
@@ -30,16 +52,24 @@ public sealed partial class FluidPoolComponent : Component
 
     /// <summary>
     /// How overflowed this puddle is.
-    /// 0 is normal puddle
-    /// 1 is mild overflowing
-    ///
     /// </summary>
     [ViewVariables]
-    public int OverFlowLevel = 0;
+    public PoolFillLevel FillLevel = PoolFillLevel.Puddle;
 
+    /// <summary>
+    /// Was the room full last time we tried to update?
+    /// </summary>
     [ViewVariables]
-    public bool LastUpdateStuck = false;
+    public bool RoomFull = false;
+}
 
-    [ViewVariables]
-    public bool NeedsUpdate = false;
+/// <summary>
+/// Puddle height levels
+/// </summary>
+public enum PoolFillLevel : byte
+{
+    Puddle,
+    AnkleHeight,
+    WaistHeight,
+    Full,
 }

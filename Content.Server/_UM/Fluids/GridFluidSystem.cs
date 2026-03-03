@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Chemistry.Components;
@@ -15,7 +15,7 @@ namespace Content.Server._UM.Fluids;
 /// </summary>
 public sealed partial class GridFluidSystem : SharedGridFluidSystem
 {
-    [Dependency] private readonly SharedSolutionContainerSystem _solutionContainerSystem = default!;
+    [Dependency] private readonly SharedSolutionContainerSystem _solutionContainer = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly TurfSystem _turf = default!;
@@ -55,55 +55,39 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         ent.Comp.NextUpdate = _timing.CurTime + ent.Comp.UpdateInterval;
     }
 
-    private void AddFluid(Entity<MapGridComponent> ent, EntityCoordinates coords, Solution solution)
+    private void UpdatePuddles(Entity<GridFluidComponent> ent)
     {
-        if (!_map.TryGetTileRef(ent.Owner, ent.Comp, coords, out var tileRef))
-            return;
-
-        var gridFluidComp = EnsureComp<GridFluidComponent>(ent.Owner);
-
-        Log.Debug("Trying to spawn pool");
-        var pool = Spawn("FluidPool", coords);
-        var poolComp = EnsureComp<FluidPoolComponent>(pool);
-        poolComp.GridUid = ent.Owner;
-
-        poolComp.Tiles.Add(tileRef);
-        gridFluidComp.Pools.Add(pool);
-
-        if (_solutionContainerSystem.ResolveSolution(pool,
-                poolComp.SolutionName,
-                ref poolComp.Solution,
-                out _))
+        foreach (var pool in ent.Comp.DeletedTiles)
         {
-            Log.Debug("Added solution to pool");
-            _solutionContainerSystem.TryAddSolution(poolComp.Solution.Value, solution);
-            poolComp.NeedsUpdate = true;
+            ent.Comp.Pools.Remove(pool);
+            ent.Comp.StalePools.Remove(pool);
+            QueueDel(pool);
+        }
+
+        QueuePools(ent.Comp.CurrentRunPools, ent.Comp.StalePools);
+
+        while (ent.Comp.CurrentRunPools.TryDequeue(out var pool))
+        {
+            ent.Comp.StalePools.Remove(pool);
+            pool.Comp.EdgeTiles = GetEdgeTiles(pool);
+            RemoveDeleted(pool);
+            AddQueuedTiles(pool);
+            UpdatePool(pool);
+            ShittyDraw(pool);
+            CheckIntersect(ent, pool);
         }
     }
 
-    private void UpdatePuddles(Entity<GridFluidComponent> ent)
+    private void QueuePools(
+        Queue<Entity<FluidPoolComponent>> queue,
+        HashSet<Entity<FluidPoolComponent>> pools)
     {
-        var pools = ent.Comp.Pools;
 
-        foreach (var pool in pools)
+        queue.Clear();
+        queue.EnsureCapacity(pools.Count);
+        foreach (var tile in pools)
         {
-            if (Deleted(pool))
-                continue;
-
-            if (!TryComp<FluidPoolComponent>(pool, out var poolComp))
-                continue;
-
-            if (poolComp.NeedsUpdate)
-            {
-                UpdatePool((pool, poolComp));
-                ShittyDraw((pool, poolComp));
-                CheckIntersect(ent, (pool, poolComp));
-            }
-        }
-
-        foreach (var pool in ent.Comp.DeleteQueue)
-        {
-            QueueDel(pool);
+            queue.Enqueue(tile);
         }
     }
 
@@ -113,56 +97,88 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
 
         foreach (var pool in ent.Comp.Pools)
         {
-            if (pool == poolEnt.Owner)
+            if (pool.Owner == poolEnt.Owner)
                 continue;
 
-            if (!TryComp<FluidPoolComponent>(pool, out var poolComponent))
-                continue;
-
-            if (poolComponent.Tiles.Overlaps(poolEnt.Comp.Tiles))
+            if (pool.Comp.Tiles.Overlaps(poolEnt.Comp.Tiles))
             {
-                MergePools(ent, poolEnt, pool);
-                removedPool = true;
+                if (MergePools(ent, poolEnt, pool))
+                    removedPool = true;
                 break;
             }
         }
 
         if (removedPool)
-            ent.Comp.DeleteQueue.Add(poolEnt);
+            ent.Comp.DeletedTiles.Add(poolEnt);
     }
 
-    private void MergePools(Entity<GridFluidComponent> ent, Entity<FluidPoolComponent> pool, Entity<FluidPoolComponent?> target)
+    private bool MergePools(Entity<GridFluidComponent> ent, Entity<FluidPoolComponent> pool, Entity<FluidPoolComponent> target)
     {
-        if (!Resolve(target, ref target.Comp))
-            return;
-
-        if (!_solutionContainerSystem.ResolveSolution(pool.Owner,
+        if (!_solutionContainer.ResolveSolution(pool.Owner,
                 pool.Comp.SolutionName,
                 ref pool.Comp.Solution,
                 out var poolSolution))
-            return;
+            return false;
 
-        if (!_solutionContainerSystem.ResolveSolution(target.Owner,
+        if (!_solutionContainer.ResolveSolution(target.Owner,
                 target.Comp.SolutionName,
                 ref target.Comp.Solution,
                 out var targetSolution))
-            return;
+            return false;
 
-        _solutionContainerSystem.AddSolution(target.Comp.Solution.Value, poolSolution);
+        if (targetSolution.Volume == 0)
+        {
+            ent.Comp.DeletedTiles.Add(target);
+            return false;
+        }
+
+        _solutionContainer.TryTransferSolution(target.Comp.Solution.Value, poolSolution, poolSolution.Volume);
 
         target.Comp.Tiles.UnionWith(pool.Comp.Tiles);
         foreach (var tile in pool.Comp.DrawnTiles)
         {
             QueueDel(tile.Value);
         }
-        target.Comp.NeedsUpdate = true;
+
+        DirtyPool(target);
+        return true;
     }
 
-
-    private void AddPuddle(Entity<GridFluidComponent> ent)
+    private bool ResolveGridFluid(Entity<FluidPoolComponent> ent, [NotNullWhen(true)] out Entity<GridFluidComponent>? entity)
     {
+        entity = null;
 
+        if (!TryComp<GridFluidComponent>(ent.Comp.GridUid, out var gridFluid))
+            return false;
 
+        entity =  (ent.Comp.GridUid, gridFluid);
+        return true;
     }
 
+    private void DirtyPool(Entity<FluidPoolComponent> ent)
+    {
+        if (ResolveGridFluid(ent, out var gridFluid))
+            gridFluid.Value.Comp.StalePools.Add(ent);
+    }
+
+    private bool TryGetPool(Entity<MapGridComponent> ent, EntityCoordinates coords, [NotNullWhen(true)] out Entity<FluidPoolComponent>? fluidPool)
+    {
+        fluidPool = null;
+
+        if (!TryComp<GridFluidComponent>(ent, out var gridFluidComponent))
+            return false;
+
+        if (!_map.TryGetTileRef(ent.Owner, ent.Comp, coords, out var tileRef))
+            return false;
+
+        foreach (var pool in gridFluidComponent.Pools)
+        {
+            if (pool.Comp.EdgeTiles.Contains(tileRef))
+            {
+                fluidPool = pool;
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using Content.Server.Atmos.Components;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
-using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Map;
@@ -25,26 +24,46 @@ public sealed partial class GridFluidSystem
         if (args.SolutionId != ent.Comp.SolutionName)
             return;
 
-        ent.Comp.NeedsUpdate = true;
+        DirtyPool(ent);
+    }
+
+    /// <summary>
+    /// Remove the deleted tiles in the queue
+    /// </summary>
+    /// <param name="ent"></param>
+    private void RemoveDeleted(Entity<FluidPoolComponent> ent)
+    {
+        foreach (var tile in ent.Comp.RemovedTiles)
+        {
+            ent.Comp.Tiles.Remove(tile);
+            ent.Comp.EdgeTiles = GetEdgeTiles(ent);
+
+            if (ent.Comp.DrawnTiles.TryGetValue(tile, out var tileEnt))
+            {
+                QueueDel(tileEnt);
+                ent.Comp.DrawnTiles.Remove(tile);
+            }
+        }
+        ent.Comp.RemovedTiles.Clear();
     }
 
     private void UpdatePool(Entity<FluidPoolComponent> ent)
     {
-        Log.Debug("Trying to update pool: " + ent.Owner);
         if (ent.Comp.Tiles.Count == 0)
+        {
+            Log.Debug("If this happens we fucked up");
             return;
+        }
 
         if (!IsOverflowing(ent))
         {
             Log.Debug("pool is not overflowing");
-            ent.Comp.NeedsUpdate = false;
             return;
         }
 
-        if (ent.Comp.LastUpdateStuck)
+        if (ent.Comp.RoomFull)
         {
-            ent.Comp.OverFlowLevel = 1;
-            ent.Comp.NeedsUpdate = false;
+            ent.Comp.FillLevel += 1;
             ShittyDraw(ent, true);
         }
 
@@ -52,20 +71,20 @@ public sealed partial class GridFluidSystem
         if (neighborTiles.Count == 0)
         {
             //We're overflowing
-            ent.Comp.LastUpdateStuck = true;
+            ent.Comp.RoomFull = true;
             return;
         }
 
-        ent.Comp.LastUpdateStuck = false;
+        ent.Comp.RoomFull = false;
 
-        if (ent.Comp.OverFlowLevel > 0)
+        if (ent.Comp.FillLevel > PoolFillLevel.Puddle)
         {
-            ent.Comp.OverFlowLevel = 0;
+            ent.Comp.FillLevel = PoolFillLevel.Puddle;
             ShittyDraw(ent, true);
         }
 
-        AddTiles(ent, neighborTiles);
-        ent.Comp.NeedsUpdate = true;
+        ent.Comp.AddedTiles.UnionWith(neighborTiles);
+        DirtyPool(ent);
     }
 
     private void ShittyDraw(Entity<FluidPoolComponent> ent, bool redraw = false)
@@ -86,10 +105,9 @@ public sealed partial class GridFluidSystem
 
             if (GetTileCoords(ent, tile, out var coords))
             {
-                Log.Debug("Drawing at: " + coords);
                 var proto = "FluidTest25";
 
-                if (ent.Comp.OverFlowLevel == 1)
+                if (ent.Comp.FillLevel > PoolFillLevel.Puddle)
                     proto = "FluidTest50";
 
                 var spawned = Spawn(proto, coords.Value);
@@ -115,6 +133,11 @@ public sealed partial class GridFluidSystem
         return true;
     }
 
+    /// <summary>
+    /// Returns true if the pool is overflowing
+    /// </summary>
+    /// <param name="ent"></param>
+    /// <returns></returns>
     private bool IsOverflowing(Entity<FluidPoolComponent> ent)
     {
         var volume = CurrentVolume(ent);
@@ -126,7 +149,7 @@ public sealed partial class GridFluidSystem
 
     private FixedPoint2 CurrentVolume(Entity<FluidPoolComponent> ent)
     {
-        return _solutionContainerSystem.ResolveSolution(ent.Owner,
+        return _solutionContainer.ResolveSolution(ent.Owner,
             ent.Comp.SolutionName,
             ref ent.Comp.Solution,
             out var solution)
@@ -134,9 +157,27 @@ public sealed partial class GridFluidSystem
             : FixedPoint2.Zero;
     }
 
-    private void AddTiles(Entity<FluidPoolComponent> ent, List<TileRef> tiles)
+    private void AddQueuedTiles(Entity<FluidPoolComponent> ent)
     {
-        ent.Comp.Tiles.UnionWith(tiles);
+        if (ent.Comp.AddedTiles.Count == 0)
+            return;
+
+        ent.Comp.Tiles.UnionWith(ent.Comp.AddedTiles);
+        ent.Comp.AddedTiles.Clear();
+        DirtyPool(ent);
+    }
+
+    private void RemoveTile(Entity<FluidPoolComponent> ent, TileRef tile)
+    {
+        ent.Comp.RemovedTiles.Add(tile);
+    }
+
+    private void RemoveTiles(Entity<FluidPoolComponent> ent, List<TileRef> tiles)
+    {
+        foreach (var tile in tiles)
+        {
+            ent.Comp.RemovedTiles.Add(tile);
+        }
     }
 
     private List<TileRef> GetAvailableNeighbors(Entity<FluidPoolComponent> ent)
@@ -150,7 +191,7 @@ public sealed partial class GridFluidSystem
 
         var gridXform = Transform(ent.Comp.GridUid);
 
-        foreach (var tile in ent.Comp.Tiles)
+        foreach (var tile in ent.Comp.EdgeTiles)
         {
             //Get neighboring tiles that aren't in our pool
             for (var i = 0; i < 4; i++)
@@ -173,6 +214,39 @@ public sealed partial class GridFluidSystem
         }
 
         return unblockedNeighbors;
+    }
+
+    private HashSet<TileRef> GetEdgeTiles(Entity<FluidPoolComponent> ent)
+    {
+        var edgeTiles = new HashSet<TileRef>();
+
+        if (!TryComp<MapGridComponent>(ent.Comp.GridUid, out var gridComponent))
+            return edgeTiles;
+
+        if (ent.Comp.Tiles.Count == 1)
+            ent.Comp.EdgeTiles = ent.Comp.Tiles;
+
+        foreach (var tile in ent.Comp.Tiles)
+        {
+            for (var i = 0; i < 4; i++)
+            {
+                var atmosDir = (AtmosDirection)(1 << i);
+                var neighborPos = tile.GridIndices.Offset(atmosDir);
+
+                if (!_map.TryGetTileRef(ent.Comp.GridUid, gridComponent, neighborPos, out var neighborTile))
+                {
+                    edgeTiles.Add(tile);
+                    break;
+                }
+
+                if (!ent.Comp.Tiles.Contains(neighborTile))
+                {
+                    edgeTiles.Add(tile);
+                    break;
+                }
+            }
+        }
+        return edgeTiles;
     }
 
     public bool IsTileBlocked(Entity<MapGridComponent, TransformComponent> ent, EntityQuery<AirtightComponent> airtightQuery, TileRef tileRef)

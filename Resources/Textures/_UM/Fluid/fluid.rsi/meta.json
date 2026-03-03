@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "license": null,
+  "copyright": null,
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "splat1"
+    },
+    {
+      "name": "splat2"
+    },
+    {
+      "name": "splat3"
+    },
+    {
+      "name": "splat4"
+    },
+    {
+      "name": "splat5"
+    },
+    {
+      "name": "splat6"
+    },
+    {
+      "name": "splat7"
+    },
+    {
+      "name": "splat8"
+    },
+    {
+      "name": "splat9"
+    },
+    {
+      "name": "splat10"
+    },
+    {
+      "name": "splat11"
+    },
+    {
+      "name": "splat12"
+    },
+    {
+      "name": "splat13"
+    },
+    {
+      "name": "splat14"
+    },
+    {
+      "name": "splat15"
+    },
+    {
+      "name": "splat15-lines"
+    },
+    {
+      "name": "splat0"
+    },
+    {
+      "name": "overlay"
+    },
+    {
+      "name": "overlay_1"
+    },
+    {
+      "name": "overlay_2"
+    },
+    {
+      "name": "overlay_3"
+    }
+  ]
+}
