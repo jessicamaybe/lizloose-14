@@ -1,5 +1,6 @@
 using Content.Shared.Chemistry.Components;
 using Content.Shared.FixedPoint;
+using Robust.Shared.Map;
 
 namespace Content.Shared._UM.Fluids.Components;
 
@@ -10,10 +11,10 @@ namespace Content.Shared._UM.Fluids.Components;
 public sealed partial class FluidPoolComponent : Component
 {
     [ViewVariables]
-    public HashSet<Vector2i> Tiles = new(1000);
+    public HashSet<TileRef> Tiles = new(1000);
 
     [ViewVariables]
-    public Dictionary<Vector2i, EntityUid> DrawnTiles = new();
+    public Dictionary<TileRef, EntityUid> DrawnTiles = new();
 
     [ViewVariables]
     public EntityUid GridUid;
@@ -24,7 +25,20 @@ public sealed partial class FluidPoolComponent : Component
     [ViewVariables]
     public Entity<SolutionComponent>? Solution;
 
-    [DataField("solution")] public string SolutionName = "pool";
+    [DataField("solution")]
+    public string SolutionName = "pool";
+
+    /// <summary>
+    /// How overflowed this puddle is.
+    /// 0 is normal puddle
+    /// 1 is mild overflowing
+    ///
+    /// </summary>
+    [ViewVariables]
+    public int OverFlowLevel = 0;
+
+    [ViewVariables]
+    public bool LastUpdateStuck = false;
 
     [ViewVariables]
     public bool NeedsUpdate = false;

@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Content.Server.Atmos.Components;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
+using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Map;
@@ -19,27 +20,12 @@ public sealed partial class GridFluidSystem
         SubscribeLocalEvent<FluidPoolComponent, SolutionContainerChangedEvent>(OnSolutionChanged);
     }
 
-    private void UpdatePools(float frameTime)
-    {
-        var query = EntityQueryEnumerator<FluidPoolComponent>();
-
-        while (query.MoveNext(out var uid, out var comp))
-        {
-            if (comp.NeedsUpdate)
-            {
-                UpdatePool((uid, comp));
-                ShittyDraw((uid, comp));
-            }
-        }
-    }
-
     private void OnSolutionChanged(Entity<FluidPoolComponent> ent, ref SolutionContainerChangedEvent args)
     {
         if (args.SolutionId != ent.Comp.SolutionName)
             return;
 
-        Log.Debug("Solution changed, updating pool: " + ent.Owner);
-        UpdatePool(ent);
+        ent.Comp.NeedsUpdate = true;
     }
 
     private void UpdatePool(Entity<FluidPoolComponent> ent)
@@ -55,13 +41,44 @@ public sealed partial class GridFluidSystem
             return;
         }
 
+        if (ent.Comp.LastUpdateStuck)
+        {
+            ent.Comp.OverFlowLevel = 1;
+            ent.Comp.NeedsUpdate = false;
+            ShittyDraw(ent, true);
+        }
+
         var neighborTiles = GetAvailableNeighbors(ent);
+        if (neighborTiles.Count == 0)
+        {
+            //We're overflowing
+            ent.Comp.LastUpdateStuck = true;
+            return;
+        }
+
+        ent.Comp.LastUpdateStuck = false;
+
+        if (ent.Comp.OverFlowLevel > 0)
+        {
+            ent.Comp.OverFlowLevel = 0;
+            ShittyDraw(ent, true);
+        }
+
         AddTiles(ent, neighborTiles);
         ent.Comp.NeedsUpdate = true;
     }
 
-    private void ShittyDraw(Entity<FluidPoolComponent> ent)
+    private void ShittyDraw(Entity<FluidPoolComponent> ent, bool redraw = false)
     {
+        if (redraw)
+        {
+            foreach (var tile in ent.Comp.DrawnTiles)
+            {
+               QueueDel(tile.Value);
+            }
+            ent.Comp.DrawnTiles.Clear();
+        }
+
         foreach (var tile in ent.Comp.Tiles)
         {
             if (ent.Comp.DrawnTiles.ContainsKey(tile))
@@ -70,7 +87,12 @@ public sealed partial class GridFluidSystem
             if (GetTileCoords(ent, tile, out var coords))
             {
                 Log.Debug("Drawing at: " + coords);
-                var spawned = Spawn("FluidTest75", coords.Value);
+                var proto = "FluidTest25";
+
+                if (ent.Comp.OverFlowLevel == 1)
+                    proto = "FluidTest50";
+
+                var spawned = Spawn(proto, coords.Value);
                 ent.Comp.DrawnTiles.Add(tile, spawned);
             }
         }
@@ -82,14 +104,14 @@ public sealed partial class GridFluidSystem
         }
     }
 
-    private bool GetTileCoords(Entity<FluidPoolComponent> ent, Vector2i tile, [NotNullWhen(true)] out EntityCoordinates? coords)
+    private bool GetTileCoords(Entity<FluidPoolComponent> ent, TileRef tile, [NotNullWhen(true)] out EntityCoordinates? coords)
     {
         coords = null;
 
-        if (!TryComp<MapGridComponent>(ent.Comp.GridUid, out var gridComponent))
+        if (!TryComp<MapGridComponent>(tile.GridUid, out var gridComponent))
             return false;
 
-        coords = _map.GridTileToLocal(ent.Comp.GridUid, gridComponent, tile);
+        coords = _map.GridTileToLocal(ent.Comp.GridUid, gridComponent, tile.GridIndices);
         return true;
     }
 
@@ -112,16 +134,16 @@ public sealed partial class GridFluidSystem
             : FixedPoint2.Zero;
     }
 
-    private void AddTiles(Entity<FluidPoolComponent> ent, List<Vector2i> tiles)
+    private void AddTiles(Entity<FluidPoolComponent> ent, List<TileRef> tiles)
     {
         ent.Comp.Tiles.UnionWith(tiles);
     }
 
-    private List<Vector2i> GetAvailableNeighbors(Entity<FluidPoolComponent> ent)
+    private List<TileRef> GetAvailableNeighbors(Entity<FluidPoolComponent> ent)
     {
         var airtightQuery = GetEntityQuery<AirtightComponent>();
 
-        List<Vector2i> neighboringTiles = new();
+        List<TileRef> neighboringTiles = new();
 
         if (!TryComp<MapGridComponent>(ent.Comp.GridUid, out var gridComponent))
             return neighboringTiles;
@@ -134,13 +156,15 @@ public sealed partial class GridFluidSystem
             for (var i = 0; i < 4; i++)
             {
                 var atmosDir = (AtmosDirection)(1 << i);
-                var neighborPos = tile.Offset(atmosDir);
-                if (ent.Comp.Tiles.Contains(neighborPos))
+                var neighborPos = tile.GridIndices.Offset(atmosDir);
+                if (!_map.TryGetTileRef(ent.Comp.GridUid, gridComponent, neighborPos, out var neighborTile))
                     continue;
-                neighboringTiles.Add(neighborPos);
+                if (ent.Comp.Tiles.Contains(neighborTile))
+                    continue;
+                neighboringTiles.Add(neighborTile);
             }
         }
-        List<Vector2i> unblockedNeighbors = new();
+        List<TileRef> unblockedNeighbors = new();
         foreach (var tile in neighboringTiles)
         {
             if (IsTileBlocked((ent.Comp.GridUid, gridComponent, gridXform), airtightQuery, tile))
@@ -151,15 +175,13 @@ public sealed partial class GridFluidSystem
         return unblockedNeighbors;
     }
 
-    public bool IsTileBlocked(Entity<MapGridComponent, TransformComponent> ent, EntityQuery<AirtightComponent> airtightQuery, Vector2i tile)
+    public bool IsTileBlocked(Entity<MapGridComponent, TransformComponent> ent, EntityQuery<AirtightComponent> airtightQuery, TileRef tileRef)
     {
         var xform = ent.Comp2;
         if (xform.GridUid == null)
             return true;
 
-        var anchored = _map.GetAnchoredEntitiesEnumerator(xform.GridUid.Value, ent.Comp1, tile);
-
-        var tileRef = _map.GetTileRef((ent.Owner, ent.Comp1), tile);
+        var anchored = _map.GetAnchoredEntitiesEnumerator(xform.GridUid.Value, ent.Comp1, tileRef.GridIndices);
 
         //if (_turf.IsSpace(tileRef))
         //    return true;

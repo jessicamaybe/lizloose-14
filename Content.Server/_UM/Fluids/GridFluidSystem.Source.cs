@@ -19,31 +19,13 @@ public sealed partial class GridFluidSystem
 
         var xform = Transform(ent);
 
-        if (xform.GridUid == null || !TryComp<MapGridComponent>(xform.GridUid, out var gridComponent))
-            return;
-
-        var pool = Spawn("FluidPool", xform.Coordinates);
-        Log.Debug("Spawned pool");
-
-        var poolComp = EnsureComp<FluidPoolComponent>(pool);
-        poolComp.GridUid = xform.GridUid.Value;
-
-        if (!_map.TryGetTileRef(xform.GridUid.Value, gridComponent, xform.Coordinates, out var tileRef))
+        if (xform.GridUid == null || !TryComp<MapGridComponent>(xform.GridUid.Value, out var gridComponent))
         {
-            Log.Debug("no tile ref? wtf?");
+            Log.Debug("no whatever? wtf?");
             return;
         }
-        poolComp.Tiles.Add(tileRef.GridIndices);
 
-        if (_solutionContainerSystem.ResolveSolution(pool,
-                poolComp.SolutionName,
-                ref poolComp.Solution,
-                out _))
-        {
-            Log.Debug("Added solution to pool");
-            _solutionContainerSystem.TryAddSolution(poolComp.Solution.Value, ent.Comp.Solution);
-            poolComp.NeedsUpdate = true;
-        }
+        AddFluid((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Solution);
 
     }
 }
