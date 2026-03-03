@@ -22,7 +22,7 @@ public sealed partial class GridFluidComponent : Component
     /// List of pools that will be deleted next update cycle
     /// </summary>
     [ViewVariables]
-    public HashSet<Entity<FluidPoolComponent>> DeletedTiles = new();
+    public HashSet<Entity<FluidPoolComponent>> DeletedPools = new();
 
     /// <summary>
     /// List of pools that need to be updated

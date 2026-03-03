@@ -45,14 +45,39 @@ public sealed partial class GridFluidSystem
         if (!_solutionContainer.ResolveSolution(pool.Value.Owner, pool.Value.Comp.SolutionName, ref pool.Value.Comp.Solution, out _))
             return;
 
-        _solutionContainer.SplitSolution(pool.Value.Comp.Solution.Value, amount);
+        var toRemove = CurrentVolume(pool.Value);
+
+        var clamped = FixedPoint2.FromCents(Math.Clamp(amount.Value, 0, toRemove.Value));
+
+        _solutionContainer.SplitSolution(pool.Value.Comp.Solution.Value, clamped);
 
         var volume = CurrentVolume(pool.Value);
+
+        if (volume == 0)
+            RemovePool(pool.Value);
+
+
         var amountPerTile = volume / (pool.Value.Comp.Tiles.Count - 1);
         if (amountPerTile > pool.Value.Comp.OverflowVolume)
             return;
 
         RemoveTile(pool.Value, tileRef);
+    }
+
+    public void RemovePool(Entity<FluidPoolComponent> ent)
+    {
+        foreach (var tile in ent.Comp.DrawnTiles)
+        {
+            QueueDel(tile.Value);
+        }
+
+        if (!ResolveGridFluid(ent, out var gridFluid))
+        {
+            QueueDel(ent);
+            return;
+        }
+
+        gridFluid.Value.Comp.DeletedPools.Add(ent);
     }
 
 }

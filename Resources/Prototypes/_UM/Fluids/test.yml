@@ -16,13 +16,26 @@
     lifetime: 1
 
 - type: entity
-  id: FluidSource
-  name: Fluid Source 1000
-  description: fluiid
+  id: FluidDrain100000
+  name: Fluid delete 100000
+  description: delete 100000
   placement:
     mode: SnapgridCenter
     snap:
     - Wall
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Detective/evidence_marker.rsi
+    color: "#FF0000"
+  - type: FluidDelete
+    amount: 100000
+  - type: TimedDespawn
+    lifetime: 1
+
+- type: entity
+  id: FluidSource
+  name: Fluid Source 1000
+  description: fluiid
   components:
   - type: Sprite
     sprite: Objects/Specific/Detective/evidence_marker.rsi

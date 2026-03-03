@@ -57,6 +57,12 @@ public sealed partial class FluidPoolComponent : Component
     public PoolFillLevel FillLevel = PoolFillLevel.Puddle;
 
     /// <summary>
+    /// How filled this puddle was
+    /// </summary>
+    [ViewVariables]
+    public PoolFillLevel FillLevelLastRun = PoolFillLevel.Puddle;
+
+    /// <summary>
     /// Was the room full last time we tried to update?
     /// </summary>
     [ViewVariables]

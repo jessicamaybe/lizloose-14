@@ -64,7 +64,6 @@ public sealed partial class GridFluidSystem
         if (ent.Comp.RoomFull)
         {
             ent.Comp.FillLevel += 1;
-            ShittyDraw(ent, true);
         }
 
         var neighborTiles = GetAvailableNeighbors(ent);
@@ -76,20 +75,15 @@ public sealed partial class GridFluidSystem
         }
 
         ent.Comp.RoomFull = false;
-
-        if (ent.Comp.FillLevel > PoolFillLevel.Puddle)
-        {
-            ent.Comp.FillLevel = PoolFillLevel.Puddle;
-            ShittyDraw(ent, true);
-        }
+        ent.Comp.FillLevel = PoolFillLevel.Puddle;
 
         ent.Comp.AddedTiles.UnionWith(neighborTiles);
         DirtyPool(ent);
     }
 
-    private void ShittyDraw(Entity<FluidPoolComponent> ent, bool redraw = false)
+    private void ShittyDraw(Entity<FluidPoolComponent> ent)
     {
-        if (redraw)
+        if (ent.Comp.FillLevel != ent.Comp.FillLevelLastRun)
         {
             foreach (var tile in ent.Comp.DrawnTiles)
             {

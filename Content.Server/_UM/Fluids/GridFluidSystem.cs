@@ -57,7 +57,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
 
     private void UpdatePuddles(Entity<GridFluidComponent> ent)
     {
-        foreach (var pool in ent.Comp.DeletedTiles)
+        foreach (var pool in ent.Comp.DeletedPools)
         {
             ent.Comp.Pools.Remove(pool);
             ent.Comp.StalePools.Remove(pool);
@@ -69,6 +69,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         while (ent.Comp.CurrentRunPools.TryDequeue(out var pool))
         {
             ent.Comp.StalePools.Remove(pool);
+            pool.Comp.FillLevelLastRun = pool.Comp.FillLevel;
             pool.Comp.EdgeTiles = GetEdgeTiles(pool);
             RemoveDeleted(pool);
             AddQueuedTiles(pool);
@@ -82,7 +83,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         Queue<Entity<FluidPoolComponent>> queue,
         HashSet<Entity<FluidPoolComponent>> pools)
     {
-
         queue.Clear();
         queue.EnsureCapacity(pools.Count);
         foreach (var tile in pools)
@@ -109,7 +109,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         }
 
         if (removedPool)
-            ent.Comp.DeletedTiles.Add(poolEnt);
+            ent.Comp.DeletedPools.Add(poolEnt);
     }
 
     private bool MergePools(Entity<GridFluidComponent> ent, Entity<FluidPoolComponent> pool, Entity<FluidPoolComponent> target)
@@ -128,7 +128,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
 
         if (targetSolution.Volume == 0)
         {
-            ent.Comp.DeletedTiles.Add(target);
+            ent.Comp.DeletedPools.Add(target);
             return false;
         }
 
