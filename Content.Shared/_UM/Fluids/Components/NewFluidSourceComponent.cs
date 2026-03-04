@@ -7,7 +7,7 @@ namespace Content.Shared._UM.Fluids.Components;
 /// This is used for...
 /// </summary>
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
-public sealed partial class FluidSourceComponent : Component
+public sealed partial class NewFluidSourceComponent : Component
 {
     [DataField, AutoNetworkedField]
     public Solution Solution = new([new("Water", 1000)]);

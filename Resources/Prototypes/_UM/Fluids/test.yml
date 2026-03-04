@@ -1,78 +1,14 @@
 - type: entity
-  id: FluidDrain
-  name: Fluid delete 30
-  description: delete 30
-  placement:
-    mode: SnapgridCenter
-    snap:
-    - Wall
-  components:
-  - type: Sprite
-    sprite: Objects/Specific/Detective/evidence_marker.rsi
-    color: "#FF0000"
-  - type: FluidDelete
-    amount: 30
-  - type: TimedDespawn
-    lifetime: 1
-
-- type: entity
-  id: FluidDrain100000
-  name: Fluid delete 100000
-  description: delete 100000
-  placement:
-    mode: SnapgridCenter
-    snap:
-    - Wall
-  components:
-  - type: Sprite
-    sprite: Objects/Specific/Detective/evidence_marker.rsi
-    color: "#FF0000"
-  - type: FluidDelete
-    amount: 100000
-  - type: TimedDespawn
-    lifetime: 1
-
-- type: entity
   id: FluidSource
   name: Fluid Source 1000 water
   description: fluiid
   components:
   - type: Sprite
     sprite: Objects/Specific/Detective/evidence_marker.rsi
-  - type: FluidSource
+  - type: NewFluidSource
     solution:
       reagents:
       - ReagentId: Water
-        Quantity: 1000
-  - type: TimedDespawn
-    lifetime: 5
-
-- type: entity
-  id: FluidSourceKelotane
-  name: Fluid Source 1000 kelotane
-  description: fluiid
-  components:
-  - type: Sprite
-    sprite: Objects/Specific/Detective/evidence_marker.rsi
-  - type: FluidSource
-    solution:
-      reagents:
-      - ReagentId: Kelotane
-        Quantity: 1000
-  - type: TimedDespawn
-    lifetime: 5
-
-- type: entity
-  id: FluidSourceHydrogen
-  name: Fluid Source 1000 Fluorosurfactant
-  description: fluid
-  components:
-  - type: Sprite
-    sprite: Objects/Specific/Detective/evidence_marker.rsi
-  - type: FluidSource
-    solution:
-      reagents:
-      - ReagentId: Fluorosurfactant
         Quantity: 1000
   - type: TimedDespawn
     lifetime: 5
@@ -83,11 +19,23 @@
   parent: FluidSource
   description: 25 fluids
   components:
-  - type: FluidSource
+  - type: NewFluidSource
     solution:
       reagents:
       - ReagentId: Water
         Quantity: 25
+
+- type: entity
+  id: FluidSource500
+  name: Fluid Source 500
+  parent: FluidSource
+  description: 25 fluids
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Water
+        Quantity: 500
 
 - type: entity
   id: FluidSource10
@@ -95,7 +43,7 @@
   parent: FluidSource
   description: 10 fluids
   components:
-  - type: FluidSource
+  - type: NewFluidSource
     solution:
       reagents:
       - ReagentId: Water
@@ -107,29 +55,11 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: FluidSource
+  - type: NewFluidSource
     solution:
       reagents:
       - ReagentId: Water
         Quantity: 10000
-
-- type: entity
-  id: FluidPool
-  name: Fluid Pool
-  components:
-  - type: Sprite
-    noRot: true
-    sprite: Objects/Specific/Janitorial/wet_floor_sign.rsi
-    state: icon
-  - type: FluidPool
-    overflowVolume: 50
-    solutionName: pool
-  - type: MixableSolution
-    solution: pool
-  - type: SolutionContainerManager
-    solutions:
-      pool:
-        maxVol: 100000000
 
 - type: entity
   id: FluidTestOverlay
@@ -151,7 +81,7 @@
     color: "#75b1f0BF"
 
 - type: entity
-  id: FluidTest50
+  id: FluidTest100
   suffix: FLUID
   placement:
     mode: SnapgridCenter
@@ -168,7 +98,7 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
     drawdepth: BelowFloor
-    color: "#75b1f0BF"
+    color: "#75b1f0FF"
   - type: Physics
     bodyType: Static
   - type: Fixtures
@@ -192,6 +122,89 @@
   - type: Appearance
 
 - type: entity
+  id: FluidTest75
+  suffix: FLUID
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
+  components:
+  - type: FloorOccluder
+  - type: Transform
+    noRot: true
+    anchored: true
+  - type: Sprite
+    noRot: true
+    layers:
+    - sprite: _UM/Fluid/fluid.rsi
+      state: splat0
+    drawdepth: BelowFloor
+    color: "#75b1f0C0"
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        layer:
+        - SlipLayer
+        mask:
+        - ItemMask
+        density: 1000
+        hard: false
+  - type: IconSmooth
+    key: puddles
+    additionalKeys:
+    - walls
+    base: splat
+    mode: CardinalFlags
+  - type: Appearance
+
+- type: entity
+  id: FluidTest50
+  suffix: FLUID
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
+  components:
+  - type: FloorOccluder
+  - type: Transform
+    noRot: true
+    anchored: true
+  - type: Sprite
+    noRot: true
+    layers:
+    - sprite: _UM/Fluid/fluid.rsi
+      state: splat0
+    drawdepth: BelowFloor
+    color: "#75b1f080"
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        layer:
+        - SlipLayer
+        mask:
+        - ItemMask
+        density: 1000
+        hard: false
+  - type: IconSmooth
+    key: puddles
+    additionalKeys:
+    - walls
+    base: splat
+    mode: CardinalFlags
+  - type: Appearance
+
+
+- type: entity
   id: FluidTest25
   suffix: FLUID
   components:
@@ -204,7 +217,7 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
     drawdepth: Puddles
-    color: "#75b1f080"
+    color: "#75b1f040"
   - type: IconSmooth
     key: puddles
     additionalKeys:

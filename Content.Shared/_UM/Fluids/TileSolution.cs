@@ -13,13 +13,22 @@ public sealed partial class TileSolution
     [ViewVariables]
     public Vector2i GridIndices;
 
+    /// <summary>
+    /// The solution on this tile
+    /// </summary>
+    [ViewVariables]
     public Solution Solution;
 
-    public TileSolution(EntityUid gridIndex, Vector2i gridIndices, Solution solution)
+    [ViewVariables]
+    public FillLevel FillLevel;
+
+    [ViewVariables]
+    public bool Excited;
+    public TileSolution(EntityUid gridIndex, Vector2i gridIndices)
     {
         GridIndex = gridIndex;
         GridIndices = gridIndices;
-        Solution = solution;
+        Solution = new Solution(capacity: 100000);
     }
 
     public TileSolution(TileSolution other)
@@ -28,4 +37,13 @@ public sealed partial class TileSolution
         GridIndices = other.GridIndices;
         Solution = other.Solution;
     }
+}
+
+
+public enum FillLevel
+{
+    Puddle,
+    Ankle,
+    Waist,
+    Ceiling,
 }
