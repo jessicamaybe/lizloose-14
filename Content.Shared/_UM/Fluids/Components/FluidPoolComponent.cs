@@ -23,7 +23,7 @@ public sealed partial class FluidPoolComponent : Component
     public HashSet<TileRef> EdgeTiles = new(1000);
 
     /// <summary>
-    /// Tiles we're removing on the next update
+    /// Tiles we're adding on the next update
     /// </summary>
     public HashSet<TileRef> AddedTiles = new();
 
@@ -33,14 +33,21 @@ public sealed partial class FluidPoolComponent : Component
     public HashSet<TileRef> RemovedTiles = new();
 
     /// <summary>
-    ///
+    /// Temporary
+    /// The entities representing this puddle
     /// </summary>
     [ViewVariables]
     public Dictionary<TileRef, EntityUid> DrawnTiles = new();
 
+    /// <summary>
+    /// The grid entity this pool is on
+    /// </summary>
     [ViewVariables]
     public EntityUid GridUid;
 
+    /// <summary>
+    /// The volume at which this puddle should overflow
+    /// </summary>
     [DataField]
     public FixedPoint2 OverflowVolume = FixedPoint2.New(50);
 

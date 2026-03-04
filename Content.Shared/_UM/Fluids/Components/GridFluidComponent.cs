@@ -1,3 +1,5 @@
+using Content.Shared.FixedPoint;
+using Robust.Shared.Map;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
 namespace Content.Shared._UM.Fluids.Components;
@@ -16,7 +18,8 @@ public sealed partial class GridFluidComponent : Component
     /// List of pools that will be added next update cycle
     /// </summary>
     [ViewVariables]
-    public HashSet<Entity<FluidPoolComponent>> AddedTiles = new();
+    public HashSet<Entity<FluidPoolComponent>> AddedPools = new();
+
 
     /// <summary>
     /// List of pools that will be deleted next update cycle
@@ -29,7 +32,8 @@ public sealed partial class GridFluidComponent : Component
     /// </summary>
     public HashSet<Entity<FluidPoolComponent>> StalePools = new();
 
-
+    [ViewVariables]
+    public Dictionary<TileRef, PuddleMerger> Mergers = new();
 
     [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))]
     [AutoPausedField]
@@ -39,7 +43,43 @@ public sealed partial class GridFluidComponent : Component
     [DataField]
     public TimeSpan UpdateInterval = TimeSpan.FromMilliseconds(100);
 
-
+    /// <summary>
+    /// Pools we're iterating on in our current run
+    /// </summary>
     [ViewVariables]
     public readonly Queue<Entity<FluidPoolComponent>> CurrentRunPools = new();
+}
+
+
+[Serializable]
+public sealed class PuddleMerger
+{
+    /// <summary>
+    /// Indices of the merger, where the temporary solution containers should be (so explosions and shit work)
+    /// </summary>
+    public Vector2i Indices;
+
+    /// <summary>
+    /// Difference in volume between the two puddles at the starting point
+    /// </summary>
+    public FixedPoint2 Difference;
+
+    /// <summary>
+    /// How many steps this puddle merger will take
+    /// </summary>
+    public int Steps;
+
+    public Entity<FluidPoolComponent> PoolA;
+
+    public Entity<FluidPoolComponent> PoolB;
+
+
+    public PuddleMerger(Vector2i indices, FixedPoint2 difference, int steps, Entity<FluidPoolComponent> poolA, Entity<FluidPoolComponent> poolB)
+    {
+        Indices = indices;
+        Difference = difference;
+        Steps = steps;
+        PoolA = poolA;
+        PoolB = poolB;
+    }
 }

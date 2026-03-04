@@ -33,6 +33,9 @@ public sealed partial class GridFluidSystem
     /// <param name="ent"></param>
     private void RemoveDeleted(Entity<FluidPoolComponent> ent)
     {
+        if (ent.Comp.RemovedTiles.Count == 0)
+            return;
+
         foreach (var tile in ent.Comp.RemovedTiles)
         {
             ent.Comp.Tiles.Remove(tile);
@@ -45,53 +48,11 @@ public sealed partial class GridFluidSystem
             }
         }
         ent.Comp.RemovedTiles.Clear();
-    }
-
-    private void UpdatePool(Entity<FluidPoolComponent> ent)
-    {
-        if (ent.Comp.Tiles.Count == 0)
-        {
-            Log.Debug("If this happens we fucked up");
-            return;
-        }
-
-        if (!IsOverflowing(ent))
-        {
-            Log.Debug("pool is not overflowing");
-            return;
-        }
-
-        if (ent.Comp.RoomFull)
-        {
-            ent.Comp.FillLevel += 1;
-        }
-
-        var neighborTiles = GetAvailableNeighbors(ent);
-        if (neighborTiles.Count == 0)
-        {
-            //We're overflowing
-            ent.Comp.RoomFull = true;
-            return;
-        }
-
-        ent.Comp.RoomFull = false;
-        ent.Comp.FillLevel = PoolFillLevel.Puddle;
-
-        ent.Comp.AddedTiles.UnionWith(neighborTiles);
         DirtyPool(ent);
     }
 
     private void ShittyDraw(Entity<FluidPoolComponent> ent)
     {
-        if (ent.Comp.FillLevel != ent.Comp.FillLevelLastRun)
-        {
-            foreach (var tile in ent.Comp.DrawnTiles)
-            {
-               QueueDel(tile.Value);
-            }
-            ent.Comp.DrawnTiles.Clear();
-        }
-
         foreach (var tile in ent.Comp.Tiles)
         {
             if (ent.Comp.DrawnTiles.ContainsKey(tile))
@@ -116,6 +77,16 @@ public sealed partial class GridFluidSystem
         }
     }
 
+    private void ShittyDrawDelete(Entity<FluidPoolComponent> ent)
+    {
+        foreach (var tile in ent.Comp.DrawnTiles)
+        {
+            QueueDel(tile.Value);
+        }
+        ent.Comp.DrawnTiles.Clear();
+    }
+
+
     private bool GetTileCoords(Entity<FluidPoolComponent> ent, TileRef tile, [NotNullWhen(true)] out EntityCoordinates? coords)
     {
         coords = null;
@@ -125,6 +96,11 @@ public sealed partial class GridFluidSystem
 
         coords = _map.GridTileToLocal(ent.Comp.GridUid, gridComponent, tile.GridIndices);
         return true;
+    }
+
+    private EntityCoordinates GetTileCoords(Entity<MapGridComponent> ent, TileRef tile)
+    {
+        return _map.GridTileToLocal(ent.Owner, ent.Comp, tile.GridIndices);
     }
 
     /// <summary>
@@ -172,94 +148,5 @@ public sealed partial class GridFluidSystem
         {
             ent.Comp.RemovedTiles.Add(tile);
         }
-    }
-
-    private List<TileRef> GetAvailableNeighbors(Entity<FluidPoolComponent> ent)
-    {
-        var airtightQuery = GetEntityQuery<AirtightComponent>();
-
-        List<TileRef> neighboringTiles = new();
-
-        if (!TryComp<MapGridComponent>(ent.Comp.GridUid, out var gridComponent))
-            return neighboringTiles;
-
-        var gridXform = Transform(ent.Comp.GridUid);
-
-        foreach (var tile in ent.Comp.EdgeTiles)
-        {
-            //Get neighboring tiles that aren't in our pool
-            for (var i = 0; i < 4; i++)
-            {
-                var atmosDir = (AtmosDirection)(1 << i);
-                var neighborPos = tile.GridIndices.Offset(atmosDir);
-                if (!_map.TryGetTileRef(ent.Comp.GridUid, gridComponent, neighborPos, out var neighborTile))
-                    continue;
-                if (ent.Comp.Tiles.Contains(neighborTile))
-                    continue;
-                neighboringTiles.Add(neighborTile);
-            }
-        }
-        List<TileRef> unblockedNeighbors = new();
-        foreach (var tile in neighboringTiles)
-        {
-            if (IsTileBlocked((ent.Comp.GridUid, gridComponent, gridXform), airtightQuery, tile))
-                continue;
-            unblockedNeighbors.Add(tile);
-        }
-
-        return unblockedNeighbors;
-    }
-
-    private HashSet<TileRef> GetEdgeTiles(Entity<FluidPoolComponent> ent)
-    {
-        var edgeTiles = new HashSet<TileRef>();
-
-        if (!TryComp<MapGridComponent>(ent.Comp.GridUid, out var gridComponent))
-            return edgeTiles;
-
-        if (ent.Comp.Tiles.Count == 1)
-            ent.Comp.EdgeTiles = ent.Comp.Tiles;
-
-        foreach (var tile in ent.Comp.Tiles)
-        {
-            for (var i = 0; i < 4; i++)
-            {
-                var atmosDir = (AtmosDirection)(1 << i);
-                var neighborPos = tile.GridIndices.Offset(atmosDir);
-
-                if (!_map.TryGetTileRef(ent.Comp.GridUid, gridComponent, neighborPos, out var neighborTile))
-                {
-                    edgeTiles.Add(tile);
-                    break;
-                }
-
-                if (!ent.Comp.Tiles.Contains(neighborTile))
-                {
-                    edgeTiles.Add(tile);
-                    break;
-                }
-            }
-        }
-        return edgeTiles;
-    }
-
-    public bool IsTileBlocked(Entity<MapGridComponent, TransformComponent> ent, EntityQuery<AirtightComponent> airtightQuery, TileRef tileRef)
-    {
-        var xform = ent.Comp2;
-        if (xform.GridUid == null)
-            return true;
-
-        var anchored = _map.GetAnchoredEntitiesEnumerator(xform.GridUid.Value, ent.Comp1, tileRef.GridIndices);
-
-        //if (_turf.IsSpace(tileRef))
-        //    return true;
-
-        while (anchored.MoveNext(out var anchoredEnt))
-        {
-            if (airtightQuery.TryGetComponent(anchoredEnt, out var airtightComponent) && airtightComponent.AirBlocked)
-                return true;
-        }
-
-        return false;
     }
 }

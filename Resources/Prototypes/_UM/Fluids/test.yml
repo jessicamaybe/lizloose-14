@@ -34,7 +34,7 @@
 
 - type: entity
   id: FluidSource
-  name: Fluid Source 1000
+  name: Fluid Source 1000 water
   description: fluiid
   components:
   - type: Sprite
@@ -43,6 +43,36 @@
     solution:
       reagents:
       - ReagentId: Water
+        Quantity: 1000
+  - type: TimedDespawn
+    lifetime: 5
+
+- type: entity
+  id: FluidSourceKelotane
+  name: Fluid Source 1000 kelotane
+  description: fluiid
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Detective/evidence_marker.rsi
+  - type: FluidSource
+    solution:
+      reagents:
+      - ReagentId: Kelotane
+        Quantity: 1000
+  - type: TimedDespawn
+    lifetime: 5
+
+- type: entity
+  id: FluidSourceHydrogen
+  name: Fluid Source 1000 Fluorosurfactant
+  description: fluid
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Detective/evidence_marker.rsi
+  - type: FluidSource
+    solution:
+      reagents:
+      - ReagentId: Fluorosurfactant
         Quantity: 1000
   - type: TimedDespawn
     lifetime: 5

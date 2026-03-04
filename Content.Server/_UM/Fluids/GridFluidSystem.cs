@@ -3,6 +3,7 @@ using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.EntitySystems;
+using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Maps;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
@@ -16,6 +17,8 @@ namespace Content.Server._UM.Fluids;
 public sealed partial class GridFluidSystem : SharedGridFluidSystem
 {
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainer = default!;
+    [Dependency] private readonly ChemicalReactionSystem _solutionReaction = default!;
+    [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly TurfSystem _turf = default!;
@@ -33,21 +36,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-
-        var query = EntityQueryEnumerator<GridFluidComponent>();
-
-        var curTime = _timing.CurTime;
-
-        while (query.MoveNext(out var uid, out var comp))
-        {
-
-            if (comp.NextUpdate > curTime)
-                continue;
-
-            UpdatePuddles((uid, comp));
-
-            comp.NextUpdate += comp.UpdateInterval;
-        }
+        UpdateFluidProcessing(frameTime);
     }
 
     private void OnMapInit(Entity<GridFluidComponent> ent, ref MapInitEvent args)
@@ -55,42 +44,11 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         ent.Comp.NextUpdate = _timing.CurTime + ent.Comp.UpdateInterval;
     }
 
-    private void UpdatePuddles(Entity<GridFluidComponent> ent)
-    {
-        foreach (var pool in ent.Comp.DeletedPools)
-        {
-            ent.Comp.Pools.Remove(pool);
-            ent.Comp.StalePools.Remove(pool);
-            QueueDel(pool);
-        }
-
-        QueuePools(ent.Comp.CurrentRunPools, ent.Comp.StalePools);
-
-        while (ent.Comp.CurrentRunPools.TryDequeue(out var pool))
-        {
-            ent.Comp.StalePools.Remove(pool);
-            pool.Comp.FillLevelLastRun = pool.Comp.FillLevel;
-            pool.Comp.EdgeTiles = GetEdgeTiles(pool);
-            RemoveDeleted(pool);
-            AddQueuedTiles(pool);
-            UpdatePool(pool);
-            ShittyDraw(pool);
-            CheckIntersect(ent, pool);
-        }
-    }
-
-    private void QueuePools(
-        Queue<Entity<FluidPoolComponent>> queue,
-        HashSet<Entity<FluidPoolComponent>> pools)
-    {
-        queue.Clear();
-        queue.EnsureCapacity(pools.Count);
-        foreach (var tile in pools)
-        {
-            queue.Enqueue(tile);
-        }
-    }
-
+    /// <summary>
+    /// Check if a single pool is intersecting any other.
+    /// </summary>
+    /// <param name="ent"></param>
+    /// <param name="poolEnt"></param>
     private void CheckIntersect(Entity<GridFluidComponent> ent, Entity<FluidPoolComponent> poolEnt)
     {
         var removedPool = false;
@@ -144,6 +102,12 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         return true;
     }
 
+    /// <summary>
+    /// Given a pool, gets the gridfluid entity
+    /// </summary>
+    /// <param name="ent"></param>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     private bool ResolveGridFluid(Entity<FluidPoolComponent> ent, [NotNullWhen(true)] out Entity<GridFluidComponent>? entity)
     {
         entity = null;
@@ -155,12 +119,24 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         return true;
     }
 
+    /// <summary>
+    /// Temporary
+    /// Adds a pool to the stale pools list
+    /// </summary>
+    /// <param name="ent"></param>
     private void DirtyPool(Entity<FluidPoolComponent> ent)
     {
         if (ResolveGridFluid(ent, out var gridFluid))
             gridFluid.Value.Comp.StalePools.Add(ent);
     }
 
+    /// <summary>
+    /// Tries to get a pool, given a coordinates and a grid
+    /// </summary>
+    /// <param name="ent"></param>
+    /// <param name="coords"></param>
+    /// <param name="fluidPool"></param>
+    /// <returns></returns>
     private bool TryGetPool(Entity<MapGridComponent> ent, EntityCoordinates coords, [NotNullWhen(true)] out Entity<FluidPoolComponent>? fluidPool)
     {
         fluidPool = null;
@@ -180,5 +156,45 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// Tries to get a pool, given a tile and a grid
+    /// </summary>
+    /// <param name="ent"></param>
+    /// <param name="tile"></param>
+    /// <param name="fluidPool"></param>
+    /// <returns></returns>
+    private bool TryGetPool(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i tile, [NotNullWhen(true)] out Entity<FluidPoolComponent>? fluidPool)
+    {
+        fluidPool = null;
+
+        if (!TryComp<GridFluidComponent>(ent, out var gridFluidComponent))
+            return false;
+
+        var tileRef = _map.GetTileRef(ent, tile);
+
+        foreach (var pool in gridFluidComponent.Pools)
+        {
+            if (pool.Comp.EdgeTiles.Contains(tileRef))
+            {
+                fluidPool = pool;
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void QueuePools(
+        Queue<Entity<FluidPoolComponent>> queue,
+        HashSet<Entity<FluidPoolComponent>> pools)
+    {
+        queue.Clear();
+        queue.EnsureCapacity(pools.Count);
+        foreach (var tile in pools)
+        {
+            queue.Enqueue(tile);
+        }
     }
 }

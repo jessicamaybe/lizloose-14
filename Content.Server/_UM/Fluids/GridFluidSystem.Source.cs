@@ -39,6 +39,6 @@ public sealed partial class GridFluidSystem
             return;
         }
 
-        TryRemoveFluid((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Amount);
+        TryDrainFromTile((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Amount);
     }
 }

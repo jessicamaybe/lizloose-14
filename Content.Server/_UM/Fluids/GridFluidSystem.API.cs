@@ -34,7 +34,7 @@ public sealed partial class GridFluidSystem
         }
     }
 
-    public void TryRemoveFluid(Entity<MapGridComponent> ent, EntityCoordinates coords, FixedPoint2 amount)
+    public void TryDrainFromTile(Entity<MapGridComponent> ent, EntityCoordinates coords, FixedPoint2 amount)
     {
         if (!TryGetPool(ent, coords, out var pool))
             return;
@@ -78,6 +78,22 @@ public sealed partial class GridFluidSystem
         }
 
         gridFluid.Value.Comp.DeletedPools.Add(ent);
+    }
+
+    public void InvalidateTile(Entity<MapGridComponent?> ent, Vector2i tile)
+    {
+        if (!Resolve(ent, ref ent.Comp))
+            return;
+
+        if (!TryComp<GridFluidComponent>(ent, out var gridFluid))
+            return;
+
+        if (TryGetPool((ent, ent.Comp, gridFluid), tile, out var pool))
+        {
+            //OPTIMIZE THIS LATER
+            Log.Debug("pool dirtied from invalidated tile");
+            DirtyPool(pool.Value);
+        }
     }
 
 }
