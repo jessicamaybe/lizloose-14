@@ -71,6 +71,29 @@ public sealed partial class GridFluidSystem
     }
 
     /// <summary>
+    /// Returns list of neighbors for a pool
+    /// </summary>
+    /// <param name="grid"></param>
+    /// <param name="pool"></param>
+    /// <returns></returns>
+    private HashSet<Vector2i> GetNeighbors(Entity<MapGridComponent> ent, Entity<FluidPoolComponent> pool)
+    {
+        HashSet<Vector2i> neighboringTiles = new();
+
+        foreach (var tile in pool.Comp.EdgeTiles)
+        {
+            //Get neighboring tiles that aren't in our pool
+            for (var i = 0; i < 4; i++)
+            {
+                var atmosDir = (AtmosDirection)(1 << i);
+                var neighborPos = tile.GridIndices.Offset(atmosDir);
+                neighboringTiles.Add(neighborPos);
+            }
+        }
+        return neighboringTiles;
+    }
+
+    /// <summary>
     /// Returns tiles that are on the edge of a puddle
     /// </summary>
     /// <param name="ent"></param>

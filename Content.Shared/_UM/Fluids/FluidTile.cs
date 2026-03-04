@@ -1,29 +1,31 @@
+using Content.Shared.Chemistry.Components;
+
 namespace Content.Shared._UM.Fluids;
 
 
 [Serializable]
 [DataDefinition]
-public sealed partial class FluidTile
+public sealed partial class TileSolution
 {
-    [ViewVariables]
-    public Vector2i GridIndices;
-
     [ViewVariables]
     public EntityUid GridIndex;
 
-    public FluidTile(EntityUid gridIndex, Vector2i gridIndices)
+    [ViewVariables]
+    public Vector2i GridIndices;
+
+    public Solution Solution;
+
+    public TileSolution(EntityUid gridIndex, Vector2i gridIndices, Solution solution)
     {
         GridIndex = gridIndex;
         GridIndices = gridIndices;
+        Solution = solution;
     }
 
-    public FluidTile(FluidTile other)
+    public TileSolution(TileSolution other)
     {
         GridIndex = other.GridIndex;
         GridIndices = other.GridIndices;
-    }
-
-    public FluidTile()
-    {
+        Solution = other.Solution;
     }
 }

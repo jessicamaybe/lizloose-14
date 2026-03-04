@@ -16,15 +16,10 @@ public sealed partial class GridFluidSystem
 
     private void OnMapInit(Entity<FluidSourceComponent> ent, ref MapInitEvent args)
     {
-        Log.Debug("Trying to spawn fluid source");
-
         var xform = Transform(ent);
 
         if (xform.GridUid == null || !TryComp<MapGridComponent>(xform.GridUid.Value, out var gridComponent))
-        {
-            Log.Debug("no whatever? wtf?");
             return;
-        }
 
         AddFluid((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Solution);
     }
@@ -34,10 +29,7 @@ public sealed partial class GridFluidSystem
         var xform = Transform(ent);
 
         if (xform.GridUid == null || !TryComp<MapGridComponent>(xform.GridUid.Value, out var gridComponent))
-        {
-            Log.Debug("no whatever? wtf?");
             return;
-        }
 
         TryDrainFromTile((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Amount);
     }

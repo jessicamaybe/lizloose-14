@@ -88,11 +88,11 @@ public sealed partial class GridFluidSystem
         if (!TryComp<GridFluidComponent>(ent, out var gridFluid))
             return;
 
-        if (TryGetPool((ent, ent.Comp, gridFluid), tile, out var pool))
+        foreach (var pool in gridFluid.Pools)
         {
-            //OPTIMIZE THIS LATER
-            Log.Debug("pool dirtied from invalidated tile");
-            DirtyPool(pool.Value);
+            var neighbors = GetNeighbors((ent.Owner, ent.Comp), pool);
+            if (neighbors.Contains(tile))
+                DirtyPool(pool);
         }
     }
 

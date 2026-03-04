@@ -112,8 +112,6 @@ public sealed partial class GridFluidSystem
     {
         var volume = CurrentVolume(ent);
         var amountPerTile = (volume / ent.Comp.Tiles.Count);
-
-        Log.Debug("Current volume for pool: " + ent.Owner + "  is: " + volume + "  Amount per tile is: " + amountPerTile);
         return amountPerTile > ent.Comp.OverflowVolume;
     }
 

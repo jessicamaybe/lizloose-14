@@ -28,17 +28,14 @@ public sealed partial class GridFluidSystem
                 out var poolBSolution))
             return;
 
-
         var poolAVolume = poolASolution.Volume;
         var poolBVolume = poolBSolution.Volume;
         var averageOverflow = (poolA.Comp.OverflowVolume + poolB.Comp.OverflowVolume) / 2;
 
         var difference = FixedPoint2.FromCents(Math.Abs(poolAVolume.Value - poolBVolume.Value));
-        Log.Debug("Difference between pools is: " + difference);
 
         var steps = (difference.Value / averageOverflow.Value);
         steps = Math.Clamp(steps, 3, 20);
-        Log.Debug("Steps to merge: " + steps);
         var merger = new PuddleMerger(tile.GridIndices, difference, steps, poolA, poolB);
         ent.Comp1.Mergers.Add(tile, merger);
     }
@@ -53,7 +50,6 @@ public sealed partial class GridFluidSystem
         {
             if (merger.Steps == 0)
             {
-                Log.Debug("Merge finished, combining puddles");
                 QuickMerge((owner, gridFluid), tileRef, merger.PoolA, merger.PoolB);
                 finishedMergers.Add(tileRef);
                 continue;
@@ -78,7 +74,6 @@ public sealed partial class GridFluidSystem
                     out var poolBSolution))
                 continue;
 
-            Log.Debug("Spawning temporary solution container");
             var mixEnt = SpawnAtPosition(null, _map.GridTileToLocal(ent.Owner, ent.Comp2, merger.Indices));
 
             if (!_solutionContainer.EnsureSolutionEntity(mixEnt, "pool", out var tempSolution,100000))
@@ -86,14 +81,11 @@ public sealed partial class GridFluidSystem
 
             var transferAmount = merger.Steps * merger.PoolA.Comp.OverflowVolume;
 
-            Log.Debug("Transfering: " + transferAmount);
             _solutionContainer.TryTransferSolution(tempSolution.Value, poolASolution, transferAmount);
             _solutionContainer.TryTransferSolution(tempSolution.Value, poolBSolution, transferAmount);
 
             _solutionReaction.FullyReactSolution(tempSolution.Value);
-            Log.Debug("reacted solutions");
 
-            Log.Debug("Transfering back: " + transferAmount);
             _solutionContainer.TryTransferSolution(merger.PoolA.Comp.Solution.Value, tempSolution.Value.Comp.Solution, transferAmount);
             _solutionContainer.TryTransferSolution(merger.PoolB.Comp.Solution.Value, tempSolution.Value.Comp.Solution, transferAmount);
             QueueDel(mixEnt);
@@ -104,14 +96,13 @@ public sealed partial class GridFluidSystem
         {
             ent.Comp1.Mergers.Remove(merger);
         }
-
     }
-
 
     /// <summary>
     /// In one step, merge the contents of pool A into pool B
     /// </summary>
     /// <param name="ent"></param>
+    /// <param name="mergeTile"></param>
     /// <param name="poolA"></param>
     /// <param name="poolB"></param>
     /// <returns></returns>
