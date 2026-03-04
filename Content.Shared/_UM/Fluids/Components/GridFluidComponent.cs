@@ -8,7 +8,7 @@ namespace Content.Shared._UM.Fluids.Components;
 /// This is used for...
 /// </summary>
 [RegisterComponent]
-public sealed partial class NewGridFluidComponent : Component
+public sealed partial class GridFluidComponent : Component
 {
     [ViewVariables]
     public Dictionary<Vector2i, TileSolution> Tiles = new();

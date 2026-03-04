@@ -8,11 +8,11 @@ using Robust.Shared.Map.Components;
 
 namespace Content.Server._UM.Fluids;
 
-public sealed partial class NewGridFluidSystem
+public sealed partial class GridFluidSystem
 {
     private void UpdateFluidProcessing(float frameTime)
     {
-        var query = EntityQueryEnumerator<NewGridFluidComponent, MapGridComponent, TransformComponent>();
+        var query = EntityQueryEnumerator<GridFluidComponent, MapGridComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out var gridFluid, out var grid, out var xform))
         {
             ProcessGridPool((uid, gridFluid, grid, xform));
@@ -23,7 +23,7 @@ public sealed partial class NewGridFluidSystem
     /// Process a single grids fluid pools
     /// </summary>
     /// <param name="ent"></param>
-    private void ProcessGridPool(Entity<NewGridFluidComponent, MapGridComponent, TransformComponent> ent)
+    private void ProcessGridPool(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
         var (owner, gridFluid, grid, xform) = ent;
 
@@ -62,7 +62,7 @@ public sealed partial class NewGridFluidSystem
         DrawTiles(ent);
     }
 
-    private FillLevel CalculateFillLevel(Entity<NewGridFluidComponent, MapGridComponent, TransformComponent> ent,
+    private FillLevel CalculateFillLevel(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
         TileSolution tile)
     {
         var (owner, gridFluid, grid, xform) = ent;
@@ -79,7 +79,7 @@ public sealed partial class NewGridFluidSystem
         return FillLevel.Puddle;
     }
 
-    private void DrawTiles(Entity<NewGridFluidComponent, MapGridComponent, TransformComponent> ent)
+    private void DrawTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
         var (owner, gridFluid, grid, xform) = ent;
 

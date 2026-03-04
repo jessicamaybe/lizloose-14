@@ -7,10 +7,10 @@ using Robust.Shared.Map.Components;
 
 namespace Content.Server._UM.Fluids;
 
-public sealed partial class NewGridFluidSystem
+public sealed partial class GridFluidSystem
 {
 
-    private void ProcessFluidSpread(Entity<NewGridFluidComponent, MapGridComponent, TransformComponent> ent,
+    private void ProcessFluidSpread(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
         Vector2i indices,
         TileSolution tile)
     {
@@ -46,7 +46,7 @@ public sealed partial class NewGridFluidSystem
     /// <param name="indices"></param>
     /// <param name="tile"></param>
     /// <returns></returns>
-    private List<Vector2i> GetAvailableNeighbors(Entity<NewGridFluidComponent, MapGridComponent, TransformComponent> ent, Vector2i indices, TileSolution tile)
+    private List<Vector2i> GetAvailableNeighbors(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent, Vector2i indices, TileSolution tile)
     {
         var (owner, gridFluid, grid, xform) = ent;
 

@@ -6,7 +6,7 @@ namespace Content.Server._UM.Fluids;
 /// <summary>
 /// This handles...
 /// </summary>
-public sealed partial class NewGridFluidSystem
+public sealed partial class GridFluidSystem
 {
     private void InitializeSource()
     {

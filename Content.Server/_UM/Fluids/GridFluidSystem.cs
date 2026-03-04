@@ -17,7 +17,7 @@ namespace Content.Server._UM.Fluids;
 /// <summary>
 /// This handles...
 /// </summary>
-public sealed partial class NewGridFluidSystem : EntitySystem
+public sealed partial class GridFluidSystem : EntitySystem
 {
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainer = default!;
@@ -62,7 +62,7 @@ public sealed partial class NewGridFluidSystem : EntitySystem
 
     public void AddFluid(Entity<MapGridComponent> ent, Vector2i indices, Solution solution)
     {
-        var gridFluid = EnsureComp<NewGridFluidComponent>(ent.Owner);
+        var gridFluid = EnsureComp<GridFluidComponent>(ent.Owner);
 
         if (gridFluid.Tiles.TryGetValue(indices, out var tile))
         {
@@ -74,9 +74,9 @@ public sealed partial class NewGridFluidSystem : EntitySystem
         AddTile((ent.Owner, ent.Comp, gridFluid), indices, solution);
     }
 
-    private void AddTile(Entity<MapGridComponent, NewGridFluidComponent> ent, Vector2i indices, Solution solution)
+    private void AddTile(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i indices, Solution solution)
     {
-        var gridFluid = EnsureComp<NewGridFluidComponent>(ent.Owner);
+        var gridFluid = EnsureComp<GridFluidComponent>(ent.Owner);
 
         var tileSolution = new TileSolution(ent.Owner, indices);
         tileSolution.Excited = true;
@@ -85,7 +85,7 @@ public sealed partial class NewGridFluidSystem : EntitySystem
     }
 
 
-    private bool TryGetFluid(Entity<MapGridComponent, NewGridFluidComponent> ent,
+    private bool TryGetFluid(Entity<MapGridComponent, GridFluidComponent> ent,
         Vector2i indices,
         [NotNullWhen(true)] out TileSolution? tile)
     {
