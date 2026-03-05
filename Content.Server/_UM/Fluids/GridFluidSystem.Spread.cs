@@ -11,23 +11,36 @@ public sealed partial class GridFluidSystem
 {
 
     private void ProcessFluidSpread(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
-        Vector2i indices,
         TileSolution tile)
     {
         var (owner, gridFluid, grid, xform) = ent;
 
         if (tile.Solution.Volume <= gridFluid.OverflowVolume)
+        {
+            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
             return;
+        }
 
-        var neighbors = GetAvailableNeighbors(ent, indices, tile);
+        var neighbors = GetAvailableNeighbors(ent, tile.GridIndices, tile);
 
         if (neighbors.Count == 0)
+        {
+            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
             return;
+        }
 
         var splitVolume = (tile.Solution.Volume - gridFluid.OverflowVolume) / (neighbors.Count + 1);
 
-        if (splitVolume < 1)
+        var splitDiff = Math.Abs(tile.LastShareVolume.Value - splitVolume.Value);
+        Log.Debug("split diff:" + splitVolume + "Last split diff: " + tile.LastShareVolume);
+
+        if (splitDiff < 12)
+        {
+            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
             return;
+        }
+
+        tile.LastShareVolume = splitVolume;
 
         foreach (var neighbor in neighbors)
         {
@@ -36,7 +49,7 @@ public sealed partial class GridFluidSystem
         }
 
         if (tile.Solution.Volume > gridFluid.OverflowVolume)
-            tile.Excited = true;
+            AddActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using Content.Shared.Chemistry.Components;
+using Content.Shared.FixedPoint;
 
 namespace Content.Shared._UM.Fluids;
 
@@ -21,6 +22,11 @@ public sealed partial class TileSolution
 
     [ViewVariables]
     public FillLevel FillLevel;
+
+    [ViewVariables]
+    public FixedPoint2 LastShareVolume;
+
+    public TileSolutionGroup? TileSolutionGroup;
 
     [ViewVariables]
     public bool Excited;

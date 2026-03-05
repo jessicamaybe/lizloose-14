@@ -60,21 +60,21 @@ public sealed partial class GridFluidSystem : EntitySystem
         AddFluid(ent, tileRef.GridIndices, solution);
     }
 
-    public void AddFluid(Entity<MapGridComponent> ent, Vector2i indices, Solution solution)
+    public void AddFluid(Entity<MapGridComponent> ent, Vector2i indices, Solution solution, bool active = true)
     {
         var gridFluid = EnsureComp<GridFluidComponent>(ent.Owner);
 
         if (gridFluid.Tiles.TryGetValue(indices, out var tile))
         {
             tile.Solution.AddSolution(solution, _prototypeManager);
-            tile.Excited = true;
+            AddActiveTile((ent.Owner, ent.Comp, gridFluid), indices);
             return;
         }
 
-        AddTile((ent.Owner, ent.Comp, gridFluid), indices, solution);
+        AddTile((ent.Owner, ent.Comp, gridFluid), indices, solution, active);
     }
 
-    private void AddTile(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i indices, Solution solution)
+    private void AddTile(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i indices, Solution solution, bool active = true)
     {
         var gridFluid = EnsureComp<GridFluidComponent>(ent.Owner);
 
@@ -82,6 +82,9 @@ public sealed partial class GridFluidSystem : EntitySystem
         tileSolution.Excited = true;
         tileSolution.Solution.AddSolution(solution, _prototypeManager);
         gridFluid.Tiles.TryAdd(indices, tileSolution);
+
+        if (active)
+            AddActiveTile(ent, indices);
     }
 
 
@@ -92,6 +95,21 @@ public sealed partial class GridFluidSystem : EntitySystem
         tile = null;
 
         return ent.Comp2.Tiles.TryGetValue(indices, out tile);
+    }
 
+    private void AddActiveTile(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i indices)
+    {
+        if (!ent.Comp2.Tiles.ContainsKey(indices))
+            return;
+
+        ent.Comp2.ActiveTiles.Add(indices);
+    }
+
+    private void RemoveActiveTile(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i indices)
+    {
+        if (!ent.Comp2.Tiles.ContainsKey(indices) || !ent.Comp2.ActiveTiles.Contains(indices))
+            return;
+
+        ent.Comp2.ActiveTiles.Remove(indices);
     }
 }

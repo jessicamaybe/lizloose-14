@@ -15,7 +15,7 @@ public sealed partial class GridFluidSystem
         var query = EntityQueryEnumerator<GridFluidComponent, MapGridComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out var gridFluid, out var grid, out var xform))
         {
-            ProcessGridPool((uid, gridFluid, grid, xform));
+            ProcessGridFluid((uid, gridFluid, grid, xform));
         }
     }
 
@@ -23,43 +23,50 @@ public sealed partial class GridFluidSystem
     /// Process a single grids fluid pools
     /// </summary>
     /// <param name="ent"></param>
-    private void ProcessGridPool(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    private void ProcessGridFluid(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
         var (owner, gridFluid, grid, xform) = ent;
 
-        foreach (var (indices, tile) in gridFluid.Tiles)
+        ProcessActiveTiles(ent);
+        DrawTiles(ent);
+    }
+
+    private void ProcessActiveTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var gridFluid = ent.Comp1;
+
+        gridFluid.CurrentRunTiles.Clear();
+        gridFluid.CurrentRunTiles.EnsureCapacity(gridFluid.ActiveTiles.Count);
+        foreach (var indices in gridFluid.ActiveTiles)
         {
-            Log.Debug("Tile volume: " + tile.Solution.Volume);
-
-            if (!tile.Excited)
-                continue;
-
-            gridFluid.ExcitedTiles.Add(indices);
-            tile.Excited = false;
+            gridFluid.CurrentRunTiles.Enqueue(indices);
         }
+        if (gridFluid.ActiveTiles.Count > 0)
+            Log.Debug("Active tile count: " + gridFluid.ActiveTiles.Count);
 
-        foreach (var indices in gridFluid.ExcitedTiles)
+        while (gridFluid.CurrentRunTiles.TryDequeue(out var indices))
         {
-            if (!gridFluid.Tiles.TryGetValue(indices, out var tileSolution))
+            if (!gridFluid.Tiles.TryGetValue(indices, out var tile))
                 continue;
-            ProcessFluidSpread(ent, indices, tileSolution);
 
-            var fillLevel = CalculateFillLevel(ent, tileSolution);
+            ProcessFluidSpread(ent, tile);
 
-            if (tileSolution.FillLevel != fillLevel)
+            var fillLevel = CalculateFillLevel(ent, tile);
+
+            if (tile.FillLevel != fillLevel)
             {
                 if (gridFluid.DrawnTiles.TryGetValue(indices, out var tileent) &&
-                    fillLevel != tileSolution.FillLevel)
+                    fillLevel != tile.FillLevel)
                 {
                     QueueDel(tileent);
                     gridFluid.DrawnTiles.Remove(indices);
                 }
             }
-
-            tileSolution.FillLevel = fillLevel;
+            tile.FillLevel = fillLevel;
         }
-        gridFluid.ExcitedTiles.Clear();
-        DrawTiles(ent);
+
+
+
     }
 
     private FillLevel CalculateFillLevel(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,

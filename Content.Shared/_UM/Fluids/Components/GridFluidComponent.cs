@@ -14,7 +14,14 @@ public sealed partial class GridFluidComponent : Component
     public Dictionary<Vector2i, TileSolution> Tiles = new();
 
     [ViewVariables]
-    public HashSet<Vector2i> ExcitedTiles = new(1000);
+    public HashSet<Vector2i> ActiveTiles = new(1000);
+
+    [ViewVariables]
+    public readonly Queue<Vector2i> CurrentRunTiles = new();
+
+    [ViewVariables]
+    public List<TileSolutionGroup> TileGroups = new();
+
 
     [ViewVariables]
     public HashSet<Vector2i> FillStateChanged = new(1000);
