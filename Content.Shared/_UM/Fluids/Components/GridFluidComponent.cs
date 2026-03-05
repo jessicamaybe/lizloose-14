@@ -13,12 +13,35 @@ public sealed partial class GridFluidComponent : Component
     [ViewVariables]
     public Dictionary<Vector2i, TileSolution> Tiles = new();
 
+    /// <summary>
+    /// Currently active tiles
+    /// </summary>
     [ViewVariables]
     public HashSet<Vector2i> ActiveTiles = new(1000);
 
     [ViewVariables]
     public readonly Queue<Vector2i> CurrentRunTiles = new();
 
+    /// <summary>
+    /// Tiles that need to be revalidated
+    /// </summary>
+    [ViewVariables]
+    public HashSet<TileSolution> InvalidTiles = new();
+
+    [ViewVariables]
+    public readonly Queue<TileSolution> CurrentRunInvalidTiles = new();
+
+    /// <summary>
+    /// Tiles which still need to be checked for reactions
+    /// </summary>
+    [ViewVariables]
+    public HashSet<TileSolution> UnreactedTiles = new();
+
+    [ViewVariables]
+    public readonly Queue<TileSolution> CurrentRunUnreactedTiles = new();
+
+
+    //Tile group stuff
     [ViewVariables]
     public List<TileSolutionGroup> TileGroups = new();
 

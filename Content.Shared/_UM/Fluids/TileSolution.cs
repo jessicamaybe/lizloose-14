@@ -1,3 +1,4 @@
+using Content.Shared.Atmos;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.FixedPoint;
 
@@ -28,6 +29,9 @@ public sealed partial class TileSolution
 
     [ViewVariables]
     public FixedPoint2 LastShareVolume;
+
+    [ViewVariables]
+    public AtmosDirection BlockedDirections;
 
     public TileSolutionGroup? TileSolutionGroup;
 

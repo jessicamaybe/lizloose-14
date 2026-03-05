@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Content.Server.Atmos.Components;
+using Content.Server.Atmos.Piping.Components;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
@@ -28,10 +29,31 @@ public sealed partial class GridFluidSystem
     {
         var (owner, gridFluid, grid, xform) = ent;
 
+        ProcessInvalidTiles(ent);
         ProcessActiveTiles(ent);
-        ProcessTileGroups(ent);
+        //ProcessTileGroups(ent);
         DrawTiles(ent);
     }
+
+    private void ProcessInvalidTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var gridFluid = ent.Comp1;
+
+        gridFluid.CurrentRunInvalidTiles.Clear();
+        gridFluid.CurrentRunInvalidTiles.EnsureCapacity(gridFluid.InvalidTiles.Count);
+        foreach (var indices in gridFluid.InvalidTiles)
+        {
+            gridFluid.CurrentRunInvalidTiles.Enqueue(indices);
+        }
+        if (gridFluid.InvalidTiles.Count > 0)
+            Log.Debug("invalid tile count: " + gridFluid.InvalidTiles.Count);
+
+        while (gridFluid.CurrentRunInvalidTiles.TryDequeue(out var tile))
+        {
+            UpdateBlockedDirections(ent, tile, true);
+        }
+    }
+
 
     private void ProcessActiveTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
@@ -65,6 +87,27 @@ public sealed partial class GridFluidSystem
             }
             tile.FillLevel = fillLevel;
         }
+    }
+
+    private void ProcessTileReactions(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var gridFluid = ent.Comp1;
+
+
+        gridFluid.CurrentRunUnreactedTiles.Clear();
+        gridFluid.CurrentRunUnreactedTiles.EnsureCapacity(gridFluid.UnreactedTiles.Count);
+        foreach (var group in gridFluid.UnreactedTiles)
+        {
+            gridFluid.CurrentRunUnreactedTiles.Enqueue(group);
+        }
+        if (gridFluid.UnreactedTiles.Count > 0)
+            Log.Debug("tile group count: " + gridFluid.UnreactedTiles.Count);
+
+        while (gridFluid.CurrentRunUnreactedTiles.TryDequeue(out var tile))
+        {
+            FullyReactSolution(gridFluid, tile);
+        }
+
     }
 
     private void ProcessTileGroups(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
@@ -150,7 +193,6 @@ public sealed partial class GridFluidSystem
             //Log.Debug("Drawing tile at: " + indices);
 
             var coords = _map.GridTileToLocal(owner, grid, indices);
-
             tile.FillLevel = CalculateFillLevel(ent, tile);
 
             var proto = "FluidTest25";
@@ -171,6 +213,10 @@ public sealed partial class GridFluidSystem
             }
 
             var spawned = Spawn(proto, coords);
+            var pipeColor = EnsureComp<AtmosPipeColorComponent>(spawned);
+
+            var color = tile.Solution.GetColor(_prototypeManager);
+            _pipeColor.SetColor(spawned, pipeColor, color);
             gridFluid.DrawnTiles.Add(indices, spawned);
         }
         foreach (var (indices, tileEnt) in gridFluid.DrawnTiles)

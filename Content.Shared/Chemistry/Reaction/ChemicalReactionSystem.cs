@@ -37,12 +37,12 @@ namespace Content.Shared.Chemistry.Reaction
         /// A cache of all reactions indexed by at most ONE of their required reactants.
         /// I.e., even if a reaction has more than one reagent, it will only ever appear once in this dictionary.
         /// </summary>
-        private FrozenDictionary<string, List<ReactionPrototype>> _reactionsSingle = default!;
+        public FrozenDictionary<string, List<ReactionPrototype>> _reactionsSingle = default!;
 
         /// <summary>
         ///     A cache of all reactions indexed by one of their required reactants.
         /// </summary>
-        private FrozenDictionary<string, List<ReactionPrototype>> _reactions = default!;
+        public FrozenDictionary<string, List<ReactionPrototype>> _reactions = default!;
 
         public override void Initialize()
         {

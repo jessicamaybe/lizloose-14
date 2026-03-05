@@ -14,6 +14,9 @@ namespace Content.Server.Atmos.EntitySystems
         [Dependency] private readonly AtmosphereSystem _atmosphereSystem = default!;
         [Dependency] private readonly ExplosionSystem _explosionSystem = default!;
         [Dependency] private readonly SharedMapSystem _mapSystem = default!;
+        //UM START
+        [Dependency] private readonly GridFluidSystem _gridFluid = default!;
+        //UM END
 
         public override void Initialize()
         {
@@ -130,6 +133,9 @@ namespace Content.Server.Atmos.EntitySystems
             var query = GetEntityQuery<AirtightComponent>();
             _explosionSystem.UpdateAirtightMap(grid, pos, grid);
             _atmosphereSystem.InvalidateTile(grid.Owner, pos);
+            //UM START
+            _gridFluid.InvalidateTile(grid.Owner, pos);
+            //UM END
         }
 
         private AtmosDirection Rotate(AtmosDirection myDirection, Angle myAngle)
