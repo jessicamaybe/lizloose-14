@@ -24,6 +24,9 @@ public sealed partial class TileSolution
     public FillLevel FillLevel;
 
     [ViewVariables]
+    public FixedPoint2 ShareVolume;
+
+    [ViewVariables]
     public FixedPoint2 LastShareVolume;
 
     public TileSolutionGroup? TileSolutionGroup;

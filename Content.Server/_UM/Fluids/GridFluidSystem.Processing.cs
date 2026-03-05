@@ -3,6 +3,7 @@ using Content.Server.Atmos.Components;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
+using Content.Shared.FixedPoint;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 
@@ -28,6 +29,7 @@ public sealed partial class GridFluidSystem
         var (owner, gridFluid, grid, xform) = ent;
 
         ProcessActiveTiles(ent);
+        ProcessTileGroups(ent);
         DrawTiles(ent);
     }
 
@@ -52,7 +54,6 @@ public sealed partial class GridFluidSystem
             ProcessFluidSpread(ent, tile);
 
             var fillLevel = CalculateFillLevel(ent, tile);
-
             if (tile.FillLevel != fillLevel)
             {
                 if (gridFluid.DrawnTiles.TryGetValue(indices, out var tileent) &&
@@ -64,9 +65,60 @@ public sealed partial class GridFluidSystem
             }
             tile.FillLevel = fillLevel;
         }
+    }
 
+    private void ProcessTileGroups(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var gridFluid = ent.Comp1;
 
+        gridFluid.CurrentRunTileGroups.Clear();
+        gridFluid.CurrentRunTileGroups.EnsureCapacity(gridFluid.TileGroups.Count);
+        foreach (var group in gridFluid.TileGroups)
+        {
+            gridFluid.CurrentRunTileGroups.Enqueue(group);
+        }
+        if (gridFluid.TileGroups.Count > 0)
+            Log.Debug("tile group count: " + gridFluid.TileGroups.Count);
 
+        while (gridFluid.CurrentRunTileGroups.TryDequeue(out var tileGroup))
+        {
+            tileGroup.BreakdownCooldown++;
+            tileGroup.DismantleCooldown++;
+
+            var splitAmount = FixedPoint2.Zero;
+
+            if (tileGroup.Tiles.Count > 0)
+            {
+                foreach (var tile in tileGroup.Tiles)
+                {
+                    splitAmount += tile.LastShareVolume;
+                    tile.LastShareVolume = tile.ShareVolume;
+                }
+
+                tileGroup.LastAverage = tileGroup.Average;
+                tileGroup.Average = splitAmount.Value / tileGroup.Tiles.Count;
+
+                var diff = Math.Abs(tileGroup.LastAverage - tileGroup.Average);
+
+                Log.Debug("average: " + diff);
+
+                if (diff > 50)
+                {
+                    ExcitedGroupResetCooldowns(tileGroup);
+                    continue;
+                }
+                if (diff > 14)
+                    tileGroup.DismantleCooldown = 0;
+            }
+
+            Log.Debug("breakdown cooldown: " + tileGroup.BreakdownCooldown);
+            Log.Debug("Dismantle cooldown: " + tileGroup.DismantleCooldown);
+
+            if (tileGroup.BreakdownCooldown > 4)
+                TileGroupSelfBreakdown(ent, tileGroup);
+            if (tileGroup.DismantleCooldown > 12)
+                DeactivateGroupTiles(gridFluid, tileGroup);
+        }
     }
 
     private FillLevel CalculateFillLevel(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
@@ -95,9 +147,11 @@ public sealed partial class GridFluidSystem
             if (gridFluid.DrawnTiles.ContainsKey(indices))
                 continue;
 
-            Log.Debug("Drawing tile at: " + indices);
+            //Log.Debug("Drawing tile at: " + indices);
 
             var coords = _map.GridTileToLocal(owner, grid, indices);
+
+            tile.FillLevel = CalculateFillLevel(ent, tile);
 
             var proto = "FluidTest25";
             switch (tile.FillLevel)

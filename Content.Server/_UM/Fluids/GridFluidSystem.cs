@@ -112,4 +112,12 @@ public sealed partial class GridFluidSystem : EntitySystem
 
         ent.Comp2.ActiveTiles.Remove(indices);
     }
+
+    private void RemoveActiveTile(GridFluidComponent gridFluid, Vector2i indices)
+    {
+        if (!gridFluid.Tiles.ContainsKey(indices) || !gridFluid.ActiveTiles.Contains(indices))
+            return;
+
+        gridFluid.ActiveTiles.Remove(indices);
+    }
 }

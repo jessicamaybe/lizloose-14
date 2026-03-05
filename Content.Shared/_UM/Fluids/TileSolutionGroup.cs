@@ -8,7 +8,14 @@ public sealed class TileSolutionGroup
     [ViewVariables]
     public bool Disposed = false;
 
+    public int Average;
+
+    public int LastAverage;
+
     [ViewVariables]
     public int BreakdownCooldown = 0;
+
+    [ViewVariables]
+    public int DismantleCooldown = 0;
 
 }

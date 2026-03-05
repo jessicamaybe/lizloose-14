@@ -29,20 +29,52 @@ public sealed partial class GridFluidSystem
             return;
         }
 
-        var splitVolume = (tile.Solution.Volume - gridFluid.OverflowVolume) / (neighbors.Count + 1);
+        var goodNeighborTiles = new List<Vector2i>();
 
-        var splitDiff = Math.Abs(tile.LastShareVolume.Value - splitVolume.Value);
-        Log.Debug("split diff:" + splitVolume + "Last split diff: " + tile.LastShareVolume);
-
-        if (splitDiff < 12)
+        foreach (var neighborIndices in neighbors)
         {
-            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
+            if (!TryGetFluid((ent.Owner, ent.Comp2, ent.Comp1), neighborIndices, out var neighborTile))
+            {
+                goodNeighborTiles.Add(neighborIndices);
+                continue;
+            }
+
+            if (tile.TileSolutionGroup != null && neighborTile.TileSolutionGroup != null)
+            {
+                if (neighborTile.TileSolutionGroup != tile.TileSolutionGroup)
+                {
+                    ExcitedGroupMerge(gridFluid, tile.TileSolutionGroup, neighborTile.TileSolutionGroup);
+                }
+            }
+            var tileGroup = tile.TileSolutionGroup;
+            tileGroup ??= tile.TileSolutionGroup;
+
+            if (tileGroup == null)
+            {
+                tileGroup = new TileSolutionGroup();
+                gridFluid.TileGroups.Add(tileGroup);
+            }
+            if (tile.TileSolutionGroup == null)
+                TileGroupAddTile(tileGroup, tile);
+            if (neighborTile.TileSolutionGroup == null)
+                TileGroupAddTile(tileGroup, neighborTile);
+
+            if (neighborTile.Solution.Volume >= tile.Solution.Volume)
+                continue;
+
+            goodNeighborTiles.Add(neighborIndices);
+        }
+
+        if (goodNeighborTiles.Count == 0)
+        {
             return;
         }
 
-        tile.LastShareVolume = splitVolume;
+        var splitVolume = (tile.Solution.Volume - gridFluid.OverflowVolume) / (goodNeighborTiles.Count + 1);
 
-        foreach (var neighbor in neighbors)
+        tile.ShareVolume = tile.Solution.Volume - splitVolume;
+
+        foreach (var neighbor in goodNeighborTiles)
         {
             var overflowSolution = tile.Solution.SplitSolution(splitVolume);
             AddFluid((owner, grid), neighbor, overflowSolution);
@@ -50,6 +82,9 @@ public sealed partial class GridFluidSystem
 
         if (tile.Solution.Volume > gridFluid.OverflowVolume)
             AddActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
+
+        if (tile.Solution.Volume <= gridFluid.OverflowVolume)
+            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
     }
 
     /// <summary>
