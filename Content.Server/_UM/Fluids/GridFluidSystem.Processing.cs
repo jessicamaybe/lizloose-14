@@ -30,10 +30,10 @@ public sealed partial class GridFluidSystem
     {
         var (owner, gridFluid, grid, xform) = ent;
 
+        //TODO: ONLY DO ONE OF THESE STEPS PER TICK :-)
         ProcessInvalidTiles(ent);
         ProcessActiveTiles(ent);
         ProcessTileReactions(ent);
-        //ProcessTileGroups(ent);
         DrawTiles(ent);
     }
 
@@ -55,7 +55,6 @@ public sealed partial class GridFluidSystem
             UpdateBlockedDirections(ent, tile, true);
         }
     }
-
 
     private void ProcessActiveTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
@@ -109,61 +108,6 @@ public sealed partial class GridFluidSystem
         {
             FullyReactSolution(gridFluid, tile);
             gridFluid.UnreactedTiles.Remove(tile);
-        }
-
-    }
-
-    private void ProcessTileGroups(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
-    {
-        var gridFluid = ent.Comp1;
-
-        gridFluid.CurrentRunTileGroups.Clear();
-        gridFluid.CurrentRunTileGroups.EnsureCapacity(gridFluid.TileGroups.Count);
-        foreach (var group in gridFluid.TileGroups)
-        {
-            gridFluid.CurrentRunTileGroups.Enqueue(group);
-        }
-        //if (gridFluid.TileGroups.Count > 0)
-        //    Log.Debug("tile group count: " + gridFluid.TileGroups.Count);
-
-        while (gridFluid.CurrentRunTileGroups.TryDequeue(out var tileGroup))
-        {
-            tileGroup.BreakdownCooldown++;
-            tileGroup.DismantleCooldown++;
-
-            var splitAmount = FixedPoint2.Zero;
-
-            if (tileGroup.Tiles.Count > 0)
-            {
-                foreach (var tile in tileGroup.Tiles)
-                {
-                    splitAmount += tile.LastShareVolume;
-                    tile.LastShareVolume = tile.ShareVolume;
-                }
-
-                tileGroup.LastAverage = tileGroup.Average;
-                tileGroup.Average = splitAmount.Value / tileGroup.Tiles.Count;
-
-                var diff = Math.Abs(tileGroup.LastAverage - tileGroup.Average);
-
-                Log.Debug("average: " + diff);
-
-                if (diff > 50)
-                {
-                    ExcitedGroupResetCooldowns(tileGroup);
-                    continue;
-                }
-                if (diff > 14)
-                    tileGroup.DismantleCooldown = 0;
-            }
-
-            Log.Debug("breakdown cooldown: " + tileGroup.BreakdownCooldown);
-            Log.Debug("Dismantle cooldown: " + tileGroup.DismantleCooldown);
-
-            if (tileGroup.BreakdownCooldown > 4)
-                TileGroupSelfBreakdown(ent, tileGroup);
-            if (tileGroup.DismantleCooldown > 12)
-                DeactivateGroupTiles(gridFluid, tileGroup);
         }
     }
 

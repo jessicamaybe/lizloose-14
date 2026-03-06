@@ -40,18 +40,6 @@ public sealed partial class GridFluidComponent : Component
     [ViewVariables]
     public readonly Queue<TileSolution> CurrentRunUnreactedTiles = new();
 
-
-    //Tile group stuff
-    [ViewVariables]
-    public List<TileSolutionGroup> TileGroups = new();
-
-    [ViewVariables]
-    public readonly Queue<TileSolutionGroup> CurrentRunTileGroups = new();
-
-
-    [ViewVariables]
-    public HashSet<Vector2i> FillStateChanged = new(1000);
-
     /// <summary>
     /// Tiles that will be deleted next update
     /// </summary>
@@ -66,10 +54,6 @@ public sealed partial class GridFluidComponent : Component
     /// </summary>
     [ViewVariables]
     public FixedPoint2 OverflowVolume = 50;
-
-    [ViewVariables]
-    public List<FluidPool> Pools = new();
-
 }
 
 
