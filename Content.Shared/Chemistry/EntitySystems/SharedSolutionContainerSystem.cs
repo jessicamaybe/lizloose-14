@@ -152,7 +152,7 @@ public abstract partial class SharedSolutionContainerSystem : EntitySystem
         [NotNullWhen(true)] out Solution? solution,
         bool errorOnMissing = false)
     {
-        /*
+
         //UM START
         if (GridFluidSystem.TryGetSolution(container.Owner, out solution))
         {
@@ -161,7 +161,7 @@ public abstract partial class SharedSolutionContainerSystem : EntitySystem
             return true;
         }
         //UM END
-        */
+
         if (!TryGetSolution(container, name, out entity, errorOnMissing: errorOnMissing))
         {
             solution = null;

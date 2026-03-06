@@ -42,7 +42,6 @@ public sealed partial class GridFluidSystem
             RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
             return;
         }
-
         var flows = new List<(Vector2i pos, FixedPoint2 amount)>();
 
         foreach (var neighborIndices in neighbors)
@@ -52,17 +51,39 @@ public sealed partial class GridFluidSystem
             if (TryGetFluid(gridFluid, neighborIndices, out var neighborTile))
                 neighborVolume = neighborTile.Solution.Volume;
 
-            if (neighborVolume >= tileVolume)
-                continue;
-
             var diff = tileVolume - neighborVolume;
 
-            if (diff < 0.1)
+            if (diff <= 0)
                 continue;
 
+            // pairwise leveling
             var flow = diff / 4;
+
+            if (flow < 0.1)
+                continue;
+
             flows.Add((neighborIndices, flow));
         }
+        FixedPoint2 totalRequested = 0;
+
+        foreach (var flow in flows)
+        {
+            totalRequested += flow.amount;
+        }
+
+        var maxOut = tileVolume - gridFluid.OverflowVolume;
+
+        if (totalRequested > maxOut && totalRequested > 0)
+        {
+            var scale = maxOut / totalRequested;
+
+            for (var i = 0; i < flows.Count; i++)
+            {
+                var (pos, amt) = flows[i];
+                flows[i] = (pos, amt * scale);
+            }
+        }
+
 
         foreach (var (pos, amount) in flows)
         {

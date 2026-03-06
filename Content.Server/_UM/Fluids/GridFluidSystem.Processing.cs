@@ -216,6 +216,8 @@ public sealed partial class GridFluidSystem
             }
 
             var spawned = Spawn(proto, coords);
+            var relay = EnsureComp<TileSolutionRelayComponent>(spawned);
+            relay.TileSolution = tile;
             var pipeColor = EnsureComp<AtmosPipeColorComponent>(spawned);
             var color = tile.Solution.GetColor(_prototypeManager);
             _pipeColor.SetColor(spawned, pipeColor, color);

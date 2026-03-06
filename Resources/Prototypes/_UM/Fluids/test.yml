@@ -193,7 +193,19 @@
     snap:
     - Wall
   components:
-  - type: FloorOccluder
+  - type: Clickable
+  - type: Solution
+  - type: ExaminableSolution
+    solution: whatever
+    locVolume: "examinable-solution-on-examine-volume-puddle"
+  - type: DrawableSolution
+    solution: whatever
+  - type: Edible
+    edible: Drink
+    delay: 3
+    transferAmount: 1
+    solution: puddle
+    utensil: Spoon
   - type: Transform
     noRot: true
     anchored: true
@@ -224,9 +236,10 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
       map: [ "enum.PipeVisualLayers.Pipe" ]
-      color: "#75b1f0BF"
+      color: "#75b1f0d0"
     drawdepth: BelowFloor
   - type: PipeColorVisuals
+  - type: TileSolutionRelay
 
 - type: entity
   id: FluidTest75
@@ -239,7 +252,7 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
       map: [ "enum.PipeVisualLayers.Pipe" ]
-      color: "#75b1f0C0"
+      color: "#75b1f0D0"
 
 - type: entity
   id: FluidTest50
@@ -252,7 +265,7 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
       map: [ "enum.PipeVisualLayers.Pipe" ]
-      color: "#75b1f080"
+      color: "#75b1f0A0"
     drawdepth: BelowFloor
 
 - type: entity
@@ -266,7 +279,7 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
       map: [ "enum.PipeVisualLayers.Pipe" ]
-      color: "#75b1f040"
+      color: "#75b1f080"
     drawdepth: BelowFloor
 
 
