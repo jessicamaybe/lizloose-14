@@ -30,11 +30,58 @@ public sealed partial class GridFluidSystem
     {
         var (owner, gridFluid, grid, xform) = ent;
 
+
         //TODO: ONLY DO ONE OF THESE STEPS PER TICK :-)
-        ProcessInvalidTiles(ent);
-        ProcessActiveTiles(ent);
-        ProcessTileReactions(ent);
-        DrawTiles(ent);
+
+        switch (ent.Comp1.Stage)
+        {
+            case 1:
+                ProcessInvalidTiles(ent);
+                ent.Comp1.Stage++;
+                break;
+            case 2:
+                ProcessActiveTiles(ent);
+                ent.Comp1.Stage++;
+                break;
+            case 3:
+                ProcessTileReactions(ent);
+                CheckEmptyTiles(ent);
+                ent.Comp1.Stage++;
+                break;
+            case 4:
+                DrawTiles(ent);
+                ent.Comp1.Stage++;
+                break;
+            case 5:
+                ent.Comp1.Stage = 1;
+                break;
+            default:
+                ent.Comp1.Stage = 5;
+                break;
+        }
+
+        //ProcessInvalidTiles(ent);
+        //ProcessActiveTiles(ent);
+        //ProcessTileReactions(ent);
+        //DrawTiles(ent);
+    }
+
+    private void CheckEmptyTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var deleted = new List<Vector2i>();
+
+        foreach (var (indices, tile) in ent.Comp1.Tiles)
+        {
+            if (tile.Solution.Volume == 0)
+                deleted.Add(indices);
+        }
+
+        foreach (var tile in deleted)
+        {
+            RemoveActiveTile(ent.Comp1, tile);
+            ent.Comp1.Tiles.Remove(tile);
+        }
+
     }
 
     private void ProcessInvalidTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
@@ -167,10 +214,20 @@ public sealed partial class GridFluidSystem
             _pipeColor.SetColor(spawned, pipeColor, color);
             gridFluid.DrawnTiles.Add(indices, spawned);
         }
+
+        var deleted = new List<Vector2i>();
         foreach (var (indices, tileEnt) in gridFluid.DrawnTiles)
         {
             if (!gridFluid.Tiles.ContainsKey(indices))
+            {
                 QueueDel(tileEnt);
+                deleted.Add(indices);
+            }
+        }
+
+        foreach (var tiled in deleted)
+        {
+            gridFluid.DrawnTiles.Remove(tiled);
         }
     }
 }

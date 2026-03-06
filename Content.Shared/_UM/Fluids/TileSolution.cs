@@ -33,8 +33,6 @@ public sealed partial class TileSolution
     [ViewVariables]
     public AtmosDirection BlockedDirections;
 
-    public TileSolutionGroup? TileSolutionGroup;
-
     [ViewVariables]
     public bool Excited;
     public TileSolution(EntityUid gridIndex, Vector2i gridIndices)

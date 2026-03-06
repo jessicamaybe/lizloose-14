@@ -54,6 +54,8 @@ public sealed partial class GridFluidComponent : Component
     /// </summary>
     [ViewVariables]
     public FixedPoint2 OverflowVolume = 50;
+
+    public int Stage = 1;
 }
 
 
