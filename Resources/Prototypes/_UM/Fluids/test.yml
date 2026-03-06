@@ -76,16 +76,60 @@
         Quantity: 10
 
 - type: entity
-  id: FluidSource25Fluorosurfactant
-  name: Fluid Source 25 Fluorosurfactant
+  id: FluidSourceFlashMix
+  name: Fluid Source FlashMix
   parent: FluidSource
-  description: 25 fluids
+  description: flash mix
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Potassium
+        Quantity: 10
+      - ReagentId: Aluminium
+        Quantity: 10
+      - ReagentId: Sulfur
+        Quantity: 10
+
+- type: entity
+  id: FluidSourcePhlogMix
+  name: Fluid Source PhloxMix
+  parent: FluidSource
+  description: phlog mix
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Phosphorus
+        Quantity: 10
+      - ReagentId: SulfuricAcid
+        Quantity: 10
+      - ReagentId: Plasma
+        Quantity: 10
+
+- type: entity
+  id: FluidSource10Potassium
+  name: Fluid Source 10 Potassium
+  parent: FluidSource
+  description: 10 fluids
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Potassium
+        Quantity: 10
+
+- type: entity
+  id: FluidSource10Fluorosurfactant
+  name: Fluid Source 10 Fluorosurfactant
+  parent: FluidSource
+  description: 10 fluids
   components:
   - type: NewFluidSource
     solution:
       reagents:
       - ReagentId: Fluorosurfactant
-        Quantity: 25
+        Quantity: 10
 
 - type: entity
   id: FluidSource10000Fluorosurfactant

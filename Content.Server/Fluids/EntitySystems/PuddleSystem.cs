@@ -1,3 +1,4 @@
+using Content.Server._UM.Fluids;
 using Content.Server.Fluids.Components;
 using Content.Server.Spreader;
 using Content.Shared.Chemistry;
@@ -36,7 +37,9 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainerSystem = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly TurfSystem _turf = default!;
-
+    //UM START
+    [Dependency] private readonly GridFluidSystem _gridFluid = default!;
+    //UM END
     private EntityQuery<PuddleComponent> _puddleQuery;
 
     /*
@@ -507,7 +510,12 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
             puddleUid = EntityUid.Invalid;
             return false;
         }
-
+        //UM START
+        //Hijacks puddle system to just spawn our puddles instead >:)
+        var coords = _map.GridTileToLocal(gridId, mapGrid, tileRef.GridIndices);
+        _gridFluid.AddFluid((gridId, mapGrid), coords, solution);
+        puddleUid = EntityUid.Invalid;
+        /*
         if (tileReact)
         {
             // First, do all tile reactions
@@ -555,7 +563,8 @@ public sealed partial class PuddleSystem : SharedPuddleSystem
         {
             EnsureComp<ActiveEdgeSpreaderComponent>(puddleUid);
         }
-
+        */
+        //UM END
         return true;
     }
 

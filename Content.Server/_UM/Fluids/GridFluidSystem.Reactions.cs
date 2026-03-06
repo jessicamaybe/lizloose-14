@@ -197,10 +197,12 @@ public sealed partial class GridFluidSystem
 
         var coords = _map.GridTileToLocal(tileSolution.GridIndex, mapGrid, tileSolution.GridIndices);
         var entity = SpawnAtPosition(null, coords);
-        var solutionComp = EnsureComp<SolutionComponent>(entity);
+
+        var solutionComp = EnsureComp<TileSolutionRelayComponent>(entity);
+        solutionComp.TileSolution = tileSolution;
+
         var timedDespawn = EnsureComp<TimedDespawnComponent>(entity);
         timedDespawn.Lifetime = 10f;
-        solutionComp.Solution = tileSolution.Solution;
         _entityEffects.ApplyEffects(entity, reaction.Effects, unitReactions);
     }
 
