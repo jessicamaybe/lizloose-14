@@ -26,8 +26,6 @@ public sealed partial class SharedGridFluidSystem : EntitySystem
             return false;
 
         solution = ent.Comp.TileSolution.Solution;
-
-        Log.Debug("Trying to get solution: " + solution.Volume);
         return true;
     }
 }
