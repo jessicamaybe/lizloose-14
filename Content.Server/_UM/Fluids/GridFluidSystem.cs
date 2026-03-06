@@ -95,7 +95,6 @@ public sealed partial class GridFluidSystem : EntitySystem
         InvalidateTile(gridFluid, tileSolution);
     }
 
-
     private bool TryGetFluid(GridFluidComponent gridFluid,
         Vector2i indices,
         [NotNullWhen(true)] out TileSolution? tile)

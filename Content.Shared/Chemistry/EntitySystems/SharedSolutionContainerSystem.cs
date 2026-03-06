@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Content.Shared._UM.Fluids;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.Reaction;
@@ -73,6 +74,7 @@ public abstract partial class SharedSolutionContainerSystem : EntitySystem
     [Dependency] protected readonly SharedContainerSystem ContainerSystem = default!;
     [Dependency] protected readonly MetaDataSystem MetaDataSys = default!;
     [Dependency] protected readonly INetManager NetManager = default!;
+    [Dependency] protected readonly SharedGridFluidSystem GridFluidSystem = default!;
 
     public override void Initialize()
     {
@@ -150,6 +152,16 @@ public abstract partial class SharedSolutionContainerSystem : EntitySystem
         [NotNullWhen(true)] out Solution? solution,
         bool errorOnMissing = false)
     {
+        /*
+        //UM START
+        if (GridFluidSystem.TryGetSolution(container.Owner, out solution))
+        {
+            var solutionComp = EnsureComp<SolutionComponent>(container.Owner);
+            entity = (container.Owner, solutionComp);
+            return true;
+        }
+        //UM END
+        */
         if (!TryGetSolution(container, name, out entity, errorOnMissing: errorOnMissing))
         {
             solution = null;

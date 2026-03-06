@@ -14,6 +14,32 @@
     lifetime: 5
 
 - type: entity
+  id: FluidSource50Chlorine
+  name: Fluid Source 500 Chlorine
+  parent: FluidSource
+  description: 500 fluids
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Chlorine
+        Quantity: 500
+      temperature: 999
+
+- type: entity
+  id: FluidSource 1500 Fluorine
+  name: Fluid Source 1500 Fluorine
+  parent: FluidSource
+  description: 150 fluids
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Fluorine
+        Quantity: 1500
+      temperature: 999
+
+- type: entity
   id: FluidSource25
   name: Fluid Source 25
   parent: FluidSource

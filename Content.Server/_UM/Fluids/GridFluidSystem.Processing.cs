@@ -4,6 +4,7 @@ using Content.Server.Atmos.Piping.Components;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
+using Content.Shared.Chemistry.Components;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
@@ -46,8 +47,8 @@ public sealed partial class GridFluidSystem
         {
             gridFluid.CurrentRunInvalidTiles.Enqueue(indices);
         }
-        if (gridFluid.InvalidTiles.Count > 0)
-            Log.Debug("invalid tile count: " + gridFluid.InvalidTiles.Count);
+        //if (gridFluid.InvalidTiles.Count > 0)
+        //    Log.Debug("invalid tile count: " + gridFluid.InvalidTiles.Count);
 
         while (gridFluid.CurrentRunInvalidTiles.TryDequeue(out var tile))
         {
@@ -66,8 +67,8 @@ public sealed partial class GridFluidSystem
         {
             gridFluid.CurrentRunTiles.Enqueue(indices);
         }
-        if (gridFluid.ActiveTiles.Count > 0)
-            Log.Debug("Active tile count: " + gridFluid.ActiveTiles.Count);
+        //if (gridFluid.ActiveTiles.Count > 0)
+        //    Log.Debug("Active tile count: " + gridFluid.ActiveTiles.Count);
 
         while (gridFluid.CurrentRunTiles.TryDequeue(out var indices))
         {
@@ -101,8 +102,8 @@ public sealed partial class GridFluidSystem
         {
             gridFluid.CurrentRunUnreactedTiles.Enqueue(group);
         }
-        if (gridFluid.UnreactedTiles.Count > 0)
-            Log.Debug("tile reaction count: " + gridFluid.UnreactedTiles.Count);
+        //if (gridFluid.UnreactedTiles.Count > 0)
+        //    Log.Debug("tile reaction count: " + gridFluid.UnreactedTiles.Count);
 
         while (gridFluid.CurrentRunUnreactedTiles.TryDequeue(out var tile))
         {
@@ -122,8 +123,8 @@ public sealed partial class GridFluidSystem
         {
             gridFluid.CurrentRunTileGroups.Enqueue(group);
         }
-        if (gridFluid.TileGroups.Count > 0)
-            Log.Debug("tile group count: " + gridFluid.TileGroups.Count);
+        //if (gridFluid.TileGroups.Count > 0)
+        //    Log.Debug("tile group count: " + gridFluid.TileGroups.Count);
 
         while (gridFluid.CurrentRunTileGroups.TryDequeue(out var tileGroup))
         {
@@ -216,7 +217,6 @@ public sealed partial class GridFluidSystem
 
             var spawned = Spawn(proto, coords);
             var pipeColor = EnsureComp<AtmosPipeColorComponent>(spawned);
-
             var color = tile.Solution.GetColor(_prototypeManager);
             _pipeColor.SetColor(spawned, pipeColor, color);
             gridFluid.DrawnTiles.Add(indices, spawned);
