@@ -50,6 +50,30 @@
         Quantity: 10
 
 - type: entity
+  id: FluidSource25Fluorosurfactant
+  name: Fluid Source 25 Fluorosurfactant
+  parent: FluidSource
+  description: 25 fluids
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Fluorosurfactant
+        Quantity: 25
+
+- type: entity
+  id: FluidSource10000Fluorosurfactant
+  name: Fluid Source 10000 Fluorosurfactant
+  parent: FluidSource
+  description: 10000 fluids
+  components:
+  - type: NewFluidSource
+    solution:
+      reagents:
+      - ReagentId: Fluorosurfactant
+        Quantity: 10000
+
+- type: entity
   id: FluidSource10000Silicon
   name: Fluid Source 10000 Silicon
   parent: FluidSource

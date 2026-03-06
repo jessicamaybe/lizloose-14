@@ -1,9 +1,12 @@
 using System.Linq;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
+using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.FixedPoint;
+using Robust.Shared.Map.Components;
+using Robust.Shared.Spawners;
 
 namespace Content.Server._UM.Fluids;
 
@@ -189,9 +192,16 @@ public sealed partial class GridFluidSystem
 
     private void OnReaction(GridFluidComponent gridFluid, TileSolution tileSolution, ReactionPrototype reaction, ReagentPrototype? reagent, FixedPoint2 unitReactions)
     {
-        //var posFound = _transformSystem.TryGetMapOrGridCoordinates(soln, out var gridPos);
+        if (!TryComp<MapGridComponent>(tileSolution.GridIndex, out var mapGrid))
+            return;
 
-        //_entityEffects.ApplyEffects(soln, reaction.Effects, unitReactions);
+        var coords = _map.GridTileToLocal(tileSolution.GridIndex, mapGrid, tileSolution.GridIndices);
+        var entity = SpawnAtPosition(null, coords);
+        var solutionComp = EnsureComp<SolutionComponent>(entity);
+        var timedDespawn = EnsureComp<TimedDespawnComponent>(entity);
+        timedDespawn.Lifetime = 10f;
+        solutionComp.Solution = tileSolution.Solution;
+        _entityEffects.ApplyEffects(entity, reaction.Effects, unitReactions);
     }
 
 }
