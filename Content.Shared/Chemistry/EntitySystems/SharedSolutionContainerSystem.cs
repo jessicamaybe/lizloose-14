@@ -157,6 +157,9 @@ public abstract partial class SharedSolutionContainerSystem : EntitySystem
         if (GridFluidSystem.TryGetSolution(container.Owner, out solution))
         {
             var solutionComp = EnsureComp<SolutionComponent>(container.Owner);
+            //doing this makes the solution get deleted if the puddle ent gets deleted.
+            //but it shouldn't get deleted anymore so. Yeah. Hope this works out.
+            solutionComp.Solution = solution;
             entity = (container.Owner, solutionComp);
             return true;
         }

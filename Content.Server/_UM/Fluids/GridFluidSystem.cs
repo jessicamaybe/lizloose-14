@@ -48,7 +48,6 @@ public sealed partial class GridFluidSystem : EntitySystem
         UpdateFluidProcessing(frameTime);
     }
 
-
     private void UpdateBlockedDirections(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
         TileSolution tile,
         bool activate = false)
@@ -85,6 +84,7 @@ public sealed partial class GridFluidSystem : EntitySystem
         tileSolution.Solution.AddSolution(solution, _prototypeManager);
         gridFluid.Tiles.TryAdd(indices, tileSolution);
         InvalidateTile(gridFluid, tileSolution);
+        _gridFluidVisuals.MarkInvalid(ent, indices);
     }
 
     private bool TryGetFluid(GridFluidComponent gridFluid,

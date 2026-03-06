@@ -57,7 +57,7 @@ public sealed partial class GridFluidSystem
                 continue;
 
             // pairwise leveling
-            var flow = diff / 4;
+            var flow = diff / 2;
 
             if (flow < 0.1)
                 continue;
@@ -99,7 +99,6 @@ public sealed partial class GridFluidSystem
             return;
 
         _gridFluidVisuals.MarkInvalid((ent.Owner, gridFluid), tile.GridIndices);
-        RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
 
         if (tile.Solution.Volume <= gridFluid.OverflowVolume || flows.Count == 0)
             RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);

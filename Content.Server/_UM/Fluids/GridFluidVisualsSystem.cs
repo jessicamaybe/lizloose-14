@@ -49,8 +49,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
             var ent = (uid, visuals, gridFluid, grid, meta);
             CheckDeleted(ent);
 
-            if (visuals.InvalidTiles.Count > 0)
-                Log.Debug("Invalid puddle visuals: " + visuals.InvalidTiles.Count);
             foreach (var index in visuals.InvalidTiles)
             {
                 UpdateTileVisuals(ent, index);
@@ -94,7 +92,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 
         if (!gridVisuals.DrawnTiles.TryGetValue(indices, out var drawnEnt))
         {
-            Log.Debug("Spawning new tile");
             var coords = _map.GridTileToLocal(ent.Owner, grid, indices);
             drawnEnt = Spawn("FluidTest25", coords);
             var relay = EnsureComp<TileSolutionRelayComponent>(drawnEnt);
@@ -127,8 +124,12 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         // convert to float ratio and then to byte
         color = color.WithAlpha((byte)((opacity / (float)maxOpacity) * 200));
 
-        if (_appearance.TryGetData<Color>(uid, FluidColorVisuals.Color, out var currentColor) && currentColor == color)
-            return;
+        if (_appearance.TryGetData<Color>(uid, FluidColorVisuals.Color, out var currentColor))
+        {
+            var diff = Math.Abs(currentColor.ToArgb() - color.ToArgb());
+            if (diff < 500)
+                return;
+        }
 
         _appearance.SetData(uid, FluidColorVisuals.Color, color, appearance);
     }

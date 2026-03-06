@@ -244,12 +244,6 @@
     locVolume: "examinable-solution-on-examine-volume-puddle"
   - type: DrawableSolution
     solution: whatever
-  - type: Edible
-    edible: Drink
-    delay: 3
-    transferAmount: 1
-    solution: puddle
-    utensil: Spoon
   - type: Transform
     noRot: true
     anchored: true
