@@ -31,6 +31,7 @@ public sealed partial class GridFluidSystem
 
         ProcessInvalidTiles(ent);
         ProcessActiveTiles(ent);
+        ProcessTileReactions(ent);
         //ProcessTileGroups(ent);
         DrawTiles(ent);
     }
@@ -101,11 +102,12 @@ public sealed partial class GridFluidSystem
             gridFluid.CurrentRunUnreactedTiles.Enqueue(group);
         }
         if (gridFluid.UnreactedTiles.Count > 0)
-            Log.Debug("tile group count: " + gridFluid.UnreactedTiles.Count);
+            Log.Debug("tile reaction count: " + gridFluid.UnreactedTiles.Count);
 
         while (gridFluid.CurrentRunUnreactedTiles.TryDequeue(out var tile))
         {
             FullyReactSolution(gridFluid, tile);
+            gridFluid.UnreactedTiles.Remove(tile);
         }
 
     }

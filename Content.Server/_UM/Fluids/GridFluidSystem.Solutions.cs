@@ -24,6 +24,7 @@ public sealed partial class GridFluidSystem
         if (gridFluid.Tiles.TryGetValue(indicesTo, out var tileTo))
         {
             tileTo.Solution.AddSolution(solution, _prototypeManager);
+            AddTileReaction(gridFluid, tileTo);
             if (active)
                 AddActiveTile(gridFluid, indicesTo);
             return true;
@@ -54,6 +55,7 @@ public sealed partial class GridFluidSystem
         if (ent.Comp.Tiles.TryGetValue(indices, out var tile))
         {
             tile.Solution.AddSolution(solution, _prototypeManager);
+            AddTileReaction(ent.Comp, tile);
             if (active)
                 AddActiveTile(ent.Comp, indices);
             return;

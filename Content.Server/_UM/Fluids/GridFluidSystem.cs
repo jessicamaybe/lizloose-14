@@ -156,4 +156,12 @@ public sealed partial class GridFluidSystem : EntitySystem
 
         gridFluid.ActiveTiles.Remove(indices);
     }
+
+    private void AddTileReaction(GridFluidComponent gridFluid, TileSolution tile)
+    {
+        if (!gridFluid.Tiles.ContainsValue(tile))
+            return;
+
+        gridFluid.UnreactedTiles.Add(tile);
+    }
 }
