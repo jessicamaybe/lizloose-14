@@ -1,11 +1,62 @@
+using System.Diagnostics.CodeAnalysis;
+using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
 using JetBrains.Annotations;
+using Robust.Shared.Map;
 
 namespace Content.Server._UM.Fluids;
 
 public sealed partial class GridFluidSystem
 {
+    /// <summary>
+    /// Tries to get the solution on a given tile
+    /// </summary>
+    /// <param name="gridUid"></param>
+    /// <param name="tileRef"></param>
+    /// <param name="tileSolution"></param>
+    /// <returns></returns>
+    [PublicAPI]
+    public bool TryGetTileSolution(EntityUid gridUid, TileRef tileRef, [NotNullWhen(true)] out TileSolution? tileSolution)
+    {
+        tileSolution = null;
+
+        if (!TryComp<GridFluidComponent>(gridUid, out var gridFluidComponent))
+            return false;
+
+        if (!TryGetFluid(gridFluidComponent, tileRef.GridIndices, out var tile))
+            return false;
+
+        tileSolution = tile;
+        return true;
+    }
+
+    [PublicAPI]
+    public bool TryGetTileSolution(GridFluidComponent gridFluid, Vector2i indices, [NotNullWhen(true)] out TileSolution? tileSolution)
+    {
+        tileSolution = null;
+
+        if (!TryGetFluid(gridFluid, indices, out var tile))
+            return false;
+
+        tileSolution = tile;
+        return true;
+    }
+
+    /// <summary>
+    /// Whenever a tile solution is changed, it needs to be marked active to update.
+    /// </summary>
+    /// <param name="gridUid"></param>
+    /// <param name="tileRef"></param>
+    /// <returns></returns>
+    public bool MarkActiveTileSolution(EntityUid gridUid, TileRef tileRef)
+    {
+        if (!TryComp<GridFluidComponent>(gridUid, out var gridFluidComponent))
+            return false;
+
+        return AddActiveTile(gridFluidComponent, tileRef.GridIndices);
+    }
+
     /// <summary>
     /// Invalidates a tile on the grid
     /// marked tiles will have themselves and neighbors reevaluated next update cycle.

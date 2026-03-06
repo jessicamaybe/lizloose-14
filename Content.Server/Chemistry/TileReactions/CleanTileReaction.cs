@@ -7,6 +7,7 @@ using Content.Shared.Fluids.Components;
 using Robust.Shared.Map;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 using System.Linq;
+using Content.Server._UM.Fluids;
 
 namespace Content.Server.Chemistry.TileReactions;
 
@@ -30,7 +31,8 @@ public sealed partial class CleanTileReaction : ITileReaction
     /// </summary>
     [DataField("reagent", customTypeSerializer: typeof(PrototypeIdSerializer<ReagentPrototype>))]
     public string ReplacementReagent = "Water";
-
+        //UM START
+/*
     FixedPoint2 ITileReaction.TileReact(TileRef tile,
         ReagentPrototype reagent,
         FixedPoint2 reactVolume,
@@ -63,4 +65,31 @@ public sealed partial class CleanTileReaction : ITileReaction
 
         return (reactVolume / CleanAmountMultiplier - purgeAmount) * CleanAmountMultiplier;
     }
+    */
+    FixedPoint2 ITileReaction.TileReact(TileRef tile,
+        ReagentPrototype reagent,
+        FixedPoint2 reactVolume,
+        IEntityManager entityManager,
+        List<ReagentData>? data)
+    {
+        var gridFluidSystem = entityManager.System<GridFluidSystem>();
+        var gridFluidVisuals = entityManager.System<GridFluidVisualsSystem>();
+
+        // Multiply as the amount we can actually purge is higher than the react amount.
+        var purgeAmount = reactVolume / CleanAmountMultiplier;
+
+        if (gridFluidSystem.TryGetTileSolution(tile.GridUid, tile, out var tileSolution))
+        {
+            var solution = tileSolution.Solution;
+
+            var purgeable = solution.SplitSolutionWithout(purgeAmount, ReplacementReagent, reagent.ID);
+            purgeAmount -= purgeable.Volume;
+            solution.AddSolution(new Solution(ReplacementReagent, purgeable.Volume), null);
+            gridFluidSystem.MarkActiveTileSolution(tile.GridUid, tile);
+            gridFluidVisuals.MarkInvalid(tile.GridUid, tile.GridIndices);
+        }
+
+        return (reactVolume / CleanAmountMultiplier - purgeAmount) * CleanAmountMultiplier;
+    }
+    //UM END
 }

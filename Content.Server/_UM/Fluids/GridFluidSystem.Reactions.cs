@@ -146,7 +146,7 @@ public sealed partial class GridFluidSystem
             if (_solutionReaction._reactions.TryGetValue(product, out var reactantReactions))
                 reactions.UnionWith(reactantReactions);
         }
-
+        _gridFluidVisuals.MarkInvalid((tileSolution.GridIndex, gridFluid), tileSolution.GridIndices);
         return true;
     }
 

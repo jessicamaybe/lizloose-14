@@ -279,10 +279,10 @@
     layers:
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
-      map: [ "enum.PipeVisualLayers.Pipe" ]
+      map: [ "enum.FluidColorVisuals.Color" ]
       color: "#75b1f0d0"
     drawdepth: BelowFloor
-  - type: PipeColorVisuals
+  - type: TileFluidVisuals
   - type: TileSolutionRelay
 
 - type: entity
@@ -295,7 +295,7 @@
     layers:
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
-      map: [ "enum.PipeVisualLayers.Pipe" ]
+      map: [ "enum.FluidColorVisuals.Color" ]
       color: "#75b1f0D0"
 
 - type: entity
@@ -308,7 +308,7 @@
     layers:
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
-      map: [ "enum.PipeVisualLayers.Pipe" ]
+      map: [ "enum.FluidColorVisuals.Color" ]
       color: "#75b1f0A0"
     drawdepth: BelowFloor
 
@@ -322,7 +322,7 @@
     layers:
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
-      map: [ "enum.PipeVisualLayers.Pipe" ]
+      map: [ "enum.FluidColorVisuals.Color" ]
       color: "#75b1f080"
     drawdepth: BelowFloor
 

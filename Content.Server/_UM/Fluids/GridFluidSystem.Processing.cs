@@ -1,12 +1,4 @@
-using System.Diagnostics;
-using Content.Server.Atmos.Components;
-using Content.Server.Atmos.Piping.Components;
-using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
-using Content.Shared.Atmos;
-using Content.Shared.Chemistry.Components;
-using Content.Shared.FixedPoint;
-using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 
 namespace Content.Server._UM.Fluids;
@@ -48,15 +40,15 @@ public sealed partial class GridFluidSystem
                 CheckEmptyTiles(ent);
                 ent.Comp1.Stage++;
                 break;
+            //case 4:
+                //DrawTiles(ent);
+                //ent.Comp1.Stage++;
+            //    break;
             case 4:
-                DrawTiles(ent);
-                ent.Comp1.Stage++;
-                break;
-            case 5:
                 ent.Comp1.Stage = 1;
                 break;
             default:
-                ent.Comp1.Stage = 5;
+                ent.Comp1.Stage = 4;
                 break;
         }
 
@@ -122,25 +114,12 @@ public sealed partial class GridFluidSystem
                 continue;
 
             ProcessFluidSpread(ent, tile);
-
-            var fillLevel = CalculateFillLevel(ent, tile);
-            if (tile.FillLevel != fillLevel)
-            {
-                if (gridFluid.DrawnTiles.TryGetValue(indices, out var tileent) &&
-                    fillLevel != tile.FillLevel)
-                {
-                    QueueDel(tileent);
-                    gridFluid.DrawnTiles.Remove(indices);
-                }
-            }
-            tile.FillLevel = fillLevel;
         }
     }
 
     private void ProcessTileReactions(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
         var gridFluid = ent.Comp1;
-
 
         gridFluid.CurrentRunUnreactedTiles.Clear();
         gridFluid.CurrentRunUnreactedTiles.EnsureCapacity(gridFluid.UnreactedTiles.Count);
@@ -155,79 +134,6 @@ public sealed partial class GridFluidSystem
         {
             FullyReactSolution(gridFluid, tile);
             gridFluid.UnreactedTiles.Remove(tile);
-        }
-    }
-
-    private FillLevel CalculateFillLevel(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
-        TileSolution tile)
-    {
-        var (owner, gridFluid, grid, xform) = ent;
-
-        if (tile.Solution.Volume > gridFluid.OverflowVolume * 4)
-            return FillLevel.Ceiling;
-
-        if (tile.Solution.Volume > gridFluid.OverflowVolume * 3)
-            return FillLevel.Waist;
-
-        if (tile.Solution.Volume > gridFluid.OverflowVolume * 2)
-            return FillLevel.Ankle;
-
-        return FillLevel.Puddle;
-    }
-
-    private void DrawTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
-    {
-        var (owner, gridFluid, grid, xform) = ent;
-
-        foreach (var (indices, tile) in gridFluid.Tiles)
-        {
-            if (gridFluid.DrawnTiles.ContainsKey(indices))
-                continue;
-
-            //Log.Debug("Drawing tile at: " + indices);
-
-            var coords = _map.GridTileToLocal(owner, grid, indices);
-            tile.FillLevel = CalculateFillLevel(ent, tile);
-
-            var proto = "FluidTest25";
-            switch (tile.FillLevel)
-            {
-                default:
-                    proto = "FluidTest25";
-                    break;
-                case FillLevel.Ankle:
-                    proto = "FluidTest50";
-                    break;
-                case FillLevel.Waist:
-                    proto = "FluidTest75";
-                    break;
-                case FillLevel.Ceiling:
-                    proto = "FluidTest100";
-                    break;
-            }
-
-            var spawned = Spawn(proto, coords);
-            var relay = EnsureComp<TileSolutionRelayComponent>(spawned);
-            relay.TileSolution = tile;
-            var pipeColor = EnsureComp<AtmosPipeColorComponent>(spawned);
-            var color = tile.Solution.GetColor(_prototypeManager);
-            _pipeColor.SetColor(spawned, pipeColor, color);
-            gridFluid.DrawnTiles.Add(indices, spawned);
-        }
-
-        var deleted = new List<Vector2i>();
-        foreach (var (indices, tileEnt) in gridFluid.DrawnTiles)
-        {
-            if (!gridFluid.Tiles.ContainsKey(indices))
-            {
-                QueueDel(tileEnt);
-                deleted.Add(indices);
-            }
-        }
-
-        foreach (var tiled in deleted)
-        {
-            gridFluid.DrawnTiles.Remove(tiled);
         }
     }
 }

@@ -84,42 +84,25 @@ public sealed partial class GridFluidSystem
             }
         }
 
-
+        var moved = false;
         foreach (var (pos, amount) in flows)
         {
+            if (amount == 0)
+                continue;
+
             TryTransferFluid(gridFluid, tile, pos, amount);
+            _gridFluidVisuals.MarkInvalid((ent.Owner, gridFluid), pos);
+            moved = true;
         }
+
+        if (!moved)
+            return;
+
+        _gridFluidVisuals.MarkInvalid((ent.Owner, gridFluid), tile.GridIndices);
+        RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
 
         if (tile.Solution.Volume <= gridFluid.OverflowVolume || flows.Count == 0)
             RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
-    }
-
-    /// <summary>
-    /// Gets neighbors of a tile
-    /// </summary>
-    /// <param name="ent"></param>
-    /// <param name="indices"></param>
-    /// <param name="tile"></param>
-    /// <returns></returns>
-    private List<Vector2i> GetAvailableNeighbors(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent, Vector2i indices, TileSolution tile)
-    {
-        var (owner, gridFluid, grid, xform) = ent;
-
-        List<Vector2i> neighboringTiles = new();
-
-        for (var i = 0; i < 4; i++)
-        {
-            var atmosDir = (AtmosDirection)(1 << i);
-
-            var neighborPos = tile.GridIndices.Offset(atmosDir);
-
-            if (IsTileBlocked((ent.Owner, ent.Comp2, ent.Comp3), neighborPos))
-                continue;
-
-            neighboringTiles.Add(neighborPos);
-
-        }
-        return neighboringTiles;
     }
 
     /// <summary>
@@ -135,6 +118,10 @@ public sealed partial class GridFluidSystem
             return true;
 
         var anchored = _map.GetAnchoredEntitiesEnumerator(xform.GridUid.Value, ent.Comp1, indices);
+        var tileRef = _map.GetTileRef((ent.Owner, ent.Comp1), indices);
+
+        if (_turf.IsSpace(tileRef))
+            return true;
 
         while (anchored.MoveNext(out var anchoredEnt))
         {

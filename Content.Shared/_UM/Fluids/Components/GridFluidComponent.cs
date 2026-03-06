@@ -1,6 +1,4 @@
-using System.Numerics;
 using Content.Shared.FixedPoint;
-using Robust.Shared.Map;
 
 namespace Content.Shared._UM.Fluids.Components;
 
@@ -45,9 +43,6 @@ public sealed partial class GridFluidComponent : Component
     /// </summary>
     [ViewVariables]
     public HashSet<Vector2i> DeletedTiles = new(1000);
-
-    [ViewVariables]
-    public Dictionary<Vector2i, EntityUid> DrawnTiles = new();
 
     /// <summary>
     /// How manu units a puddle can hold before trying to spill over

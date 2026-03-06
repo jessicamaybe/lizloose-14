@@ -1,21 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 using Content.Server.Atmos.Components;
-using Content.Server.Atmos.Piping.EntitySystems;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
-using Content.Shared.Atmos.Piping;
 using Content.Shared.Chemistry.Components;
-using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.EntityEffects;
 using Content.Shared.Maps;
-using Robust.Shared.Audio.Systems;
-using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Timing;
-using Robust.Shared.Utility;
 
 namespace Content.Server._UM.Fluids;
 
@@ -26,11 +19,10 @@ public sealed partial class GridFluidSystem : EntitySystem
 {
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly ChemicalReactionSystem _solutionReaction = default!;
-    [Dependency] private readonly AtmosPipeColorSystem _pipeColor = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
-    [Dependency] private readonly SharedAudioSystem _audio = default!;
-    [Dependency] private readonly SharedTransformSystem _transform = default!;
+    [Dependency] private readonly TurfSystem _turf = default!;
     [Dependency] private readonly SharedEntityEffectsSystem _entityEffects = default!;
+    [Dependency] private readonly GridFluidVisualsSystem _gridFluidVisuals = default!;
 
     private EntityQuery<AirtightComponent> _airtightQuery;
 
@@ -46,7 +38,7 @@ public sealed partial class GridFluidSystem : EntitySystem
 
     private void OnGridSplit(Entity<GridFluidComponent> ent, ref GridSplitEvent args)
     {
-
+        //lol, lmao
     }
 
     public override void Update(float frameTime)
@@ -125,20 +117,14 @@ public sealed partial class GridFluidSystem : EntitySystem
         gridFluid.InvalidTiles.Add(tile);
     }
 
-    private void AddActiveTile(GridFluidComponent gridFluid, TileSolution tile)
+    private bool AddActiveTile(GridFluidComponent gridFluid, TileSolution tile)
     {
-        if (!gridFluid.Tiles.ContainsValue(tile))
-            return;
-
-        gridFluid.ActiveTiles.Add(tile.GridIndices);
+        return gridFluid.ActiveTiles.Add(tile.GridIndices);
     }
 
-    private void AddActiveTile(GridFluidComponent gridFluid, Vector2i indices)
+    private bool AddActiveTile(GridFluidComponent gridFluid, Vector2i indices)
     {
-        if (!gridFluid.Tiles.ContainsKey(indices))
-            return;
-
-        gridFluid.ActiveTiles.Add(indices);
+        return gridFluid.ActiveTiles.Add(indices);
     }
 
     private void RemoveActiveTile(Entity<MapGridComponent, GridFluidComponent> ent, Vector2i indices)
