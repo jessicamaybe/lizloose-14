@@ -10,10 +10,10 @@ public sealed partial class GridFluidSystem
 {
     private void InitializeSource()
     {
-        SubscribeLocalEvent<NewFluidSourceComponent, MapInitEvent>(OnMapInit);
+        SubscribeLocalEvent<FluidSourceComponent, MapInitEvent>(OnMapInit);
     }
 
-    private void OnMapInit(Entity<NewFluidSourceComponent> ent, ref MapInitEvent args)
+    private void OnMapInit(Entity<FluidSourceComponent> ent, ref MapInitEvent args)
     {
         var xform = Transform(ent);
 
@@ -22,5 +22,4 @@ public sealed partial class GridFluidSystem
 
         AddFluid((xform.GridUid.Value, gridComponent), xform.Coordinates, ent.Comp.Solution);
     }
-
 }

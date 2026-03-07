@@ -1,11 +1,25 @@
 - type: entity
+  id: ConstantFluidSource
+  name: constant Fluid Source 10 water
+  description: constantly gushing
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Janitorial/wet_floor_sign.rsi
+    state: icon
+  - type: ConstantFluidSource
+    solution:
+      reagents:
+      - ReagentId: Water
+        Quantity: 10
+
+- type: entity
   id: FluidSource
   name: Fluid Source 1000 water
   description: fluiid
   components:
   - type: Sprite
     sprite: Objects/Specific/Detective/evidence_marker.rsi
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water
@@ -19,7 +33,7 @@
   parent: FluidSource
   description: 500 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Chlorine
@@ -32,7 +46,7 @@
   parent: FluidSource
   description: 150 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Fluorine
@@ -45,7 +59,7 @@
   parent: FluidSource
   description: 25 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water
@@ -57,7 +71,7 @@
   parent: FluidSource
   description: 25 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water
@@ -69,7 +83,7 @@
   parent: FluidSource
   description: 10 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water
@@ -81,7 +95,7 @@
   parent: FluidSource
   description: flash mix
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Potassium
@@ -97,7 +111,7 @@
   parent: FluidSource
   description: phlog mix
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Phosphorus
@@ -113,7 +127,7 @@
   parent: FluidSource
   description: 10 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Potassium
@@ -125,7 +139,7 @@
   parent: FluidSource
   description: 10 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Fluorosurfactant
@@ -137,7 +151,7 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Fluorosurfactant
@@ -149,7 +163,7 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Silicon
@@ -161,7 +175,7 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Carbon
@@ -174,7 +188,7 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water
@@ -186,7 +200,7 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Blood
@@ -198,7 +212,7 @@
   parent: FluidSource
   description: 10000 fluids
   components:
-  - type: NewFluidSource
+  - type: FluidSource
     solution:
       reagents:
       - ReagentId: Water

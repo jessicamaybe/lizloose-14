@@ -136,6 +136,12 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         _appearance.SetData(uid, FluidColorVisuals.Color, color, appearance);
     }
 
+    /// <summary>
+    /// Move tile to a new grid
+    /// </summary>
+    /// <param name="oldGrid"></param>
+    /// <param name="newGrid"></param>
+    /// <param name="tile"></param>
     public void MoveTile(GridFluidComponent oldGrid, Entity<GridFluidComponent> newGrid, TileSolution tile)
     {
         if (!TryComp<GridFluidVisualsComponent>(tile.GridIndex, out var oldGridVisuals))

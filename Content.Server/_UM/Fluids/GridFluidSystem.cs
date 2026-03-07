@@ -106,6 +106,12 @@ public sealed partial class GridFluidSystem : EntitySystem
         }
     }
 
+    /// <summary>
+    /// Move tile to new grid on grid spl
+    /// </summary>
+    /// <param name="oldGrid"></param>
+    /// <param name="newGrid"></param>
+    /// <param name="tile"></param>
     private void MoveTile(Entity<GridFluidComponent> oldGrid, Entity<GridFluidComponent> newGrid, TileSolution tile)
     {
         RemoveTile(oldGrid, tile);
