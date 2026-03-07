@@ -1,3 +1,4 @@
+using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Map.Components;
@@ -67,6 +68,7 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         {
             if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out _))
             {
+                Log.Debug("Deleted sprite");
                 QueueDel(tileEnt);
                 deleted.Add(indices);
             }
@@ -133,4 +135,18 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 
         _appearance.SetData(uid, FluidColorVisuals.Color, color, appearance);
     }
+
+    public void MoveTile(GridFluidComponent oldGrid, Entity<GridFluidComponent> newGrid, TileSolution tile)
+    {
+        if (!TryComp<GridFluidVisualsComponent>(tile.GridIndex, out var oldGridVisuals))
+            return;
+
+        var newGridVisuals = EnsureComp<GridFluidVisualsComponent>(newGrid.Owner);
+        if (oldGridVisuals.DrawnTiles.Remove(tile.GridIndices, out var ent))
+            newGridVisuals.DrawnTiles.Add(tile.GridIndices, ent);
+
+        newGridVisuals.InvalidTiles.Add(tile.GridIndices);
+        oldGridVisuals.InvalidTiles.Remove(tile.GridIndices);
+    }
+
 }

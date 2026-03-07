@@ -59,7 +59,7 @@ public sealed partial class GridFluidSystem
             // pairwise leveling
             var flow = diff / 2;
 
-            if (flow < 0.1)
+            if (flow <= 0.025)
                 continue;
 
             flows.Add((neighborIndices, flow));
@@ -96,12 +96,14 @@ public sealed partial class GridFluidSystem
         }
 
         if (!moved)
+        {
+            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
             return;
+        }
 
         _gridFluidVisuals.MarkInvalid((ent.Owner, gridFluid), tile.GridIndices);
-
-        if (tile.Solution.Volume <= gridFluid.OverflowVolume || flows.Count == 0)
-            RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
+        //if (tile.Solution.Volume <= gridFluid.OverflowVolume || flows.Count == 0)
+        //    RemoveActiveTile((ent.Owner, ent.Comp2, ent.Comp1), tile.GridIndices);
     }
 
     /// <summary>
@@ -119,6 +121,8 @@ public sealed partial class GridFluidSystem
         var anchored = _map.GetAnchoredEntitiesEnumerator(xform.GridUid.Value, ent.Comp1, indices);
         var tileRef = _map.GetTileRef((ent.Owner, ent.Comp1), indices);
 
+        //I could make fluid get deleted if it goes out into space
+        //But the amount of times that might happen is so low i'm not going to bother
         if (_turf.IsSpace(tileRef))
             return true;
 

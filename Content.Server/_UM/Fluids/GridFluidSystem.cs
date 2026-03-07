@@ -34,11 +34,24 @@ public sealed partial class GridFluidSystem : EntitySystem
         _airtightQuery = GetEntityQuery<AirtightComponent>();
 
         SubscribeLocalEvent<GridFluidComponent, GridSplitEvent>(OnGridSplit);
+        SubscribeLocalEvent<GridFluidComponent, TileChangedEvent>(OnTileChange);
     }
 
-    private void OnGridSplit(Entity<GridFluidComponent> ent, ref GridSplitEvent args)
+    private void OnTileChange(Entity<GridFluidComponent> ent, ref TileChangedEvent args)
     {
-        //lol, lmao
+        foreach (var change in args.Changes)
+        {
+            if (change.EmptyChanged)
+                continue;
+
+            if (change.NewTile.IsEmpty)
+                continue;
+
+            if (TryGetFluid(ent.Comp, change.GridIndices, out var tile))
+            {
+                RemoveTile(ent, tile);
+            }
+        }
     }
 
     public override void Update(float frameTime)
@@ -74,6 +87,32 @@ public sealed partial class GridFluidSystem : EntitySystem
         gridFluid.InvalidTiles.Remove(tile);
     }
 
+    private void OnGridSplit(Entity<GridFluidComponent> ent, ref GridSplitEvent args)
+    {
+        foreach (var newGrid in args.NewGrids)
+        {
+            if (!TryComp<MapGridComponent>(newGrid, out var gridComp))
+                return;
+
+            var gridFluid = EnsureComp<GridFluidComponent>(newGrid);
+
+            foreach (var tile in _map.GetAllTiles(newGrid, gridComp))
+            {
+                if (TryGetFluid(ent.Comp, tile.GridIndices, out var tileSolution))
+                {
+                    MoveTile(ent, (newGrid, gridFluid), tileSolution);
+                }
+            }
+        }
+    }
+
+    private void MoveTile(Entity<GridFluidComponent> oldGrid, Entity<GridFluidComponent> newGrid, TileSolution tile)
+    {
+        RemoveTile(oldGrid, tile);
+        newGrid.Comp.Tiles.Add(tile.GridIndices, tile);
+        InvalidateTile(newGrid, tile);
+        _gridFluidVisuals.MoveTile(oldGrid, newGrid, tile);
+    }
 
     private void AddTile(Entity<GridFluidComponent> ent, Vector2i indices, Solution solution, bool active = true)
     {
@@ -85,6 +124,14 @@ public sealed partial class GridFluidSystem : EntitySystem
         gridFluid.Tiles.TryAdd(indices, tileSolution);
         InvalidateTile(gridFluid, tileSolution);
         _gridFluidVisuals.MarkInvalid(ent, indices);
+    }
+
+    private void RemoveTile(GridFluidComponent gridFluid, TileSolution tile)
+    {
+        gridFluid.Tiles.Remove(tile.GridIndices);
+        gridFluid.ActiveTiles.Remove(tile.GridIndices);
+        gridFluid.InvalidTiles.Remove(tile);
+        gridFluid.UnreactedTiles.Remove(tile);
     }
 
     private bool TryGetFluid(GridFluidComponent gridFluid,

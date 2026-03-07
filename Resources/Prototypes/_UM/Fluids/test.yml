@@ -275,7 +275,7 @@
       state: splat0
       map: [ "enum.FluidColorVisuals.Color" ]
       color: "#75b1f0d0"
-    drawdepth: BelowFloor
+    drawdepth: Puddles
   - type: TileFluidVisuals
   - type: TileSolutionRelay
 

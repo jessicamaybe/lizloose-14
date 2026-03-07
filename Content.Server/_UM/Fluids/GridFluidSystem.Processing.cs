@@ -21,8 +21,7 @@ public sealed partial class GridFluidSystem
     private void ProcessGridFluid(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
         var (owner, gridFluid, grid, xform) = ent;
-
-
+        
         //TODO: ONLY DO ONE OF THESE STEPS PER TICK :-)
 
         switch (ent.Comp1.Stage)
@@ -43,7 +42,7 @@ public sealed partial class GridFluidSystem
             //case 4:
                 //DrawTiles(ent);
                 //ent.Comp1.Stage++;
-            //    break;
+                //break;
             case 4:
                 ent.Comp1.Stage = 1;
                 break;
