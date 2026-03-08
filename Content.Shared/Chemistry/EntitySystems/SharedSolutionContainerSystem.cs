@@ -182,6 +182,17 @@ public abstract partial class SharedSolutionContainerSystem : EntitySystem
         [NotNullWhen(true)] out Entity<SolutionComponent>? entity,
         bool errorOnMissing = false)
     {
+        //UM START
+        if (GridFluidSystem.TryGetSolution(container.Owner, out var solution))
+        {
+            var solutionComp = EnsureComp<SolutionComponent>(container.Owner);
+            //doing this makes the solution get deleted if the puddle ent gets deleted.
+            //but it shouldn't get deleted anymore so. Yeah. Hope this works out.
+            solutionComp.Solution = solution;
+            entity = (container.Owner, solutionComp);
+            return true;
+        }
+        //UM END
         // use connected container instead of entity from arguments, if it exists.
         var ev = new GetConnectedContainerEvent();
         RaiseLocalEvent(container, ref ev);

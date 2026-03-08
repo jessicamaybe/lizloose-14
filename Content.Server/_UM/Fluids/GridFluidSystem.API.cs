@@ -9,6 +9,15 @@ namespace Content.Server._UM.Fluids;
 
 public sealed partial class GridFluidSystem
 {
+    public override void DirtyTile(Entity<TileFluidComponent> ent)
+    {
+        if (ent.Comp.TileSolution == null)
+            return;
+
+        InvalidateTile(ent.Comp.TileSolution.GridIndex, ent.Comp.TileSolution.GridIndices);
+        _gridFluidVisuals.MarkInvalid(ent.Comp.TileSolution.GridIndex, ent.Comp.TileSolution.GridIndices);
+    }
+
     /// <summary>
     /// Tries to get the solution on a given tile
     /// </summary>

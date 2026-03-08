@@ -65,12 +65,18 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 
         foreach (var (indices, tileEnt) in gridVisuals.DrawnTiles)
         {
-            if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out _))
+            if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out var solution))
             {
-                Log.Debug("Deleted sprite");
                 QueueDel(tileEnt);
                 deleted.Add(indices);
             }
+
+            if (solution != null && solution.Solution.Volume == 0)
+            {
+                QueueDel(tileEnt);
+                deleted.Add(indices);
+            }
+
         }
         foreach (var tiled in deleted)
         {
@@ -94,10 +100,12 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         if (!gridVisuals.DrawnTiles.TryGetValue(indices, out var drawnEnt))
         {
             var coords = _map.GridTileToLocal(ent.Owner, grid, indices);
-            drawnEnt = Spawn("FluidTest25", coords);
-            var relay = EnsureComp<TileSolutionRelayComponent>(drawnEnt);
+            drawnEnt = Spawn("FluidPuddle", coords);
+            var relay = EnsureComp<TileFluidComponent>(drawnEnt);
             relay.TileSolution = tileSolution;
+            relay.Solution = tileSolution.Solution;
             gridVisuals.DrawnTiles.Add(indices, drawnEnt);
+            Dirty(drawnEnt, relay);
         }
         if (!TryComp(drawnEnt, out AppearanceComponent? appearance))
             return;

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Content.Shared._UM.Fluids;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.FixedPoint;
@@ -29,6 +30,9 @@ public abstract class SharedAbsorbentSystem : EntitySystem
     [Dependency] private readonly UseDelaySystem _useDelay = default!;
     [Dependency] private readonly SharedMapSystem _mapSystem = default!;
     [Dependency] private readonly SharedItemSystem _item = default!;
+    //UM START
+    [Dependency] protected readonly SharedGridFluidSystem _gridFluidSystem = default!;
+    //UM END
 
     public override void Initialize()
     {
@@ -268,11 +272,14 @@ public abstract class SharedAbsorbentSystem : EntitySystem
         EntityUid user,
         EntityUid target)
     {
-        if (!TryComp<PuddleComponent>(target, out var puddle))
-            return false;
+        //if (!TryComp<PuddleComponent>(target, out var puddle))
+        //    return false;
 
-        if (!SolutionContainer.ResolveSolution(target, puddle.SolutionName, ref puddle.Solution, out var puddleSolution)
-            || puddleSolution.Volume <= 0)
+        //if (!SolutionContainer.ResolveSolution(target, puddle.SolutionName, ref puddle.Solution, out var puddleSolution)
+        //    || puddleSolution.Volume <= 0)
+        //    return false;
+
+        if (!_gridFluidSystem.TryGetSolution(target, out var puddleSolution))
             return false;
 
         var (_, absorber, useDelay) = absorbEnt;
@@ -321,7 +328,10 @@ public abstract class SharedAbsorbentSystem : EntitySystem
                 var tileRef = _mapSystem.GetTileRef(gridUid.Value, mapGrid, targetXform.Coordinates);
                 Puddle.DoTileReactions(tileRef, absorberSplit);
             }
-            SolutionContainer.AddSolution(puddle.Solution.Value, absorberSplit);
+            //SolutionContainer.AddSolution(puddle.Solution.Value, absorberSplit);
+
+            //TODO: Make API for interacting with fluids better
+            _gridFluidSystem.AddFluid(target, absorberSplit);
         }
         else
         {

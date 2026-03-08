@@ -35,3 +35,12 @@ examinable-solution-on-examine-volume-puddle = The puddle is { $fillLevel ->
         [mostlyempty] [color=#A4A4A4]Mostly Empty[/color]
        *[empty] [color=gray]Empty[/color]
     }
+
+
+examinable-solution-on-examine-volume-fluid = The fluid is { $fillLevel ->
+    [exact] [color=white]{$current}u[/color].
+    [full] completely flooded!
+    [waistheight] deep and overflowing!
+    [overflowing] overflowing!
+   *[puddle] pooling together.
+}

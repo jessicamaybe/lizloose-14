@@ -1,11 +1,12 @@
 using Content.Shared.FixedPoint;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
 namespace Content.Shared._UM.Fluids.Components;
 
 /// <summary>
 /// This is used for...
 /// </summary>
-[RegisterComponent]
+[RegisterComponent, AutoGenerateComponentPause]
 public sealed partial class GridFluidComponent : Component
 {
     [ViewVariables]
@@ -51,6 +52,22 @@ public sealed partial class GridFluidComponent : Component
     public FixedPoint2 OverflowVolume = 50;
 
     public int Stage = 1;
+
+
+    /// <summary>
+    /// The next time we remove the EvaporationSystem reagent amount from this entity.
+    /// </summary>
+    [AutoPausedField]
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))]
+    public TimeSpan NextTick;
+
+    /// <summary>
+    /// Evaporation factor. Multiplied by the evaporating speed of the reagent.
+    /// </summary>
+    [DataField]
+    public FixedPoint2 EvaporationAmount = FixedPoint2.New(1);
+
+
 }
 
 

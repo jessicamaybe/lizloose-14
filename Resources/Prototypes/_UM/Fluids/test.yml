@@ -244,7 +244,9 @@
     color: "#75b1f0BF"
 
 - type: entity
-  id: FluidTest100
+  name: fluid
+  id: FluidPuddle
+  description: A body of liquid.
   suffix: FLUID
   placement:
     mode: SnapgridCenter
@@ -253,9 +255,6 @@
   components:
   - type: Clickable
   - type: Solution
-  - type: ExaminableSolution
-    solution: whatever
-    locVolume: "examinable-solution-on-examine-volume-puddle"
   - type: DrawableSolution
     solution: whatever
   - type: Transform
@@ -289,47 +288,4 @@
       color: "#75b1f0d0"
     drawdepth: Puddles
   - type: TileFluidVisuals
-  - type: TileSolutionRelay
-
-- type: entity
-  id: FluidTest75
-  parent: FluidTest100
-  suffix: FLUID
-  components:
-  - type: Sprite
-    noRot: true
-    layers:
-    - sprite: _UM/Fluid/fluid.rsi
-      state: splat0
-      map: [ "enum.FluidColorVisuals.Color" ]
-      color: "#75b1f0D0"
-
-- type: entity
-  id: FluidTest50
-  parent: FluidTest100
-  suffix: FLUID
-  components:
-  - type: Sprite
-    noRot: true
-    layers:
-    - sprite: _UM/Fluid/fluid.rsi
-      state: splat0
-      map: [ "enum.FluidColorVisuals.Color" ]
-      color: "#75b1f0A0"
-    drawdepth: BelowFloor
-
-- type: entity
-  id: FluidTest25
-  parent: FluidTest100
-  suffix: FLUID
-  components:
-  - type: Sprite
-    noRot: true
-    layers:
-    - sprite: _UM/Fluid/fluid.rsi
-      state: splat0
-      map: [ "enum.FluidColorVisuals.Color" ]
-      color: "#75b1f080"
-    drawdepth: BelowFloor
-
-
+  - type: TileFluid

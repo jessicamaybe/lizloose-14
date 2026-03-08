@@ -9,19 +9,21 @@ using Content.Shared.EntityEffects;
 using Content.Shared.Maps;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 
 namespace Content.Server._UM.Fluids;
 
 /// <summary>
 /// This handles...
 /// </summary>
-public sealed partial class GridFluidSystem : EntitySystem
+public sealed partial class GridFluidSystem : SharedGridFluidSystem
 {
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly ChemicalReactionSystem _solutionReaction = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
     [Dependency] private readonly TurfSystem _turf = default!;
     [Dependency] private readonly SharedEntityEffectsSystem _entityEffects = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly GridFluidVisualsSystem _gridFluidVisuals = default!;
 
     private EntityQuery<AirtightComponent> _airtightQuery;

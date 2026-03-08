@@ -1,3 +1,5 @@
+using Content.Shared._UM.Fluids;
+using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Audio;
 using Content.Shared.Chemistry.Components.SolutionManager;
 using Content.Shared.Chemistry.EntitySystems;
@@ -37,8 +39,12 @@ public sealed class DrainSystem : EntitySystem
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainerSystem = default!;
     [Dependency] private readonly TagSystem _tag = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
+    //UM START
+    [Dependency] private readonly SharedGridFluidSystem _gridFluid = default!;
 
-    private readonly HashSet<Entity<PuddleComponent>> _puddles = [];
+
+    private readonly HashSet<Entity<TileFluidComponent>> _puddles = [];
+    //UM END
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -170,29 +176,24 @@ public sealed class DrainSystem : EntitySystem
                 _ambientSound.SetAmbience(uid, true);
 
                 amount /= _puddles.Count;
-
+                //UM START
                 foreach (var puddle in _puddles)
                 {
-                    // Queue the solution deletion if it's empty. EvaporationSystem might also do this
-                    // but queuedelete should be pretty safe.
-                    if (!_solutionContainerSystem.ResolveSolution(puddle.Owner, puddle.Comp.SolutionName, ref puddle.Comp.Solution, out var puddleSolution))
-                    {
-                        PredictedQueueDel(puddle);
+                    if (puddle.Comp.Solution == null)
                         continue;
-                    }
 
-                    // Removes the lowest of:
-                    // the drain component's units per second adjusted for # of puddles
-                    // the puddle's remaining volume (making it cleanly zero)
-                    // the drain's remaining volume in its buffer.
-                    var transferSolution = _solutionContainerSystem.SplitSolution(puddle.Comp.Solution.Value,
-                        FixedPoint2.Min(FixedPoint2.New(amount), puddleSolution.Volume, drainSolution.AvailableVolume));
+                    var puddleSolution = puddle.Comp.Solution;
+
+                    var transferSolution = puddleSolution.SplitSolution(FixedPoint2.Min(FixedPoint2.New(amount), puddleSolution.Volume, drainSolution.AvailableVolume));
 
                     drainSolution.AddSolution(transferSolution, _prototype);
 
-                    if (puddleSolution.Volume <= 0)
-                        PredictedQueueDel(puddle);
+                    _gridFluid.DirtyTile(puddle);
+
+                    //if (puddleSolution.Volume <= 0)
+                    //    PredictedQueueDel(puddle);
                 }
+                //UM END
             }
 
             _solutionContainerSystem.UpdateChemicals(drain.Solution.Value);

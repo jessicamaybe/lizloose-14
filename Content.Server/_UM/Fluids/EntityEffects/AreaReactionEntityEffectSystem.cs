@@ -14,7 +14,7 @@ namespace Content.Server._UM.Fluids.EntityEffects;
 /// <summary>
 /// Copy paste of AreaReactionEffect to work with puddles
 /// </summary>
-public sealed partial class PuddleAreaReactionEntityEffectsSystem : EntityEffectSystem<TileSolutionRelayComponent, AreaReactionEffect>
+public sealed partial class PuddleAreaReactionEntityEffectsSystem : EntityEffectSystem<TileFluidComponent, AreaReactionEffect>
 {
     [Dependency] private readonly IMapManager _mapManager = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
@@ -24,7 +24,7 @@ public sealed partial class PuddleAreaReactionEntityEffectsSystem : EntityEffect
     [Dependency] private readonly SpreaderSystem _spreader = default!;
     [Dependency] private readonly TurfSystem _turf = default!;
 
-    protected override void Effect(Entity<TileSolutionRelayComponent> entity, ref EntityEffectEvent<AreaReactionEffect> args)
+    protected override void Effect(Entity<TileFluidComponent> entity, ref EntityEffectEvent<AreaReactionEffect> args)
     {
         if (entity.Comp.TileSolution == null)
             return;

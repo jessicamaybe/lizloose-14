@@ -11,6 +11,7 @@ public sealed partial class GridFluidSystem
         while (query.MoveNext(out var uid, out var gridFluid, out var grid, out var xform))
         {
             ProcessGridFluid((uid, gridFluid, grid, xform));
+            ProcessEvaporation((uid, gridFluid, grid, xform));
         }
     }
 
@@ -21,7 +22,7 @@ public sealed partial class GridFluidSystem
     private void ProcessGridFluid(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
     {
         var (owner, gridFluid, grid, xform) = ent;
-        
+
         //TODO: ONLY DO ONE OF THESE STEPS PER TICK :-)
 
         switch (ent.Comp1.Stage)
