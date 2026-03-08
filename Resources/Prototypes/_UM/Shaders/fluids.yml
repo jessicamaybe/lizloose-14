@@ -1,0 +1,37 @@
+- type: entity
+  id: FluidTestComputer
+  suffix: FLUID
+  placement:
+    mode: SnapgridCenter
+    snap:
+    - Wall
+  components:
+  - type: Clickable
+  - type: Transform
+    noRot: true
+    anchored: true
+  - type: Physics
+    bodyType: Static
+  - type: Fixtures
+    fixtures:
+      fix1:
+        shape:
+          !type:PhysShapeAabb
+          bounds: "-0.5,-0.5,0.5,0.5"
+        layer:
+        - SlipLayer
+        mask:
+        - ItemMask
+        density: 1000
+        hard: false
+  - type: Appearance
+  - type: Sprite
+    sprite: _UM/Fluid/floodtest.rsi
+    drawdepth: Objects
+    shader: FluidMask
+    layers:
+    - state: computer
+      map: [ "computer" ]
+    - state: generic
+    - state: computer-flood6
+      color: "#75b1f0d0"

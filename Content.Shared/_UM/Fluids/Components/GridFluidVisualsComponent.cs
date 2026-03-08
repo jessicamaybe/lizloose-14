@@ -39,4 +39,5 @@ public sealed class TileSolutionState(Vector2i indices, Color color, FixedPoint2
 public enum FluidColorVisuals
 {
     Color,
+    Volume,
 }

@@ -15,7 +15,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
     [Dependency] private readonly GridFluidSystem _gridFluid = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
-
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -100,7 +99,11 @@ public sealed class GridFluidVisualsSystem : EntitySystem
             relay.TileSolution = tileSolution;
             gridVisuals.DrawnTiles.Add(indices, drawnEnt);
         }
-        SetPuddleColor(drawnEnt, tileSolution.Solution.GetColor(_prototypeManager), tileSolution.Solution.Volume);
+        if (!TryComp(drawnEnt, out AppearanceComponent? appearance))
+            return;
+
+        SetPuddleColor(drawnEnt, appearance, tileSolution.Solution.GetColor(_prototypeManager), tileSolution.Solution.Volume);
+        SetPuddleVolume(drawnEnt, appearance, tileSolution.Solution.Volume);
     }
 
     private void RemoveTileVisuals(Entity<GridFluidVisualsComponent, GridFluidComponent, MapGridComponent, MetaDataComponent> ent,
@@ -115,11 +118,23 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         }
     }
 
-    private void SetPuddleColor(EntityUid uid, Color color, FixedPoint2 volume)
+    private void SetPuddleVolume(EntityUid uid, AppearanceComponent appearance, FixedPoint2 volume)
     {
-        if (!TryComp(uid, out AppearanceComponent? appearance))
-            return;
+        var flooded = false;
+        if (volume > 75)
+            flooded = true;
 
+        if (_appearance.TryGetData<bool>(uid, FluidColorVisuals.Volume, out var currentFloodStatus))
+        {
+            if (currentFloodStatus == flooded) //We were full before, and we still are
+                return;
+        }
+
+        _appearance.SetData(uid, FluidColorVisuals.Volume, flooded, appearance);
+    }
+
+    private void SetPuddleColor(EntityUid uid, AppearanceComponent appearance, Color color, FixedPoint2 volume)
+    {
         var maxOpacity = 200;
         var opacity = Math.Clamp(volume.Value/10, 100, maxOpacity);
 

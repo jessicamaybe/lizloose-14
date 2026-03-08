@@ -22,7 +22,7 @@ mob_pushing = true
 
 [physics]
 # Makes mapping annoying
-grid_splitting = false
+grid_splitting = true
 
 [procgen]
 preload = false

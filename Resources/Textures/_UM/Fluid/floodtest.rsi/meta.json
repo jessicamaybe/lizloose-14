@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Taken from baystation12 at commit https://github.com/Baystation12/Baystation12/commit/1277065ea25011f2db6540c9c2e908f3fc746c68 and modified for Ephemeral Space. comm_syndie made by Veritius, based on comm. generic_panel_open made by Errant, commit https://github.com/space-wizards/space-station-14/pull/32273, comms_wizard and wizard_key by ScarKy0, request- variants, transfer, and other misc. sprites made by EmoGarbage404 (github), xenorobot by Samuka-C (github)",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+    "states": [
+        {
+            "name": "computer"
+        },
+        {
+            "name": "computer-flood1"
+        },
+        {
+            "name": "computer-flood2"
+        },
+        {
+            "name": "computer-flood3"
+        },
+        {
+            "name": "computer-flood4"
+        },
+        {
+            "name": "computer-flood5"
+        },
+        {
+            "name": "computer-flood6"
+        },
+        {
+            "name": "generic",
+            "delays": [
+                [
+                    0.2,
+                    0.2
+                ]
+            ]
+        }
+    ]
+}
