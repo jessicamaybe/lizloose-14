@@ -10,6 +10,7 @@ namespace Content.Shared._UM.Fluids;
 public sealed partial class TileSolution
 {
     [ViewVariables]
+    [NonSerialized]
     public EntityUid GridIndex;
 
     [ViewVariables]
@@ -20,15 +21,6 @@ public sealed partial class TileSolution
     /// </summary>
     [ViewVariables]
     public Solution Solution;
-
-    [ViewVariables]
-    public FillLevel FillLevel;
-
-    [ViewVariables]
-    public FixedPoint2 ShareVolume;
-
-    [ViewVariables]
-    public FixedPoint2 LastShareVolume;
 
     [ViewVariables]
     public AtmosDirection BlockedDirections;
@@ -46,7 +38,7 @@ public sealed partial class TileSolution
     {
         GridIndex = other.GridIndex;
         GridIndices = other.GridIndices;
-        Solution = other.Solution;
+        Solution = other.Solution.Clone();
     }
 }
 

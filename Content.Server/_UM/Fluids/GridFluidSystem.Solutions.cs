@@ -56,11 +56,18 @@ public sealed partial class GridFluidSystem
         {
             tile.Solution.AddSolution(solution, _prototypeManager);
             AddTileReaction(ent.Comp, tile);
+            MarkModifiedTile(ent.Comp, indices);
             if (active)
                 AddActiveTile(ent.Comp, indices);
             return;
         }
 
         AddTile((ent.Owner, ent.Comp), indices, solution, active);
+        MarkModifiedTile(ent.Comp, indices);
+    }
+
+    public void MarkModifiedTile(GridFluidComponent gridFluid, Vector2i indices)
+    {
+        gridFluid.ModifiedTiles.Add(indices);
     }
 }

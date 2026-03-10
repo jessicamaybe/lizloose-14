@@ -5,11 +5,22 @@ using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reaction;
+using Content.Shared.Chunking;
+using Content.Shared.Decals;
 using Content.Shared.EntityEffects;
 using Content.Shared.Maps;
+using Microsoft.Extensions.ObjectPool;
+using Robust.Server.Player;
+using Robust.Shared;
+using Robust.Shared.Configuration;
+using Robust.Shared.Enums;
+using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Threading;
 using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Content.Server._UM.Fluids;
 
@@ -25,8 +36,31 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
     [Dependency] private readonly SharedEntityEffectsSystem _entityEffects = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly GridFluidVisualsSystem _gridFluidVisuals = default!;
+    [Dependency] private readonly IConfigurationManager _conf = default!;
+    [Dependency] private readonly IPlayerManager _playerManager = default!;
+    [Dependency] private readonly IParallelManager _parMan = default!;
+    [Dependency] private readonly ChunkingSystem _chunkingSys = default!;
+    [Dependency] private readonly IMapManager _mapManager = default!;
 
     private EntityQuery<AirtightComponent> _airtightQuery;
+    private EntityQuery<MapGridComponent> _gridQuery;
+
+    private readonly Dictionary<NetEntity, HashSet<Vector2i>> _dirtyChunks = new();
+
+    private readonly Dictionary<ICommonSession, Dictionary<NetEntity, HashSet<Vector2i>>> _lastSentChunks = new();
+
+    private ObjectPool<HashSet<Vector2i>> _chunkIndexPool =
+        new DefaultObjectPool<HashSet<Vector2i>>(
+            new DefaultPooledObjectPolicy<HashSet<Vector2i>>(), 64);
+    private ObjectPool<Dictionary<NetEntity, HashSet<Vector2i>>> _chunkViewerPool =
+        new DefaultObjectPool<Dictionary<NetEntity, HashSet<Vector2i>>>(
+            new DefaultPooledObjectPolicy<Dictionary<NetEntity, HashSet<Vector2i>>>(), 64);
+
+
+    private readonly List<ICommonSession> _sessions = new();
+
+    private UpdatePlayerJob _updateJob;
+    private bool _doSessionUpdate;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -34,9 +68,94 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         base.Initialize();
         InitializeSource();
         _airtightQuery = GetEntityQuery<AirtightComponent>();
+        _gridQuery = GetEntityQuery<MapGridComponent>();
+
+        _updateJob = new UpdatePlayerJob()
+        {
+            EntManager = EntityManager,
+            System = this,
+            ChunkIndexPool = _chunkIndexPool,
+            Sessions = _sessions,
+            ChunkingSys = _chunkingSys,
+            MapManager = _mapManager,
+            ChunkViewerPool = _chunkViewerPool,
+            LastSentChunks = _lastSentChunks,
+            GridQuery = _gridQuery,
+        };
+
+        _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
 
         SubscribeLocalEvent<GridFluidComponent, GridSplitEvent>(OnGridSplit);
         SubscribeLocalEvent<GridFluidComponent, TileChangedEvent>(OnTileChange);
+
+        Subs.CVar(_conf, CVars.NetPVS, OnPvsToggle, true);
+    }
+
+    private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e)
+    {
+        if (e.NewStatus != SessionStatus.InGame)
+        {
+            if (_lastSentChunks.Remove(e.Session, out var sets))
+            {
+                foreach (var set in sets.Values)
+                {
+                    set.Clear();
+                    _chunkIndexPool.Return(set);
+                }
+            }
+        }
+
+        if (!_lastSentChunks.ContainsKey(e.Session))
+        {
+            _lastSentChunks[e.Session] = new();
+        }
+    }
+
+    private void OnPvsToggle(bool value)
+    {
+        if (value == PvsEnabled)
+            return;
+
+        PvsEnabled = value;
+
+        if (value)
+            return;
+
+        foreach (var playerData in _lastSentChunks.Values)
+        {
+            playerData.Clear();
+        }
+
+        var query = AllEntityQuery<GridFluidComponent, MetaDataComponent>();
+        while (query.MoveNext(out var uid, out var grid, out var meta))
+        {
+            grid.ForceTick = _timing.CurTick;
+            Dirty(uid, grid, meta);
+        }
+    }
+
+    private void UpdateSessions()
+    {
+        _doSessionUpdate = false;
+
+        if (!PvsEnabled)
+            return;
+
+        _sessions.Clear();
+
+        foreach (var player in _playerManager.Sessions)
+        {
+            if (player.Status != SessionStatus.InGame)
+                continue;
+
+            _sessions.Add(player);
+        }
+
+        if (_sessions.Count == 0)
+            return;
+
+        _parMan.ProcessNow(_updateJob, _sessions.Count);
+        _updateJob.LastSessionUpdate = _timing.CurTick;
     }
 
     private void OnTileChange(Entity<GridFluidComponent> ent, ref TileChangedEvent args)
@@ -60,7 +179,14 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
     {
         base.Update(frameTime);
 
+        if (_doSessionUpdate)
+        {
+            UpdateSessions();
+            return;
+        }
+
         UpdateFluidProcessing(frameTime);
+        _doSessionUpdate = true;
     }
 
     private void UpdateBlockedDirections(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
@@ -83,6 +209,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
                 tile.BlockedDirections |= direction;
             }
         }
+
         if (activate)
             AddActiveTile(ent.Comp1, tile);
 
@@ -140,6 +267,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         gridFluid.ActiveTiles.Remove(tile.GridIndices);
         gridFluid.InvalidTiles.Remove(tile);
         gridFluid.UnreactedTiles.Remove(tile);
+        MarkModifiedTile(gridFluid, tile.GridIndices);
     }
 
     private bool TryGetFluid(GridFluidComponent gridFluid,
@@ -167,8 +295,10 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
                 if (TryGetFluid(gridFluid, neighborPos, out var neighbor))
                     InvalidateTile(gridFluid, neighbor);
             }
+
             return;
         }
+
         gridFluid.InvalidTiles.Add(tile);
     }
 
@@ -204,5 +334,153 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
             return;
 
         gridFluid.UnreactedTiles.Add(tile);
+    }
+
+    private bool UpdateChunkTile(GridFluidComponent gridFluid, FluidChunk chunk, Vector2i index)
+    {
+        if (!gridFluid.Tiles.TryGetValue(index, out var tile))
+        {
+            chunk.Tiles.Remove(index);
+            chunk.LastModified = _timing.CurTick;
+            return true;
+        }
+
+        if (!chunk.Tiles.TryGetValue(index, out var chunkTile))
+        {
+            chunk.Tiles.TryAdd(index, new TileSolution(tile));
+            chunk.LastModified = _timing.CurTick;
+            return true;
+        }
+
+        if (chunkTile.Solution.Contents == tile.Solution.Contents)
+        {
+            chunk.LastModified = _timing.CurTick;
+            return false;
+        }
+
+        Log.Debug("");
+        chunkTile.Solution = tile.Solution.Clone();
+        chunk.LastModified = _timing.CurTick;
+        return true;
+    }
+
+    private void UpdateFluidData(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var gridFluid = ent.Comp1;
+
+        var changed = false;
+        foreach (var index in gridFluid.ModifiedTiles)
+        {
+            var chunkIndex = GetFluidChunkIndices(index);
+
+            if (!gridFluid.Chunks.TryGetValue(chunkIndex, out var chunk))
+            {
+                gridFluid.Chunks[chunkIndex] = chunk = new FluidChunk(chunkIndex);
+            }
+
+            changed |= UpdateChunkTile(gridFluid, chunk, index);
+        }
+
+        if (changed)
+            Dirty(ent.Owner, gridFluid);
+
+        gridFluid.ModifiedTiles.Clear();
+    }
+
+    private record struct UpdatePlayerJob : IParallelRobustJob
+    {
+        public int BatchSize => 2;
+
+        public IEntityManager EntManager;
+        public IMapManager MapManager;
+        public ChunkingSystem ChunkingSys;
+        public GridFluidSystem System;
+        public ObjectPool<HashSet<Vector2i>> ChunkIndexPool;
+        public ObjectPool<Dictionary<NetEntity, HashSet<Vector2i>>> ChunkViewerPool;
+
+        public GameTick LastSessionUpdate;
+        public Dictionary<ICommonSession, Dictionary<NetEntity, HashSet<Vector2i>>> LastSentChunks;
+        public List<ICommonSession> Sessions;
+
+        public EntityQuery<MapGridComponent> GridQuery;
+
+        public void Execute(int index)
+        {
+            var playerSession = Sessions[index];
+            var chunksInRange =
+                ChunkingSys.GetChunksForSession(playerSession, ChunkSize, ChunkIndexPool, ChunkViewerPool);
+            var previouslySent = LastSentChunks[playerSession];
+
+            var ev = new FluidChunkUpdateEvent();
+
+            foreach (var (netGrid, oldIndices) in previouslySent)
+            {
+                if (!chunksInRange.TryGetValue(netGrid, out var chunks))
+                {
+                    previouslySent.Remove(netGrid);
+
+                    if (!EntManager.TryGetEntity(netGrid, out var gridId) || GridQuery.HasComp(gridId.Value))
+                        ev.RemovedChunks[netGrid] = oldIndices;
+                    else
+                    {
+                        oldIndices.Clear();
+                        ChunkIndexPool.Return(oldIndices);
+                    }
+                    continue;
+                }
+                var old = ChunkIndexPool.Get();
+                    DebugTools.Assert(old.Count == 0);
+                    foreach (var chunk in oldIndices)
+                    {
+                        if (!chunks.Contains(chunk))
+                            old.Add(chunk);
+                    }
+
+                    if (old.Count == 0)
+                        ChunkIndexPool.Return(old);
+                    else
+                        ev.RemovedChunks.Add(netGrid, old);
+            }
+
+            foreach (var (netGrid, gridChunks) in chunksInRange)
+            {
+                // Not all grids have fluids
+                if (!EntManager.TryGetEntity(netGrid, out var grid) ||
+                    !EntManager.TryGetComponent(grid, out GridFluidComponent? gridFluid))
+                    continue;
+
+                List<FluidChunk> dataToSend = new();
+                ev.UpdatedChunks[netGrid] = dataToSend;
+
+                previouslySent.TryGetValue(netGrid, out var previousChunks);
+
+                foreach (var gIndex in gridChunks)
+                {
+                    if (!gridFluid.Chunks.TryGetValue(gIndex, out var value))
+                        continue;
+
+                    // If the chunk was updated since we last sent it, send it again
+                    if (value.LastModified > LastSessionUpdate)
+                    {
+                        dataToSend.Add(value);
+                        continue;
+                    }
+
+                    // Always send it if we didn't previously send it
+                    if (previousChunks == null || !previousChunks.Contains(gIndex))
+                        dataToSend.Add(value);
+                }
+
+                previouslySent[netGrid] = gridChunks;
+                if (previousChunks != null)
+                {
+                    previousChunks.Clear();
+                    ChunkIndexPool.Return(previousChunks);
+                }
+            }
+
+            if (ev.UpdatedChunks.Count != 0 || ev.RemovedChunks.Count != 0)
+                    System.RaiseNetworkEvent(ev, playerSession.Channel);
+        }
     }
 }

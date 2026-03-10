@@ -24,7 +24,7 @@ public sealed class GridFluidVisualsSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-        ProcessGridVisuals();
+        //ProcessGridVisuals();
     }
 
     public void MarkInvalid(Entity<GridFluidComponent> ent, Vector2i indices)

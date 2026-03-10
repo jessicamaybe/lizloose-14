@@ -45,6 +45,7 @@ public sealed partial class GridFluidSystem
                 //ent.Comp1.Stage++;
                 //break;
             case 4:
+                UpdateFluidData(ent);
                 ent.Comp1.Stage = 1;
                 break;
             default:
@@ -70,8 +71,10 @@ public sealed partial class GridFluidSystem
 
         foreach (var tile in deleted)
         {
+            var tilesol = ent.Comp1.Tiles[tile];
+
             RemoveActiveTile(ent.Comp1, tile);
-            ent.Comp1.Tiles.Remove(tile);
+            RemoveTile(ent.Comp1, tilesol);
         }
 
     }

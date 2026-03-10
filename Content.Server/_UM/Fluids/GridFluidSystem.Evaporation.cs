@@ -41,6 +41,7 @@ public sealed partial class GridFluidSystem
             {
                 var reagentTick = gridFluid.EvaporationAmount * EvaporationCooldown.TotalSeconds * evaporationSpeed * factor;
                 solution.SplitSolutionWithOnly(reagentTick, reagent);
+                MarkModifiedTile(gridFluid, indices);
             }
 
             if (solution.Volume == 0)
