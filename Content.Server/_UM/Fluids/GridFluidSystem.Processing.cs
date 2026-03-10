@@ -23,40 +23,26 @@ public sealed partial class GridFluidSystem
     {
         var (owner, gridFluid, grid, xform) = ent;
 
-        //TODO: ONLY DO ONE OF THESE STEPS PER TICK :-)
-
         switch (ent.Comp1.Stage)
         {
             case 1:
                 ProcessInvalidTiles(ent);
-                ent.Comp1.Stage++;
-                break;
-            case 2:
                 ProcessActiveTiles(ent);
                 ent.Comp1.Stage++;
                 break;
-            case 3:
+            case 2:
                 ProcessTileReactions(ent);
                 CheckEmptyTiles(ent);
                 ent.Comp1.Stage++;
                 break;
-            //case 4:
-                //DrawTiles(ent);
-                //ent.Comp1.Stage++;
-                //break;
-            case 4:
+            case 3:
                 UpdateFluidData(ent);
                 ent.Comp1.Stage = 1;
                 break;
             default:
-                ent.Comp1.Stage = 4;
+                ent.Comp1.Stage = 3;
                 break;
         }
-
-        //ProcessInvalidTiles(ent);
-        //ProcessActiveTiles(ent);
-        //ProcessTileReactions(ent);
-        //DrawTiles(ent);
     }
 
     private void CheckEmptyTiles(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)

@@ -79,7 +79,7 @@ public sealed partial class CleanTileReaction : ITileReaction
         // Multiply as the amount we can actually purge is higher than the react amount.
         var purgeAmount = reactVolume / CleanAmountMultiplier;
 
-        if (gridFluidSystem.TryGetTileSolution(tile.GridUid, tile.GridIndices, out var tileSolution))
+        if (gridFluidSystem.TryGetTileSolution(tile.GridUid, tile.GridIndices, out var tileSolution, out _))
         {
             var solution = tileSolution.Solution;
 

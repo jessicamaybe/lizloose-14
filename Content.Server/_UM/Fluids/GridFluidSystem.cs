@@ -341,6 +341,8 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         }
 
         chunkTile.Solution = tile.Solution.Clone();
+        chunkTile.Color = tile.Solution.GetColor(_prototypeManager);
+        chunkTile.Volume = tile.Solution.Volume;
         chunk.LastModified = _timing.CurTick;
         return true;
     }

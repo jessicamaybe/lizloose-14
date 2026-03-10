@@ -50,8 +50,8 @@ public sealed class TileFluidVisualsSystem : EntitySystem
         if (!_gridFluid.TryGetFluid(gridFluid, tile.Indices, out var fluid))
             return;
 
-        var color = fluid.Solution.GetColor(_prototypeManager);
-        var volume = fluid.Solution.Volume;
+        var color = fluid.Color;
+        var volume = fluid.Volume;
 
         var maxOpacity = 200;
         var opacity = Math.Clamp(volume.Value/10, 100, maxOpacity);

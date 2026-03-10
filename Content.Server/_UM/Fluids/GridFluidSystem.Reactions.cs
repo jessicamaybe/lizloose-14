@@ -1,7 +1,6 @@
 using System.Linq;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
-using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.FixedPoint;

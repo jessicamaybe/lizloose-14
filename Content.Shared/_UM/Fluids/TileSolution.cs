@@ -1,5 +1,6 @@
 using Content.Shared.Atmos;
 using Content.Shared.Chemistry.Components;
+using Content.Shared.FixedPoint;
 
 namespace Content.Shared._UM.Fluids;
 
@@ -22,6 +23,12 @@ public sealed partial class TileSolution
     public Solution Solution;
 
     [ViewVariables]
+    public Color Color;
+
+    [ViewVariables]
+    public FixedPoint2 Volume;
+
+    [ViewVariables]
     public AtmosDirection BlockedDirections;
 
     public TileSolution(EntityUid gridIndex, Vector2i gridIndices)
@@ -30,12 +37,13 @@ public sealed partial class TileSolution
         GridIndices = gridIndices;
         Solution = new Solution(capacity: 100000);
     }
-
-    public TileSolution(TileSolution other)
+    public TileSolution(TileSolution other, bool copySolution = true)
     {
         GridIndex = other.GridIndex;
         GridIndices = other.GridIndices;
-        Solution = other.Solution.Clone();
+        Solution = copySolution ? other.Solution.Clone() : new Solution();
+        Color = other.Solution.GetColor(null);
+        Volume = other.Solution.Volume;
     }
 }
 
