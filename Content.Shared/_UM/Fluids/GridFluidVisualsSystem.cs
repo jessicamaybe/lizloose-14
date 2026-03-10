@@ -1,10 +1,11 @@
-using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Timing;
 
-namespace Content.Server._UM.Fluids;
+namespace Content.Shared._UM.Fluids;
 
 /// <summary>
 /// This handles...
@@ -12,9 +13,11 @@ namespace Content.Server._UM.Fluids;
 public sealed class GridFluidVisualsSystem : EntitySystem
 {
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
-    [Dependency] private readonly GridFluidSystem _gridFluid = default!;
+    [Dependency] private readonly SharedGridFluidSystem _gridFluid = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
+    [Dependency] private readonly INetManager _net = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -24,7 +27,8 @@ public sealed class GridFluidVisualsSystem : EntitySystem
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
-        //ProcessGridVisuals();
+        ProcessGridVisuals();
+        UpdateFluidVisuals();
     }
 
     public void MarkInvalid(Entity<GridFluidComponent> ent, Vector2i indices)
@@ -54,6 +58,32 @@ public sealed class GridFluidVisualsSystem : EntitySystem
                 UpdateTileVisuals(ent, index);
             }
             visuals.InvalidTiles.Clear();
+        }
+    }
+
+    private void UpdateFluidVisuals()
+    {
+        if (!_net.IsClient || !_timing.IsFirstTimePredicted)
+            return;
+
+        var query = AllEntityQuery<TileFluidComponent, AppearanceComponent>();
+
+        while (query.MoveNext(out var uid, out var tileFluid, out var appearance))
+        {
+            var xform = Transform(uid);
+
+            if (xform.GridUid is not { } grid)
+                continue;
+
+            if (!TryComp<GridFluidComponent>(grid, out var gridFluid))
+                continue;
+
+            if (!_gridFluid.TryGetFluid(gridFluid, tileFluid.Indices, out var fluid))
+                continue;
+
+            SetPuddleColor(uid, appearance, fluid.Solution.GetColor(_prototypeManager), fluid.Solution.Volume);
+            SetPuddleVolume(uid, appearance, fluid.Solution.Volume);
+
         }
     }
 
@@ -102,16 +132,10 @@ public sealed class GridFluidVisualsSystem : EntitySystem
             var coords = _map.GridTileToLocal(ent.Owner, grid, indices);
             drawnEnt = Spawn("FluidPuddle", coords);
             var relay = EnsureComp<TileFluidComponent>(drawnEnt);
-            relay.TileSolution = tileSolution;
-            relay.Solution = tileSolution.Solution;
+            relay.Indices = indices;
             gridVisuals.DrawnTiles.Add(indices, drawnEnt);
             Dirty(drawnEnt, relay);
         }
-        if (!TryComp(drawnEnt, out AppearanceComponent? appearance))
-            return;
-
-        SetPuddleColor(drawnEnt, appearance, tileSolution.Solution.GetColor(_prototypeManager), tileSolution.Solution.Volume);
-        SetPuddleVolume(drawnEnt, appearance, tileSolution.Solution.Volume);
     }
 
     private void RemoveTileVisuals(Entity<GridFluidVisualsComponent, GridFluidComponent, MapGridComponent, MetaDataComponent> ent,

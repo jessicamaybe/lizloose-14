@@ -62,45 +62,8 @@ public sealed class GridFluidSystem : SharedGridFluidSystem
                 ent.Comp.Tiles.Add(tile.Key, tile.Value);
             }
         }
-
-        DrawTiles(ent);
+        //DrawTiles(ent);
     }
-
-
-    /// <summary>
-    /// Remove this, this was just here so i could visualize shit easy real quick ok
-    /// </summary>
-    /// <param name="ent"></param>
-    private void DrawTiles(Entity<GridFluidComponent> ent)
-    {
-        if (!TryComp<MapGridComponent>(ent.Owner, out var mapgrid))
-            return;
-
-        foreach (var (indices, tile) in ent.Comp.Tiles)
-        {
-            if (ent.Comp.DrawnTiles.ContainsKey(indices))
-                continue;
-
-            var coords = _map.GridTileToLocal(ent.Owner, mapgrid, indices);
-            var entity = Spawn("FluidPuddle", coords);
-            ent.Comp.DrawnTiles.Add(indices, entity);
-        }
-
-        var deleted = new HashSet<Vector2i>();
-
-        foreach (var (indices, _) in ent.Comp.DrawnTiles)
-        {
-            if (!ent.Comp.Tiles.ContainsKey(indices))
-                deleted.Add(indices);
-        }
-
-        foreach (var todelete in deleted)
-        {
-            QueueDel(ent.Comp.DrawnTiles[todelete]);
-            ent.Comp.DrawnTiles.Remove(todelete);
-        }
-    }
-
 
     private void OnHandleState(Entity<GridFluidComponent> ent, ref ComponentHandleState args)
     {

@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
 using JetBrains.Annotations;
@@ -11,45 +9,11 @@ public sealed partial class GridFluidSystem
 {
     public override void DirtyTile(Entity<TileFluidComponent> ent)
     {
-        if (ent.Comp.TileSolution == null)
+        var xform = Transform(ent);
+        if (xform.GridUid is not { } grid)
             return;
 
-        InvalidateTile(ent.Comp.TileSolution.GridIndex, ent.Comp.TileSolution.GridIndices);
-        _gridFluidVisuals.MarkInvalid(ent.Comp.TileSolution.GridIndex, ent.Comp.TileSolution.GridIndices);
-    }
-
-    /// <summary>
-    /// Tries to get the solution on a given tile
-    /// </summary>
-    /// <param name="gridUid"></param>
-    /// <param name="tileRef"></param>
-    /// <param name="tileSolution"></param>
-    /// <returns></returns>
-    [PublicAPI]
-    public bool TryGetTileSolution(EntityUid gridUid, TileRef tileRef, [NotNullWhen(true)] out TileSolution? tileSolution)
-    {
-        tileSolution = null;
-
-        if (!TryComp<GridFluidComponent>(gridUid, out var gridFluidComponent))
-            return false;
-
-        if (!TryGetFluid(gridFluidComponent, tileRef.GridIndices, out var tile))
-            return false;
-
-        tileSolution = tile;
-        return true;
-    }
-
-    [PublicAPI]
-    public bool TryGetTileSolution(GridFluidComponent gridFluid, Vector2i indices, [NotNullWhen(true)] out TileSolution? tileSolution)
-    {
-        tileSolution = null;
-
-        if (!TryGetFluid(gridFluid, indices, out var tile))
-            return false;
-
-        tileSolution = tile;
-        return true;
+        _gridFluidVisuals.MarkInvalid(grid, ent.Comp.Indices);
     }
 
     /// <summary>

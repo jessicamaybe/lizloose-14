@@ -8,6 +8,7 @@ using Robust.Shared.Map;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 using System.Linq;
 using Content.Server._UM.Fluids;
+using Content.Shared._UM.Fluids;
 
 namespace Content.Server.Chemistry.TileReactions;
 
@@ -78,7 +79,7 @@ public sealed partial class CleanTileReaction : ITileReaction
         // Multiply as the amount we can actually purge is higher than the react amount.
         var purgeAmount = reactVolume / CleanAmountMultiplier;
 
-        if (gridFluidSystem.TryGetTileSolution(tile.GridUid, tile, out var tileSolution))
+        if (gridFluidSystem.TryGetTileSolution(tile.GridUid, tile.GridIndices, out var tileSolution))
         {
             var solution = tileSolution.Solution;
 

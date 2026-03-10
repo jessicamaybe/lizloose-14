@@ -23,11 +23,14 @@ public sealed partial class PuddleAreaReactionEntityEffectsSystem : EntityEffect
     [Dependency] private readonly SmokeSystem _smoke = default!;
     [Dependency] private readonly SpreaderSystem _spreader = default!;
     [Dependency] private readonly TurfSystem _turf = default!;
+    [Dependency] private readonly GridFluidSystem _gridFluid = default!;
 
     protected override void Effect(Entity<TileFluidComponent> entity, ref EntityEffectEvent<AreaReactionEffect> args)
     {
-        if (entity.Comp.TileSolution == null)
+        if (entity.Comp.Solution == null)
             return;
+
+        var solution = entity.Comp.Solution;
 
         var xform = Transform(entity);
         var mapCoords = _xform.GetMapCoordinates(entity);
@@ -44,7 +47,7 @@ public sealed partial class PuddleAreaReactionEntityEffectsSystem : EntityEffect
         var coords = _map.MapToGrid(gridUid, mapCoords);
         var ent = Spawn(args.Effect.PrototypeId, coords.SnapToGrid());
 
-        _smoke.StartSmoke(ent, entity.Comp.TileSolution.Solution, args.Effect.Duration, spreadAmount);
+        _smoke.StartSmoke(ent, solution, args.Effect.Duration, spreadAmount);
 
         _audio.PlayPvs(args.Effect.Sound, entity, AudioParams.Default.WithVariation(0.25f));
     }

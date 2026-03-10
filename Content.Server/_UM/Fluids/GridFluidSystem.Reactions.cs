@@ -199,7 +199,7 @@ public sealed partial class GridFluidSystem
         var entity = SpawnAtPosition(null, coords);
 
         var solutionComp = EnsureComp<TileFluidComponent>(entity);
-        solutionComp.TileSolution = tileSolution;
+        solutionComp.Solution = tileSolution.Solution;
 
         var timedDespawn = EnsureComp<TimedDespawnComponent>(entity);
         timedDespawn.Lifetime = 10f;

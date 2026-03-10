@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Content.Server.Atmos.Components;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
@@ -6,7 +5,6 @@ using Content.Shared.Atmos;
 using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chunking;
-using Content.Shared.Decals;
 using Content.Shared.EntityEffects;
 using Content.Shared.Maps;
 using Microsoft.Extensions.ObjectPool;
@@ -44,8 +42,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
 
     private EntityQuery<AirtightComponent> _airtightQuery;
     private EntityQuery<MapGridComponent> _gridQuery;
-
-    private readonly Dictionary<NetEntity, HashSet<Vector2i>> _dirtyChunks = new();
 
     private readonly Dictionary<ICommonSession, Dictionary<NetEntity, HashSet<Vector2i>>> _lastSentChunks = new();
 
@@ -89,6 +85,20 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         SubscribeLocalEvent<GridFluidComponent, TileChangedEvent>(OnTileChange);
 
         Subs.CVar(_conf, CVars.NetPVS, OnPvsToggle, true);
+    }
+
+    public override void Update(float frameTime)
+    {
+        base.Update(frameTime);
+
+        if (_doSessionUpdate)
+        {
+            UpdateSessions();
+            return;
+        }
+
+        UpdateFluidProcessing(frameTime);
+        _doSessionUpdate = true;
     }
 
     private void OnPlayerStatusChanged(object? sender, SessionStatusEventArgs e)
@@ -175,20 +185,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         }
     }
 
-    public override void Update(float frameTime)
-    {
-        base.Update(frameTime);
-
-        if (_doSessionUpdate)
-        {
-            UpdateSessions();
-            return;
-        }
-
-        UpdateFluidProcessing(frameTime);
-        _doSessionUpdate = true;
-    }
-
     private void UpdateBlockedDirections(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent,
         TileSolution tile,
         bool activate = false)
@@ -249,7 +245,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         _gridFluidVisuals.MoveTile(oldGrid, newGrid, tile);
     }
 
-    private void AddTile(Entity<GridFluidComponent> ent, Vector2i indices, Solution solution, bool active = true)
+    public override void AddTile(Entity<GridFluidComponent> ent, Vector2i indices, Solution solution, bool active = true)
     {
         var gridFluid = EnsureComp<GridFluidComponent>(ent.Owner);
 
@@ -268,15 +264,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         gridFluid.InvalidTiles.Remove(tile);
         gridFluid.UnreactedTiles.Remove(tile);
         MarkModifiedTile(gridFluid, tile.GridIndices);
-    }
-
-    private bool TryGetFluid(GridFluidComponent gridFluid,
-        Vector2i indices,
-        [NotNullWhen(true)] out TileSolution? tile)
-    {
-        tile = null;
-
-        return gridFluid.Tiles.TryGetValue(indices, out tile);
     }
 
     private void InvalidateTile(GridFluidComponent gridFluid, TileSolution tile)
@@ -302,12 +289,12 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         gridFluid.InvalidTiles.Add(tile);
     }
 
-    private bool AddActiveTile(GridFluidComponent gridFluid, TileSolution tile)
+    public override bool AddActiveTile(GridFluidComponent gridFluid, TileSolution tile)
     {
         return gridFluid.ActiveTiles.Add(tile.GridIndices);
     }
 
-    private bool AddActiveTile(GridFluidComponent gridFluid, Vector2i indices)
+    public override bool AddActiveTile(GridFluidComponent gridFluid, Vector2i indices)
     {
         return gridFluid.ActiveTiles.Add(indices);
     }
@@ -328,7 +315,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         gridFluid.ActiveTiles.Remove(indices);
     }
 
-    private void AddTileReaction(GridFluidComponent gridFluid, TileSolution tile)
+    public override void AddTileReaction(GridFluidComponent gridFluid, TileSolution tile)
     {
         if (!gridFluid.Tiles.ContainsValue(tile))
             return;
@@ -358,7 +345,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
             return false;
         }
 
-        Log.Debug("");
         chunkTile.Solution = tile.Solution.Clone();
         chunk.LastModified = _timing.CurTick;
         return true;

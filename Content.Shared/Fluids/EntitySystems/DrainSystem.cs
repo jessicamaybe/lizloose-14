@@ -179,12 +179,10 @@ public sealed class DrainSystem : EntitySystem
                 //UM START
                 foreach (var puddle in _puddles)
                 {
-                    if (puddle.Comp.Solution == null)
+                    if (!_gridFluid.TryGetSolution((puddle.Owner, puddle.Comp), out var solution))
                         continue;
 
-                    var puddleSolution = puddle.Comp.Solution;
-
-                    var transferSolution = puddleSolution.SplitSolution(FixedPoint2.Min(FixedPoint2.New(amount), puddleSolution.Volume, drainSolution.AvailableVolume));
+                    var transferSolution = solution.SplitSolution(FixedPoint2.Min(FixedPoint2.New(amount), solution.Volume, drainSolution.AvailableVolume));
 
                     drainSolution.AddSolution(transferSolution, _prototype);
 

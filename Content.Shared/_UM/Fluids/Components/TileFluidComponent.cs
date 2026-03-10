@@ -11,10 +11,13 @@ namespace Content.Shared._UM.Fluids.Components;
 [AutoGenerateComponentState]
 public sealed partial class TileFluidComponent : Component
 {
-    [ViewVariables]
-    public TileSolution? TileSolution;
+    /// <summary>
+    /// Indices of the tile we're on
+    /// </summary>
+    [ViewVariables, AutoNetworkedField]
+    public Vector2i Indices;
 
-    [DataField, ViewVariables, AutoNetworkedField]
+    //this is just here for some entity effects that need it
     public Solution? Solution;
 
     /// <summary>
