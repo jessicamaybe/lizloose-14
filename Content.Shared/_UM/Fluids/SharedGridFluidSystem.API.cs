@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Chemistry.Components;
+using Content.Shared.FixedPoint;
 using JetBrains.Annotations;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
@@ -12,23 +13,23 @@ namespace Content.Shared._UM.Fluids;
 /// </summary>
 public partial class SharedGridFluidSystem
 {
-
     /// <summary>
     /// Tries to get the solution on a given tile
     /// </summary>
     /// <param name="gridUid"></param>
     /// <param name="indices"></param>
     /// <param name="tileSolution"></param>
+    /// <param name="gridFluid"></param>
     /// <returns></returns>
     [PublicAPI]
-    public bool TryGetTileSolution(EntityUid gridUid, Vector2i indices, [NotNullWhen(true)] out TileSolution? tileSolution)
+    public bool TryGetTileSolution(EntityUid gridUid, Vector2i indices, [NotNullWhen(true)] out TileSolution? tileSolution, [NotNullWhen(true)] out GridFluidComponent? gridFluid)
     {
         tileSolution = null;
 
-        if (!TryComp<GridFluidComponent>(gridUid, out var gridFluidComponent))
+        if (!TryComp(gridUid, out gridFluid))
             return false;
 
-        if (!TryGetFluid(gridFluidComponent, indices, out var tile))
+        if (!TryGetFluid(gridFluid, indices, out var tile))
         {
             Log.Debug("No fluid?? wtf");
             return false;
@@ -74,10 +75,11 @@ public partial class SharedGridFluidSystem
 
         var xform = Transform(ent);
 
-        if (xform.GridUid is not { } grid || !TryGetTileSolution(grid, ent.Comp.Indices, out var tileSolution))
+        if (xform.GridUid is not { } grid || !TryGetTileSolution(grid, ent.Comp.Indices, out var tileSolution, out var gridFluid))
             return;
 
         tileSolution.Solution.AddSolution(solution, _prototype);
+        MarkModifiedTile(gridFluid, ent.Comp.Indices);
         DirtyTile((ent, ent.Comp));
     }
 
@@ -96,7 +98,7 @@ public partial class SharedGridFluidSystem
 
         var xform = Transform(ent);
 
-        if (xform.GridUid is not { } grid || !TryGetTileSolution(grid, ent.Comp.Indices, out var tileSolution))
+        if (xform.GridUid is not { } grid || !TryGetTileSolution(grid, ent.Comp.Indices, out var tileSolution, out _))
         {
             Log.Debug("thist hing");
             return false;
@@ -129,14 +131,44 @@ public partial class SharedGridFluidSystem
         {
             tile.Solution.AddSolution(solution, _prototype);
             AddTileReaction(ent.Comp, tile);
-            MarkModifiedTile(ent.Comp, indices);
             if (active)
                 AddActiveTile(ent.Comp, indices);
+            if (solution.Volume > 1)
+            {
+                MarkModifiedTile(ent.Comp, indices);
+            }
             return;
         }
 
         AddTile((ent.Owner, ent.Comp), indices, solution, active);
         MarkModifiedTile(ent.Comp, indices);
+    }
+
+    public bool TryTransferFluid(GridFluidComponent gridFluid, Vector2i indicesFrom, Vector2i indicesTo, FixedPoint2 amount, bool active = true)
+    {
+        if (!gridFluid.Tiles.TryGetValue(indicesFrom, out var tileFrom))
+            return false;
+
+        return TryTransferFluid(gridFluid, tileFrom, indicesTo, amount, active);
+    }
+
+    public bool TryTransferFluid(GridFluidComponent gridFluid, TileSolution tileFrom, Vector2i indicesTo, FixedPoint2 amount, bool active = true)
+    {
+        var solution = tileFrom.Solution.SplitSolution(amount);
+
+        if (gridFluid.Tiles.TryGetValue(indicesTo, out var tileTo))
+        {
+            tileTo.Solution.AddSolution(solution, _prototype);
+            AddTileReaction(gridFluid, tileTo);
+            if (active)
+                AddActiveTile(gridFluid, indicesTo);
+            if (amount > 1) //Don't bother sending to client if its small amounts
+                MarkModifiedTile(gridFluid, indicesTo);
+            return true;
+        }
+
+        AddFluid((tileFrom.GridIndex, gridFluid), indicesTo, solution, active);
+        return true;
     }
 
     public virtual void AddTile(Entity<GridFluidComponent> ent, Vector2i indices, Solution solution, bool active = true)

@@ -1,6 +1,5 @@
 using Content.Shared.Atmos;
 using Content.Shared.Chemistry.Components;
-using Content.Shared.FixedPoint;
 
 namespace Content.Shared._UM.Fluids;
 
@@ -25,8 +24,6 @@ public sealed partial class TileSolution
     [ViewVariables]
     public AtmosDirection BlockedDirections;
 
-    [ViewVariables]
-    public bool Excited;
     public TileSolution(EntityUid gridIndex, Vector2i gridIndices)
     {
         GridIndex = gridIndex;

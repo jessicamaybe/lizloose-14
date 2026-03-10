@@ -81,7 +81,7 @@ public sealed partial class GridFluidComponent : Component
     /// <summary>
     ///     Tick at which PVS was last toggled. Ensures that all players receive a full update when toggling PVS.
     /// </summary>
-    public GameTick ForceTick { get; set; }
+    public GameTick ForceTick;
 
 }
 
@@ -130,7 +130,7 @@ public sealed class GridFluidDeltaState(Dictionary<Vector2i, FluidChunk> modifie
     {
         foreach (var key in state.Chunks.Keys)
         {
-            if (!AllChunks!.Contains(key))
+            if (!AllChunks.Contains(key))
                 state.Chunks.Remove(key);
         }
 
@@ -151,7 +151,7 @@ public sealed class GridFluidDeltaState(Dictionary<Vector2i, FluidChunk> modifie
 
         foreach (var (chunk, data) in state.Chunks)
         {
-            if (AllChunks!.Contains(chunk))
+            if (AllChunks.Contains(chunk))
                 chunks.TryAdd(chunk, data);
         }
         return new GridFluidState(chunks);

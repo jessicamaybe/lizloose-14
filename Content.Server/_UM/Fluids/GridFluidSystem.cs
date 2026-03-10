@@ -12,7 +12,6 @@ using Robust.Server.Player;
 using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.Enums;
-using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
@@ -38,7 +37,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
     [Dependency] private readonly IPlayerManager _playerManager = default!;
     [Dependency] private readonly IParallelManager _parMan = default!;
     [Dependency] private readonly ChunkingSystem _chunkingSys = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
 
     private EntityQuery<AirtightComponent> _airtightQuery;
     private EntityQuery<MapGridComponent> _gridQuery;
@@ -46,14 +44,13 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
     private readonly Dictionary<ICommonSession, Dictionary<NetEntity, HashSet<Vector2i>>> _lastSentChunks = new();
 
     private ObjectPool<HashSet<Vector2i>> _chunkIndexPool =
-        new DefaultObjectPool<HashSet<Vector2i>>(
-            new DefaultPooledObjectPolicy<HashSet<Vector2i>>(), 64);
+        new DefaultObjectPool<HashSet<Vector2i>>(new DefaultPooledObjectPolicy<HashSet<Vector2i>>(), 64);
     private ObjectPool<Dictionary<NetEntity, HashSet<Vector2i>>> _chunkViewerPool =
-        new DefaultObjectPool<Dictionary<NetEntity, HashSet<Vector2i>>>(
-            new DefaultPooledObjectPolicy<Dictionary<NetEntity, HashSet<Vector2i>>>(), 64);
+        new DefaultObjectPool<Dictionary<NetEntity, HashSet<Vector2i>>>(new DefaultPooledObjectPolicy<Dictionary<NetEntity, HashSet<Vector2i>>>(), 64);
 
 
     private readonly List<ICommonSession> _sessions = new();
+
 
     private UpdatePlayerJob _updateJob;
     private bool _doSessionUpdate;
@@ -73,7 +70,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
             ChunkIndexPool = _chunkIndexPool,
             Sessions = _sessions,
             ChunkingSys = _chunkingSys,
-            MapManager = _mapManager,
             ChunkViewerPool = _chunkViewerPool,
             LastSentChunks = _lastSentChunks,
             GridQuery = _gridQuery,
@@ -250,7 +246,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         var gridFluid = EnsureComp<GridFluidComponent>(ent.Owner);
 
         var tileSolution = new TileSolution(ent.Owner, indices);
-        tileSolution.Excited = true;
         tileSolution.Solution.AddSolution(solution, _prototypeManager);
         gridFluid.Tiles.TryAdd(indices, tileSolution);
         InvalidateTile(gridFluid, tileSolution);
@@ -378,7 +373,6 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         public int BatchSize => 2;
 
         public IEntityManager EntManager;
-        public IMapManager MapManager;
         public ChunkingSystem ChunkingSys;
         public GridFluidSystem System;
         public ObjectPool<HashSet<Vector2i>> ChunkIndexPool;

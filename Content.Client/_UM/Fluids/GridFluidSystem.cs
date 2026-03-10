@@ -1,8 +1,6 @@
-using System.Numerics;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Robust.Shared.GameStates;
-using Robust.Shared.Map.Components;
 
 namespace Content.Client._UM.Fluids;
 
@@ -31,9 +29,15 @@ public sealed class GridFluidSystem : SharedGridFluidSystem
 
             foreach (var index in removedIndices)
             {
+                if (gridFluid.Chunks.TryGetValue(index, out var chunk))
+                {
+                    foreach (var (indices, _) in chunk.Tiles)
+                    {
+                        gridFluid.Tiles.Remove(indices);
+                    }
+                }
                 gridFluid.Chunks.Remove(index);
             }
-            UpdateTiles((grid, gridFluid));
         }
         foreach (var (nent, gridData) in ev.UpdatedChunks)
         {
@@ -45,24 +49,14 @@ public sealed class GridFluidSystem : SharedGridFluidSystem
             foreach (var chunkdata in gridData)
             {
                 gridFluid.Chunks[chunkdata.Index] = chunkdata;
-            }
-            UpdateTiles((grid, gridFluid));
-        }
-    }
 
-    private void UpdateTiles(Entity<GridFluidComponent> ent)
-    {
-        ent.Comp.Tiles.Clear();
-
-        foreach (var (_, chunk) in ent.Comp.Chunks)
-        {
-            foreach (var tile in chunk.Tiles)
-            {
-                tile.Value.GridIndex = ent.Owner;
-                ent.Comp.Tiles.Add(tile.Key, tile.Value);
+                foreach (var (indices, data) in chunkdata.Tiles)
+                {
+                    gridFluid.Tiles[indices] = data;
+                    gridFluid.ModifiedTiles.Add(indices);
+                }
             }
         }
-        //DrawTiles(ent);
     }
 
     private void OnHandleState(Entity<GridFluidComponent> ent, ref ComponentHandleState args)
@@ -73,7 +67,6 @@ public sealed class GridFluidSystem : SharedGridFluidSystem
             case GridFluidDeltaState delta:
             {
                 modifiedChunks = delta.ModifiedChunks;
-                Log.Debug("Getting GridFluidDeltaState chunk count: " + delta.ModifiedChunks.Count);
                 foreach (var index in ent.Comp.Chunks.Keys)
                 {
                     if (!delta.AllChunks.Contains(index))
@@ -85,7 +78,6 @@ public sealed class GridFluidSystem : SharedGridFluidSystem
             case GridFluidState state:
             {
                 modifiedChunks = state.Chunks;
-                Log.Debug("Getting gridfluidstate chunk count: " + state.Chunks.Count);
                 foreach (var index in ent.Comp.Chunks.Keys)
                 {
                     if (!state.Chunks.ContainsKey(index))

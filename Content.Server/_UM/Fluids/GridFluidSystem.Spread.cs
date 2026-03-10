@@ -56,7 +56,6 @@ public sealed partial class GridFluidSystem
             if (diff <= 0)
                 continue;
 
-            // pairwise leveling
             var flow = diff / 2;
 
             if (flow < 0.1)
@@ -89,7 +88,6 @@ public sealed partial class GridFluidSystem
         {
             if (amount == 0)
                 continue;
-
             TryTransferFluid(gridFluid, tile, pos, amount);
             _gridFluidVisuals.MarkInvalid((ent.Owner, gridFluid), pos);
             moved = true;

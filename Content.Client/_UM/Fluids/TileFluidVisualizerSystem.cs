@@ -33,7 +33,11 @@ public sealed class TileFluidVisualsSystem : EntitySystem
             if (!TryComp<GridFluidComponent>(grid, out var gridFluid))
                 continue;
 
-            SetPuddleAppearance((uid, tileFluid, sprite, iconSmooth), gridFluid);
+            if (gridFluid.ModifiedTiles.Contains(tileFluid.Indices))
+            {
+                SetPuddleAppearance((uid, tileFluid, sprite, iconSmooth), gridFluid);
+                gridFluid.ModifiedTiles.Remove(tileFluid.Indices);
+            }
         }
     }
 
