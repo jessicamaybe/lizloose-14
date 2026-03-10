@@ -1,9 +1,5 @@
 using Content.Shared._UM.Fluids.Components;
-using Content.Shared.FixedPoint;
 using Robust.Shared.Map.Components;
-using Robust.Shared.Network;
-using Robust.Shared.Prototypes;
-using Robust.Shared.Timing;
 
 namespace Content.Shared._UM.Fluids;
 
@@ -12,12 +8,9 @@ namespace Content.Shared._UM.Fluids;
 /// </summary>
 public sealed class GridFluidVisualsSystem : EntitySystem
 {
-    [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
     [Dependency] private readonly SharedGridFluidSystem _gridFluid = default!;
-    [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
-    [Dependency] private readonly INetManager _net = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
+
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -28,7 +21,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
     {
         base.Update(frameTime);
         ProcessGridVisuals();
-        UpdateFluidVisuals();
     }
 
     public void MarkInvalid(Entity<GridFluidComponent> ent, Vector2i indices)
@@ -47,6 +39,7 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 
     private void ProcessGridVisuals()
     {
+
         var query = AllEntityQuery<GridFluidVisualsComponent, GridFluidComponent, MapGridComponent, MetaDataComponent>();
         while (query.MoveNext(out var uid, out var visuals, out var gridFluid, out var grid, out var meta))
         {
@@ -58,32 +51,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
                 UpdateTileVisuals(ent, index);
             }
             visuals.InvalidTiles.Clear();
-        }
-    }
-
-    private void UpdateFluidVisuals()
-    {
-        if (!_net.IsClient || !_timing.IsFirstTimePredicted)
-            return;
-
-        var query = AllEntityQuery<TileFluidComponent, AppearanceComponent>();
-
-        while (query.MoveNext(out var uid, out var tileFluid, out var appearance))
-        {
-            var xform = Transform(uid);
-
-            if (xform.GridUid is not { } grid)
-                continue;
-
-            if (!TryComp<GridFluidComponent>(grid, out var gridFluid))
-                continue;
-
-            if (!_gridFluid.TryGetFluid(gridFluid, tileFluid.Indices, out var fluid))
-                continue;
-
-            SetPuddleColor(uid, appearance, fluid.Solution.GetColor(_prototypeManager), fluid.Solution.Volume);
-            SetPuddleVolume(uid, appearance, fluid.Solution.Volume);
-
         }
     }
 
@@ -148,39 +115,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         {
             QueueDel(drawnEnt);
         }
-    }
-
-    private void SetPuddleVolume(EntityUid uid, AppearanceComponent appearance, FixedPoint2 volume)
-    {
-        var flooded = false;
-        if (volume > 75)
-            flooded = true;
-
-        if (_appearance.TryGetData<bool>(uid, FluidColorVisuals.Volume, out var currentFloodStatus))
-        {
-            if (currentFloodStatus == flooded) //We were full before, and we still are
-                return;
-        }
-
-        _appearance.SetData(uid, FluidColorVisuals.Volume, flooded, appearance);
-    }
-
-    private void SetPuddleColor(EntityUid uid, AppearanceComponent appearance, Color color, FixedPoint2 volume)
-    {
-        var maxOpacity = 200;
-        var opacity = Math.Clamp(volume.Value/10, 100, maxOpacity);
-
-        // convert to float ratio and then to byte
-        color = color.WithAlpha((byte)((opacity / (float)maxOpacity) * 200));
-
-        if (_appearance.TryGetData<Color>(uid, FluidColorVisuals.Color, out var currentColor))
-        {
-            var diff = Math.Abs(currentColor.ToArgb() - color.ToArgb());
-            if (diff < 500)
-                return;
-        }
-
-        _appearance.SetData(uid, FluidColorVisuals.Color, color, appearance);
     }
 
     /// <summary>

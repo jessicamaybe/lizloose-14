@@ -21,6 +21,7 @@ public sealed partial class GridFluidSystem
         if (gridFluid.Tiles.TryGetValue(indicesTo, out var tileTo))
         {
             tileTo.Solution.AddSolution(solution, _prototypeManager);
+            MarkModifiedTile(gridFluid, indicesTo);
             AddTileReaction(gridFluid, tileTo);
             if (active)
                 AddActiveTile(gridFluid, indicesTo);

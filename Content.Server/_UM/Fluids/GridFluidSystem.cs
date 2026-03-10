@@ -393,8 +393,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         public void Execute(int index)
         {
             var playerSession = Sessions[index];
-            var chunksInRange =
-                ChunkingSys.GetChunksForSession(playerSession, ChunkSize, ChunkIndexPool, ChunkViewerPool);
+            var chunksInRange = ChunkingSys.GetChunksForSession(playerSession, ChunkSize, ChunkIndexPool, ChunkViewerPool);
             var previouslySent = LastSentChunks[playerSession];
 
             var ev = new FluidChunkUpdateEvent();
