@@ -171,6 +171,21 @@ public partial class SharedGridFluidSystem
         return true;
     }
 
+    public bool IsTilePool(GridFluidComponent gridFluid, Vector2i indices)
+    {
+        foreach (var pool in gridFluid.FluidPools)
+        {
+            if (pool.Indices.Contains(indices))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        return false;
+    }
+
+
     public virtual void AddTile(Entity<GridFluidComponent> ent, Vector2i indices, Solution solution, bool active = true)
     {
     }

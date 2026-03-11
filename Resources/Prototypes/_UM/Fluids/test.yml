@@ -285,7 +285,7 @@
     - sprite: _UM/Fluid/fluid.rsi
       state: splat0
       map: [ "enum.FluidColorVisuals.Color" ]
-      color: "#75b1f000"
+      color: "#75b1f0FF"
     drawdepth: Puddles
   - type: TileFluidVisuals
   - type: TileFluid

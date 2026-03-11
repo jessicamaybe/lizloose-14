@@ -14,9 +14,23 @@ namespace Content.Shared._UM.Fluids.Components;
 [RegisterComponent, AutoGenerateComponentPause, NetworkedComponent]
 public sealed partial class GridFluidComponent : Component
 {
+    /// <summary>
+    /// Dictionary of tile indices and the tile contents
+    /// does not contain "pools"
+    /// </summary>
     [ViewVariables]
     public Dictionary<Vector2i, TileSolution> Tiles = new();
 
+    [ViewVariables]
+    public List<FluidPool> FluidPools = new();
+
+    [ViewVariables]
+    public readonly Queue<FluidPool> CurrentRunPools = new();
+
+    /// <summary>
+    /// Dictionary of chunk indices and chunks.
+    /// Used for sending tile data to clients
+    /// </summary>
     [ViewVariables]
     public readonly Dictionary<Vector2i, FluidChunk> Chunks = new();
 
@@ -63,7 +77,6 @@ public sealed partial class GridFluidComponent : Component
     public FixedPoint2 OverflowVolume = 50;
 
     public int Stage = 1;
-
 
     /// <summary>
     /// The next time we remove the EvaporationSystem reagent amount from this entity.

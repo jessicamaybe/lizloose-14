@@ -18,6 +18,32 @@ public sealed class TileFluidVisualsSystem : EntitySystem
     [Dependency] private readonly IconSmoothSystem _iconSmooth = default!;
     [Dependency] private readonly SharedGridFluidSystem _gridFluid = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
+    [Dependency] private readonly AppearanceSystem _appearance = default!;
+
+    public override void Initialize()
+    {
+        base.Initialize();
+        SubscribeLocalEvent<TileFluidVisualsComponent, AppearanceChangeEvent>(OnAppearanceChange);
+    }
+
+    private void OnAppearanceChange(Entity<TileFluidVisualsComponent> ent, ref AppearanceChangeEvent args)
+    {
+        if (!TryComp<SpriteComponent>(ent, out var sprite))
+            return;
+
+        if (!_appearance.TryGetData<Color>(ent, FluidColorVisuals.Color, out var color, args.Component))
+            return;
+
+        var layer = sprite[FluidColorVisuals.Color];
+        layer.Color = color;
+
+        if (!TryComp<IconSmoothComponent>(ent, out var smooth))
+            return;
+
+        smooth.AdditionalKeys.Add("walls");
+        _iconSmooth.DirtyNeighbours(ent);
+    }
+
 
     public override void Update(float frameTime)
     {

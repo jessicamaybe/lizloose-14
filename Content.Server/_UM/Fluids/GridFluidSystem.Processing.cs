@@ -1,5 +1,6 @@
 using Content.Shared._UM.Fluids.Components;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Utility;
 
 namespace Content.Server._UM.Fluids;
 
@@ -27,6 +28,7 @@ public sealed partial class GridFluidSystem
         {
             case 1:
                 ProcessInvalidTiles(ent);
+                ProcessPools(ent);
                 ProcessActiveTiles(ent);
                 ent.Comp1.Stage++;
                 break;
@@ -81,6 +83,22 @@ public sealed partial class GridFluidSystem
         while (gridFluid.CurrentRunInvalidTiles.TryDequeue(out var tile))
         {
             UpdateBlockedDirections(ent, tile, true);
+        }
+    }
+
+    private void ProcessPools(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent)
+    {
+        var gridFluid = ent.Comp1;
+        gridFluid.CurrentRunPools.Clear();
+        gridFluid.CurrentRunPools.EnsureCapacity(gridFluid.FluidPools.Count);
+        foreach (var pool in gridFluid.FluidPools)
+        {
+            gridFluid.CurrentRunPools.Enqueue(pool);
+        }
+
+        while (gridFluid.CurrentRunPools.TryDequeue(out var pool))
+        {
+            ProcessPoolSpread(ent, pool);
         }
     }
 

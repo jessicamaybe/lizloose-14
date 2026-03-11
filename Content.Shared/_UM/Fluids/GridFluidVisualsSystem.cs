@@ -1,4 +1,5 @@
 using Content.Shared._UM.Fluids.Components;
+using Content.Shared.FixedPoint;
 using Robust.Shared.Map.Components;
 
 namespace Content.Shared._UM.Fluids;
@@ -10,6 +11,7 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 {
     [Dependency] private readonly SharedGridFluidSystem _gridFluid = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
+    [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
 
     /// <inheritdoc/>
     public override void Initialize()
@@ -46,12 +48,56 @@ public sealed class GridFluidVisualsSystem : EntitySystem
             var ent = (uid, visuals, gridFluid, grid, meta);
             CheckDeleted(ent);
 
+            foreach (var pool in gridFluid.FluidPools)
+            {
+                foreach (var tile in pool.Indices)
+                {
+                    if (visuals.DrawnTiles.TryGetValue(tile, out var tileUid))
+                    {
+                        SetPoolAppearance(tileUid, pool.Color, pool.Volume);
+                    }
+
+                    if (!visuals.DrawnTiles.TryGetValue(tile, out var drawnEnt))
+                    {
+                        var coords = _map.GridTileToLocal(uid, grid, tile);
+                        drawnEnt = Spawn("FluidPuddle", coords);
+                        var relay = EnsureComp<TileFluidComponent>(drawnEnt);
+                        relay.Indices = tile;
+                        visuals.DrawnTiles.Add(tile, drawnEnt);
+                        SetPoolAppearance(drawnEnt, pool.Color, pool.Volume);
+                        Dirty(drawnEnt, relay);
+                    }
+
+                }
+            }
+
             foreach (var index in visuals.InvalidTiles)
             {
                 UpdateTileVisuals(ent, index);
             }
+
             visuals.InvalidTiles.Clear();
         }
+    }
+
+    private void SetPoolAppearance(EntityUid uid, Color color, FixedPoint2 volume)
+    {
+        if (!TryComp<AppearanceComponent>(uid, out var appearance))
+            return;
+
+        var maxOpacity = 240;
+        var opacity = Math.Clamp(volume.Value/10, 150, maxOpacity);
+
+        // convert to float ratio and then to byte
+        color = color.WithAlpha((byte)((opacity / (float)maxOpacity) * 200));
+
+        if (_appearance.TryGetData<Color>(uid, FluidColorVisuals.Color, out var currentColor))
+        {
+            var diff = Math.Abs(currentColor.ToArgb() - color.ToArgb());
+            if (diff < 500)
+                return;
+        }
+        _appearance.SetData(uid, FluidColorVisuals.Color, color, appearance);
     }
 
     private void CheckDeleted(Entity<GridFluidVisualsComponent, GridFluidComponent, MapGridComponent, MetaDataComponent> ent)
@@ -62,6 +108,9 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 
         foreach (var (indices, tileEnt) in gridVisuals.DrawnTiles)
         {
+            if (_gridFluid.IsTilePool(gridFluid, indices))
+                continue;
+
             if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out var solution))
             {
                 QueueDel(tileEnt);
@@ -88,7 +137,7 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         var gridVisuals = ent.Comp1;
         var grid = ent.Comp3;
 
-        if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out var tileSolution))
+        if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out var tileSolution) && !_gridFluid.IsTilePool(gridFluid, indices))
         {
             RemoveTileVisuals(ent, indices);
             return;

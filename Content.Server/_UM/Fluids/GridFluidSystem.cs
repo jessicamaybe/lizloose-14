@@ -250,6 +250,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         gridFluid.Tiles.TryAdd(indices, tileSolution);
         InvalidateTile(gridFluid, tileSolution);
         _gridFluidVisuals.MarkInvalid(ent, indices);
+        MarkModifiedTile(gridFluid, indices);
     }
 
     private void RemoveTile(GridFluidComponent gridFluid, TileSolution tile)
@@ -316,6 +317,14 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
             return;
 
         gridFluid.UnreactedTiles.Add(tile);
+    }
+
+    private void AddTileReaction(GridFluidComponent gridFluid, Vector2i tile)
+    {
+        if (!TryGetFluid(gridFluid, tile, out var tileSolution))
+            return;
+
+        gridFluid.UnreactedTiles.Add(tileSolution);
     }
 
     private bool UpdateChunkTile(GridFluidComponent gridFluid, FluidChunk chunk, Vector2i index)

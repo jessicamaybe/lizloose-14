@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
@@ -14,6 +15,9 @@ public sealed partial class GridFluidSystem
     {
         var (owner, gridFluid, grid, xform) = ent;
 
+        if (!gridFluid.Tiles.ContainsKey(tile.GridIndices))
+            return;
+
         var tileVolume = tile.Solution.Volume;
 
         var neighbors = new List<Vector2i>();
@@ -24,12 +28,34 @@ public sealed partial class GridFluidSystem
             return;
         }
 
+        var potentialPool = new List<Vector2i>();
         for (var i = 0; i < Atmospherics.Directions; i++)
         {
             var direction = (AtmosDirection) (1 << i);
             if(!tile.BlockedDirections.IsFlagSet(direction))
                 continue;
             var neighborPos = tile.GridIndices.Offset(direction);
+            if (TryGetFluid(gridFluid, neighborPos, out var neighborTile) &&
+                neighborTile.Solution.Volume > gridFluid.OverflowVolume * 2)
+            {
+                potentialPool.Add(neighborPos);
+            }
+        }
+
+        if (potentialPool.Count > 0)
+        {
+            Log.Debug("Creating pool!");
+            CreatePool(ent, potentialPool);
+        }
+
+        for (var i = 0; i < Atmospherics.Directions; i++)
+        {
+            var direction = (AtmosDirection) (1 << i);
+            if(!tile.BlockedDirections.IsFlagSet(direction))
+                continue;
+            var neighborPos = tile.GridIndices.Offset(direction);
+            if (IsTilePool(gridFluid, neighborPos))
+                continue;
             if (TryGetFluid(gridFluid, neighborPos, out var neighborTile)
                 && neighborTile.Solution.Volume > tile.Solution.Volume + gridFluid.OverflowVolume)
                 AddActiveTile(gridFluid, neighborTile);
