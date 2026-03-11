@@ -7,6 +7,7 @@ using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chunking;
 using Content.Shared.EntityEffects;
 using Content.Shared.Maps;
+using Content.Shared.Projectiles;
 using Microsoft.Extensions.ObjectPool;
 using Robust.Server.Player;
 using Robust.Shared;
@@ -62,6 +63,7 @@ public sealed partial class GridFluidSystem : SharedGridFluidSystem
         InitializeSource();
         _airtightQuery = GetEntityQuery<AirtightComponent>();
         _gridQuery = GetEntityQuery<MapGridComponent>();
+        _projQuery = GetEntityQuery<ProjectileComponent>();
 
         _updateJob = new UpdatePlayerJob()
         {

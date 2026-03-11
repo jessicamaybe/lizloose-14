@@ -4,6 +4,7 @@ using Content.Server.Stunnable;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
+using Content.Shared.Projectiles;
 using Content.Shared.Stunnable;
 using Content.Shared.Throwing;
 using Robust.Shared.Map.Components;
@@ -21,6 +22,7 @@ public sealed partial class GridFluidSystem
     [Dependency] private readonly ThrowingSystem _throwing = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
     [Dependency] private readonly SharedPhysicsSystem _physics = default!;
+    private EntityQuery<ProjectileComponent> _projQuery;
 
     private void ProcessPoolSpread(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent, FluidPool pool)
     {
@@ -91,11 +93,12 @@ public sealed partial class GridFluidSystem
 
     private void KnockdownPeople(Entity<GridFluidComponent, MapGridComponent> ent, Vector2i origin, Vector2i destination)
     {
-        var coords = _map.GridTileToWorld(ent.Owner, ent.Comp2, destination);
+        var originCoords = _map.GridTileToWorld(ent.Owner, ent.Comp2, origin);
+        var destinationCoords = _map.GridTileToWorld(ent.Owner, ent.Comp2, destination);
 
-        var direction = origin - destination;
+        var entitiesInRange = _lookup.GetEntitiesInRange(destinationCoords, 1f, LookupFlags.All);
 
-        var entitiesInRange = _lookup.GetEntitiesInRange(coords, 2f, LookupFlags.Dynamic);
+        var direction = (destinationCoords.Position - originCoords.Position);
 
         foreach (var victim in entitiesInRange)
         {
@@ -103,7 +106,8 @@ public sealed partial class GridFluidSystem
                 continue;
 
             _stuns.TryCrawling(victim, TimeSpan.FromSeconds(3));
-            _physics.ApplyLinearImpulse(victim, direction * (physics.Mass * 4)); //lmao
+            _throwing.TryThrow(victim, direction, physics, Transform(victim), _projQuery, direction.Length() / 6, null, 2f, null, false, true, true, false, false, ThrowingUnanchorStrength.Unanchorable);
+            //_physics.ApplyLinearImpulse(victim, direction * (physics.Mass * 4)); //lmao
         }
     }
 
