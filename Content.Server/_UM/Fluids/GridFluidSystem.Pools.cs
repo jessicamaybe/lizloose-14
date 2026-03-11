@@ -1,8 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using Content.Server.Stunnable;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
+using Content.Shared.Stunnable;
+using Content.Shared.Throwing;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Systems;
 
 namespace Content.Server._UM.Fluids;
 
@@ -11,6 +17,11 @@ namespace Content.Server._UM.Fluids;
 /// </summary>
 public sealed partial class GridFluidSystem
 {
+    [Dependency] private readonly StunSystem _stuns = default!;
+    [Dependency] private readonly ThrowingSystem _throwing = default!;
+    [Dependency] private readonly EntityLookupSystem _lookup = default!;
+    [Dependency] private readonly SharedPhysicsSystem _physics = default!;
+
     private void ProcessPoolSpread(Entity<GridFluidComponent, MapGridComponent, TransformComponent> ent, FluidPool pool)
     {
         var gridFluid = ent.Comp1;
@@ -33,12 +44,12 @@ public sealed partial class GridFluidSystem
             return;
         }
 
-        var newTiles = new HashSet<Vector2i>();
+        var newTiles = new Dictionary<Vector2i, Vector2i>();
         var mergers = new HashSet<FluidPool>();
 
         var edges = pool.Edges;
 
-        foreach (var (_, neighbors) in edges)
+        foreach (var (edge, neighbors) in edges)
         {
             foreach (var tile in neighbors)
             {
@@ -56,13 +67,14 @@ public sealed partial class GridFluidSystem
                     continue;
                 }
 
-                newTiles.Add(tile);
+                newTiles.TryAdd(edge, tile);
             }
         }
 
-        foreach (var tile in newTiles)
+        foreach (var (edge, tile) in newTiles)
         {
             pool.Indices.Add(tile);
+            KnockdownPeople((ent.Owner, ent.Comp1, ent.Comp2), edge, tile);
         }
 
         foreach (var neighborPool in mergers)
@@ -75,6 +87,24 @@ public sealed partial class GridFluidSystem
         }
 
         RecomputePool(pool);
+    }
+
+    private void KnockdownPeople(Entity<GridFluidComponent, MapGridComponent> ent, Vector2i origin, Vector2i destination)
+    {
+        var coords = _map.GridTileToWorld(ent.Owner, ent.Comp2, destination);
+
+        var direction = origin - destination;
+
+        var entitiesInRange = _lookup.GetEntitiesInRange(coords, 2f, LookupFlags.Dynamic);
+
+        foreach (var victim in entitiesInRange)
+        {
+            if (!TryComp<PhysicsComponent>(victim, out var physics))
+                continue;
+
+            _stuns.TryCrawling(victim, TimeSpan.FromSeconds(3));
+            _physics.ApplyLinearImpulse(victim, direction * (physics.Mass * 4)); //lmao
+        }
     }
 
     private void CreatePool(Entity<GridFluidComponent> ent, List<Vector2i> indices)
