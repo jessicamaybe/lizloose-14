@@ -13,12 +13,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
     [Dependency] private readonly SharedMapSystem _map = default!;
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
 
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
-
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
@@ -108,6 +102,12 @@ public sealed class GridFluidVisualsSystem : EntitySystem
 
         foreach (var (indices, tileEnt) in gridVisuals.DrawnTiles)
         {
+            if (Deleted(tileEnt))
+            {
+                deleted.Add(indices);
+                continue;
+            }
+
             if (_gridFluid.IsTilePool(gridFluid, indices))
                 continue;
 
@@ -137,7 +137,7 @@ public sealed class GridFluidVisualsSystem : EntitySystem
         var gridVisuals = ent.Comp1;
         var grid = ent.Comp3;
 
-        if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out var tileSolution) && !_gridFluid.IsTilePool(gridFluid, indices))
+        if (!_gridFluid.TryGetTileSolution(gridFluid, indices, out _) && !_gridFluid.IsTilePool(gridFluid, indices))
         {
             RemoveTileVisuals(ent, indices);
             return;
@@ -157,7 +157,6 @@ public sealed class GridFluidVisualsSystem : EntitySystem
     private void RemoveTileVisuals(Entity<GridFluidVisualsComponent, GridFluidComponent, MapGridComponent, MetaDataComponent> ent,
         Vector2i indices)
     {
-        var gridFluid = ent.Comp2;
         var gridVisuals = ent.Comp1;
 
         if (gridVisuals.DrawnTiles.TryGetValue(indices, out var drawnEnt))

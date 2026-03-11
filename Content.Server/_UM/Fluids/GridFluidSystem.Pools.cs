@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Content.Shared._UM.Fluids;
 using Content.Shared._UM.Fluids.Components;
 using Content.Shared.Atmos;
@@ -18,12 +17,6 @@ public sealed partial class GridFluidSystem
         if (!gridFluid.FluidPools.Contains(pool))
             return;
 
-        Log.Debug("processing pool! Volume: " + pool.Solution.Volume + " Size: " + pool.Indices.Count);
-
-        var indices = pool.Indices.ToList();
-
-
-
         //In case we are on top of any tiles
         foreach (var tile in pool.Indices)
         {
@@ -36,7 +29,6 @@ public sealed partial class GridFluidSystem
 
         if (pool.Volume / pool.Indices.Count < gridFluid.OverflowVolume)
         {
-            Log.Debug("breaking down pool");
             BreakdownPool((ent.Owner, gridFluid), pool);
             return;
         }
@@ -46,7 +38,7 @@ public sealed partial class GridFluidSystem
 
         var edges = pool.Edges;
 
-        foreach (var (edge, neighbors) in edges)
+        foreach (var (_, neighbors) in edges)
         {
             foreach (var tile in neighbors)
             {
@@ -68,11 +60,13 @@ public sealed partial class GridFluidSystem
             }
         }
 
-        pool.Indices.UnionWith(newTiles);
+        foreach (var tile in newTiles)
+        {
+            pool.Indices.Add(tile);
+        }
 
         foreach (var neighborPool in mergers)
         {
-            Log.Debug("merging pool");
             if (neighborPool == pool)
                 continue;
             if (!gridFluid.FluidPools.Contains(neighborPool))
@@ -97,7 +91,6 @@ public sealed partial class GridFluidSystem
             RemoveTile(ent.Comp, tileSolution);
         }
 
-        Log.Debug("Pool created. Volume: " + pool.Solution.Volume + " Size: " + pool.Indices.Count);
         ent.Comp.FluidPools.Add(pool);
         RecomputePool(pool);
     }
@@ -168,8 +161,6 @@ public sealed partial class GridFluidSystem
     private void BreakdownPool(Entity<GridFluidComponent> ent, FluidPool pool)
     {
         var splitAmount = pool.Solution.Volume / pool.Indices.Count;
-        Log.Debug("Breaking down pool!");
-        Log.Debug("Split amount: " + splitAmount);
 
         foreach (var tile in pool.Indices)
         {
