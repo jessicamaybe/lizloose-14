@@ -2,7 +2,9 @@
   id: InitialInfected
   name: roles-antag-initial-infected-name
   antagonist: true
-  setPreference: true
+  #UM START
+  setPreference: false
+  #UM END
   objective: roles-antag-initial-infected-objective
   guides: [ Zombies ]
   requirements:

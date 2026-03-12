@@ -2,7 +2,9 @@
   id: Nukeops
   name: roles-antag-nuclear-operative-name
   antagonist: true
-  setPreference: true
+  #UM START
+  setPreference: false
+  #UM END
   objective: roles-antag-nuclear-operative-objective
   requirements:
   - !type:OverallPlaytimeRequirement
@@ -13,7 +15,9 @@
   id: NukeopsMedic
   name: roles-antag-nuclear-operative-agent-name
   antagonist: true
-  setPreference: true
+  #UM START
+  setPreference: false
+  #UM END
   objective: roles-antag-nuclear-operative-agent-objective
   requirements:
   - !type:OverallPlaytimeRequirement
@@ -27,7 +31,9 @@
   id: NukeopsCommander
   name: roles-antag-nuclear-operative-commander-name
   antagonist: true
-  setPreference: true
+  #UM START
+  setPreference: false
+  #UM END
   objective: roles-antag-nuclear-operative-commander-objective
   requirements:
   - !type:OverallPlaytimeRequirement
