@@ -72,7 +72,7 @@ public sealed class UMGhostInteractionOverlay : Overlay
             {
                 var timeLeft = _timing.CurTime - (ghostInteractable.LastActivated + ghostInteractable.Cooldown);
 
-                args.ScreenHandle.DrawString(_font, position, timeLeft.Seconds.ToString(), color: Color.IndianRed);
+                args.ScreenHandle.DrawString(_font, position, timeLeft.Duration().Seconds.ToString(), color: Color.IndianRed);
                 continue;
             }
 
