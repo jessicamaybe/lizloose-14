@@ -1,0 +1,74 @@
+using System.Numerics;
+using Content.Shared._UM.Ghost.Components;
+using Robust.Client.Graphics;
+using Robust.Client.ResourceManagement;
+using Robust.Shared.Enums;
+
+namespace Content.Client._UM.Ghost;
+
+/// <summary>
+/// This handles...
+/// </summary>
+public sealed class UMGhostGroupInteractableSystem : EntitySystem
+{
+    [Dependency] private readonly IOverlayManager _overlay = default!;
+    [Dependency] private readonly IEyeManager _eyeManager = default!;
+    [Dependency] private readonly IResourceCache _cache = default!;
+
+    public void EnableOverlay()
+    {
+        _overlay.AddOverlay(new UMGhostInteractionOverlay(EntityManager, _eyeManager, _cache));
+    }
+
+    public void RemoveOverlay()
+    {
+        _overlay.RemoveOverlay<UMGhostInteractionOverlay>();
+    }
+}
+
+public sealed class UMGhostInteractionOverlay : Overlay
+{
+    public override OverlaySpace Space => OverlaySpace.ScreenSpace;
+
+    private readonly IEntityManager _entManager;
+    private readonly SharedTransformSystem _transformSystem;
+    private readonly IEyeManager _eyeManager;
+
+    private readonly Font _font;
+
+    public UMGhostInteractionOverlay(IEntityManager entManager, IEyeManager eyeManager, IResourceCache cache)
+    {
+        _entManager = entManager;
+        _eyeManager = eyeManager;
+        _transformSystem = _entManager.System<SharedTransformSystem>();
+        _font = new VectorFont(cache.GetResource<FontResource>("/Fonts/NotoSans/NotoSans-Regular.ttf"), 15);
+    }
+
+    protected override void Draw(in OverlayDrawArgs args)
+    {
+        var query = _entManager.EntityQueryEnumerator<UMGhostGroupInteractableComponent, TransformComponent>();
+
+        while (query.MoveNext(out var uid, out var ghostInteractable, out var xform))
+        {
+            var (worldPos, worldRot) = _transformSystem.GetWorldPositionRotation(xform);
+
+            if (!args.WorldAABB.Contains(worldPos))
+                continue;
+
+            var text = ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount;
+
+            var dimensions = args.ScreenHandle.GetDimensions(_font, text, 1);
+
+            var position = _eyeManager.WorldToScreen(worldPos) - new Vector2(dimensions.X /2, dimensions.Y * 2.25f);
+
+            switch (args.Space)
+            {
+                case OverlaySpace.ScreenSpace:
+                    args.ScreenHandle.DrawString(_font, position, ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount);
+                    break;
+            }
+        }
+
+
+    }
+}

@@ -7,12 +7,6 @@ namespace Content.Shared._UM.Ghost.Systems;
 /// </summary>
 public sealed class UMGhostInteractionSystem : EntitySystem
 {
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
-
     public bool CanInteract(Entity<GhostComponent?> ent, EntityUid target)
     {
         if (!Resolve(ent, ref ent.Comp))

@@ -1,3 +1,4 @@
+using Content.Client._UM.Ghost;
 using Content.Client.Movement.Systems;
 using Content.Shared._UM.Ghost;
 using Content.Shared.Actions;
@@ -17,6 +18,8 @@ namespace Content.Client.Ghost
         [Dependency] private readonly PointLightSystem _pointLightSystem = default!;
         [Dependency] private readonly ContentEyeSystem _contentEye = default!;
         [Dependency] private readonly SpriteSystem _sprite = default!;
+
+        [Dependency] private readonly UMGhostGroupInteractableSystem _ghostGroupInteractable = default!;
 
         public int AvailableGhostRoleCount { get; private set; }
 
@@ -79,6 +82,8 @@ namespace Content.Client.Ghost
         {
             if (TryComp(uid, out SpriteComponent? sprite))
                 _sprite.SetVisible((uid, sprite), GhostVisibility || uid == _playerManager.LocalEntity);
+
+            _ghostGroupInteractable.EnableOverlay();
         }
 
         private void OnToggleLighting(EntityUid uid, EyeComponent component, ToggleLightingActionEvent args)
@@ -139,6 +144,7 @@ namespace Content.Client.Ghost
             _actions.RemoveAction(uid, component.ToggleFoVActionEntity);
             _actions.RemoveAction(uid, component.ToggleGhostsActionEntity);
             _actions.RemoveAction(uid, component.ToggleGhostHearingActionEntity);
+            _ghostGroupInteractable.RemoveOverlay();
 
             if (uid != _playerManager.LocalEntity)
                 return;

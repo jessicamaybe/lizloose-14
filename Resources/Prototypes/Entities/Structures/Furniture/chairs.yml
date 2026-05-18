@@ -75,6 +75,7 @@
     anchored: true
   #UM START
   - type: UMGhostRotatable
+  - type: UMGhostGroupInteractable
   #UM END
 
 #Starts unanchored, can be rotated while anchored
