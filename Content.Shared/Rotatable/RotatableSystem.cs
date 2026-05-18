@@ -195,7 +195,7 @@ public sealed class RotatableSystem : EntitySystem
         return false;
     }
 
-    private void Rotate(Entity<TransformComponent?> ent, Angle angle)
+    public void Rotate(Entity<TransformComponent?> ent, Angle angle)
     {
         if (!Resolve(ent, ref ent.Comp, false))
             return;

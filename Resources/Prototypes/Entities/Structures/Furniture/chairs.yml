@@ -73,6 +73,9 @@
     bodyType: Static
   - type: Transform
     anchored: true
+  #UM START
+  - type: UMGhostRotatable
+  #UM END
 
 #Starts unanchored, can be rotated while anchored
 - type: entity

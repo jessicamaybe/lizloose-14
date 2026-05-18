@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Content.Shared._UM.Ghost;
+using Content.Shared._UM.Ghost.Systems;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Administration.Logs;
 using Content.Shared.CCVar;
@@ -74,6 +76,9 @@ namespace Content.Shared.Interaction
         [Dependency] private readonly SharedPlayerRateLimitManager _rateLimit = default!;
         [Dependency] private readonly TagSystem _tagSystem = default!;
         [Dependency] private readonly UseDelaySystem _useDelay = default!;
+        //UM START
+        [Dependency] private readonly UMGhostInteractionSystem _ghostInteractionSystem = default!;
+        //UM END
 
         [Dependency] private readonly EntityQuery<IgnoreUIRangeComponent> _ignoreUiRangeQuery = default!;
         [Dependency] private readonly EntityQuery<FixturesComponent> _fixtureQuery = default!;
@@ -423,8 +428,16 @@ namespace Content.Shared.Interaction
                 return;
             }
 
+            //UM START
             if (checkCanInteract && !_actionBlockerSystem.CanInteract(user, target))
+            {
+                if (target != null && _ghostInteractionSystem.CanInteract(user, target.Value))
+                {
+                    _ghostInteractionSystem.Interact(user, target.Value);
+                }
                 return;
+            }
+            //UM END
 
             // Check if interacted entity is in the same container, the direct child, or direct parent of the user.
             // Also checks if the item is accessible via some storage UI (e.g., open backpack)
