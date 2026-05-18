@@ -45,7 +45,7 @@ public sealed class UMGhostInteractionOverlay : Overlay
         _eyeManager = eyeManager;
         _timing = timing;
         _transformSystem = _entManager.System<SharedTransformSystem>();
-        _font = new VectorFont(cache.GetResource<FontResource>("/Fonts/NotoSans/NotoSans-Regular.ttf"), 15);
+        _font = new VectorFont(cache.GetResource<FontResource>("/Fonts/FOT-RodinNTLG Pro UB.otf"), 15);
     }
 
     protected override void Draw(in OverlayDrawArgs args)
@@ -62,20 +62,24 @@ public sealed class UMGhostInteractionOverlay : Overlay
             if (!args.WorldAABB.Contains(worldPos))
                 continue;
 
-            var text = ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount;
 
-            var dimensions = args.ScreenHandle.GetDimensions(_font, text, 1);
-
-            var position = _eyeManager.WorldToScreen(worldPos) - new Vector2(dimensions.X /2, dimensions.Y * 2.25f);
 
             if (ghostInteractable.LastActivated + ghostInteractable.Cooldown > _timing.CurTime)
             {
                 var timeLeft = _timing.CurTime - (ghostInteractable.LastActivated + ghostInteractable.Cooldown);
 
-                args.ScreenHandle.DrawString(_font, position, timeLeft.Duration().Seconds.ToString(), color: Color.IndianRed);
+                var timerText = timeLeft.Duration().Seconds.ToString();
+                var timerDimensions = args.ScreenHandle.GetDimensions(_font, timerText, 1);
+
+                var timerPosition = _eyeManager.WorldToScreen(worldPos) - new Vector2(timerDimensions.X /2, timerDimensions.Y * 2f);
+                args.ScreenHandle.DrawString(_font, timerPosition, timerText, color: Color.IndianRed);
                 continue;
             }
 
+
+            var text = ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount;
+            var dimensions = args.ScreenHandle.GetDimensions(_font, text, 1);
+            var position = _eyeManager.WorldToScreen(worldPos) - new Vector2(dimensions.X /2, dimensions.Y * 2.25f);
             args.ScreenHandle.DrawString(_font, position, ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount, color: Color.IndianRed);
         }
 
