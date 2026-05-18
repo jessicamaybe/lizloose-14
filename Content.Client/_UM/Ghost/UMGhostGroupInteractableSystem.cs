@@ -3,6 +3,7 @@ using Content.Shared._UM.Ghost.Components;
 using Robust.Client.Graphics;
 using Robust.Client.ResourceManagement;
 using Robust.Shared.Enums;
+using Robust.Shared.Timing;
 
 namespace Content.Client._UM.Ghost;
 
@@ -14,10 +15,11 @@ public sealed class UMGhostGroupInteractableSystem : EntitySystem
     [Dependency] private readonly IOverlayManager _overlay = default!;
     [Dependency] private readonly IEyeManager _eyeManager = default!;
     [Dependency] private readonly IResourceCache _cache = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
 
     public void EnableOverlay()
     {
-        _overlay.AddOverlay(new UMGhostInteractionOverlay(EntityManager, _eyeManager, _cache));
+        _overlay.AddOverlay(new UMGhostInteractionOverlay(EntityManager, _eyeManager, _timing, _cache));
     }
 
     public void RemoveOverlay()
@@ -33,13 +35,15 @@ public sealed class UMGhostInteractionOverlay : Overlay
     private readonly IEntityManager _entManager;
     private readonly SharedTransformSystem _transformSystem;
     private readonly IEyeManager _eyeManager;
+    private readonly IGameTiming _timing;
 
     private readonly Font _font;
 
-    public UMGhostInteractionOverlay(IEntityManager entManager, IEyeManager eyeManager, IResourceCache cache)
+    public UMGhostInteractionOverlay(IEntityManager entManager, IEyeManager eyeManager, IGameTiming timing, IResourceCache cache)
     {
         _entManager = entManager;
         _eyeManager = eyeManager;
+        _timing = timing;
         _transformSystem = _entManager.System<SharedTransformSystem>();
         _font = new VectorFont(cache.GetResource<FontResource>("/Fonts/NotoSans/NotoSans-Regular.ttf"), 15);
     }
@@ -50,6 +54,9 @@ public sealed class UMGhostInteractionOverlay : Overlay
 
         while (query.MoveNext(out var uid, out var ghostInteractable, out var xform))
         {
+            if (ghostInteractable.CurrentGhosts.Count == 0)
+                continue;
+
             var (worldPos, worldRot) = _transformSystem.GetWorldPositionRotation(xform);
 
             if (!args.WorldAABB.Contains(worldPos))
@@ -61,12 +68,15 @@ public sealed class UMGhostInteractionOverlay : Overlay
 
             var position = _eyeManager.WorldToScreen(worldPos) - new Vector2(dimensions.X /2, dimensions.Y * 2.25f);
 
-            switch (args.Space)
+            if (ghostInteractable.LastActivated + ghostInteractable.Cooldown > _timing.CurTime)
             {
-                case OverlaySpace.ScreenSpace:
-                    args.ScreenHandle.DrawString(_font, position, ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount);
-                    break;
+                var timeLeft = _timing.CurTime - (ghostInteractable.LastActivated + ghostInteractable.Cooldown);
+
+                args.ScreenHandle.DrawString(_font, position, timeLeft.Seconds.ToString(), color: Color.IndianRed);
+                continue;
             }
+
+            args.ScreenHandle.DrawString(_font, position, ghostInteractable.CurrentGhosts.Count + "/" + ghostInteractable.Amount, color: Color.IndianRed);
         }
 
 
