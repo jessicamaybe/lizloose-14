@@ -24,6 +24,14 @@ public sealed class OutlineRichTextLabel : RichTextLabel
         Thickness = thickness;
     }
 
+    public OutlineRichTextLabel()
+    {
+        IoCManager.InjectDependencies(this);
+        var prototypes = IoCManager.Resolve<IPrototypeManager>();
+        _outlineShader = prototypes.Index(OutlinePrototype).InstanceUnique();
+        Thickness = 2;
+    }
+
     private List<Vector2> BuildOutlineOffsets()
     {
         var list = new List<Vector2>();

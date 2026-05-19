@@ -19,8 +19,6 @@ namespace Content.Client.Ghost
         [Dependency] private readonly ContentEyeSystem _contentEye = default!;
         [Dependency] private readonly SpriteSystem _sprite = default!;
 
-        [Dependency] private readonly UMGhostGroupInteractableSystem _ghostGroupInteractable = default!;
-
         public int AvailableGhostRoleCount { get; private set; }
 
         private bool _ghostVisibility = true;
@@ -82,8 +80,6 @@ namespace Content.Client.Ghost
         {
             if (TryComp(uid, out SpriteComponent? sprite))
                 _sprite.SetVisible((uid, sprite), GhostVisibility || uid == _playerManager.LocalEntity);
-
-            _ghostGroupInteractable.EnableOverlay();
         }
 
         private void OnToggleLighting(EntityUid uid, EyeComponent component, ToggleLightingActionEvent args)
@@ -148,7 +144,6 @@ namespace Content.Client.Ghost
             if (uid != _playerManager.LocalEntity)
                 return;
 
-            _ghostGroupInteractable.RemoveOverlay();
             GhostVisibility = false;
             PlayerRemoved?.Invoke(component);
         }

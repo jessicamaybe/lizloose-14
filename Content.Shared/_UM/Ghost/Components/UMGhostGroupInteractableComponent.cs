@@ -18,8 +18,8 @@ public sealed partial class UMGhostGroupInteractableComponent : Component
     [ViewVariables, AutoNetworkedField]
     public List<EntityUid> CurrentGhosts = new();
 
-    [DataField]
-    public TimeSpan Cooldown = TimeSpan.FromSeconds(120);
+    [DataField, AutoNetworkedField]
+    public TimeSpan Cooldown = TimeSpan.FromSeconds(15);
 
     [ViewVariables, AutoNetworkedField]
     public TimeSpan LastActivated = new TimeSpan();
