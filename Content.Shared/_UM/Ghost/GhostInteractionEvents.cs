@@ -1,5 +1,6 @@
 using Content.Shared.Interaction;
 using JetBrains.Annotations;
+using Robust.Shared.Serialization;
 
 namespace Content.Shared._UM.Ghost;
 
@@ -36,3 +37,51 @@ public sealed class InteractGhostEvent : HandledEntityEventArgs, ITargetedIntera
         Target = target;
     }
 }
+
+public sealed class GetGhostGroupActionsEvent : EntityEventArgs
+{
+    public readonly SortedSet<GhostGroupAction> Actions = new();
+
+    public readonly EntityUid Target;
+
+    public readonly EntityUid User;
+
+    public GetGhostGroupActionsEvent(EntityUid user, EntityUid target)
+    {
+        Target = target;
+        User = user;
+    }
+}
+
+[Serializable, NetSerializable]
+public sealed class GhostActionMenuRequestEvent : EntityEventArgs
+{
+    public readonly List<GhostGroupAction>? Actions;
+
+    public readonly NetEntity Entity;
+
+    public GhostActionMenuRequestEvent(NetEntity entity, SortedSet<GhostGroupAction>? actions)
+    {
+        Entity = entity;
+
+        if (actions == null)
+            return;
+
+        Actions = new(actions);
+    }
+}
+
+
+[Serializable, NetSerializable]
+public sealed class RequestGhostActionVoteEvent : EntityEventArgs
+{
+    public readonly NetEntity Target;
+    public readonly GhostGroupAction RequestedAction;
+
+    public RequestGhostActionVoteEvent(NetEntity target, GhostGroupAction requestedAction)
+    {
+        Target = target;
+        RequestedAction = requestedAction;
+    }
+}
+

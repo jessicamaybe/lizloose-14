@@ -12,9 +12,14 @@ public sealed partial class GhostGroupCounter : Control
 {
     private static int FontSize = 18;
 
-    public GhostGroupCounter()
+    private Color _color;
+
+    public GhostGroupCounter(Color color)
     {
         RobustXamlLoader.Load(this);
+
+        _color = color;
+
         var msg = new FormattedMessage();
         msg.PushTag(new MarkupNode("font",
             new MarkupParameter("PikminCounter"),
@@ -22,12 +27,13 @@ public sealed partial class GhostGroupCounter : Control
             {
                 { "size", new MarkupParameter(FontSize) }
             }));
-        msg.PushColor(Color.Red);
+        msg.PushColor(_color);
         msg.AddMarkupOrThrow("—"); //hardcode em dash lolol
         msg.Pop();
         msg.Pop();
-
         Bar.SetMessage(msg, tagsAllowed: [typeof(FontTag), typeof(ColorTag)]);
+
+        SetText(0, 0);
     }
 
     public void SetText(int? amount, int? requiredAmount)
@@ -43,7 +49,7 @@ public sealed partial class GhostGroupCounter : Control
                     { "size", new MarkupParameter(FontSize) }
                 }));
 
-            msg.PushColor(Color.Red);
+            msg.PushColor(_color);
 
             msg.AddMarkupOrThrow(amount.Value.ToString());
             msg.Pop();
@@ -64,7 +70,7 @@ public sealed partial class GhostGroupCounter : Control
                     { "size", new MarkupParameter(FontSize) }
                 }));
 
-            msg.PushColor(Color.Red);
+            msg.PushColor(_color);
 
             msg.AddMarkupOrThrow(requiredAmount.Value.ToString());
             msg.Pop();
@@ -73,7 +79,6 @@ public sealed partial class GhostGroupCounter : Control
             RequiredAmount.Margin = new Thickness(0, -4, 0, 0);
             RequiredAmount.SetMessage(msg, tagsAllowed: [typeof(FontTag), typeof(ColorTag)]);
         }
-
     }
 
 }

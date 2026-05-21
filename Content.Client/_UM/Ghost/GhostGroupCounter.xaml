@@ -1,8 +1,8 @@
-<controls:GhostGroupCounter
-    xmlns="https://spacestation14.io"
-    xmlns:controls="clr-namespace:Content.Client._UM.Ghost"
-    xmlns:controls1="clr-namespace:Content.Client._UM.UserInterface.Controls">
-    <BoxContainer Align="Center" Orientation="Vertical">
+<Control xmlns="https://spacestation14.io"
+         xmlns:controls="clr-namespace:Content.Client._UM.Ghost"
+         xmlns:controls1="clr-namespace:Content.Client._UM.UserInterface.Controls">
+    <BoxContainer Align="Center" Orientation="Vertical" Margin="4">
+        <TextureRect Name="Icon" HorizontalAlignment="Center" Access="Public"/>
         <PanelContainer>
             <controls1:OutlineRichTextLabel Name="Amount" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <controls1:OutlineRichTextLabel Name="Bar" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
@@ -10,4 +10,4 @@
 
         <controls1:OutlineRichTextLabel Name="RequiredAmount" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
     </BoxContainer>
-</controls:GhostGroupCounter>
+</Control>

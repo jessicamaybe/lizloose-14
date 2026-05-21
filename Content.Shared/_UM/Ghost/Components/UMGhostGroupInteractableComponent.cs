@@ -5,7 +5,7 @@ namespace Content.Shared._UM.Ghost.Components;
 /// <summary>
 /// This is used for...
 /// </summary>
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState(raiseAfterAutoHandleState: true)]
 public sealed partial class UMGhostGroupInteractableComponent : Component
 {
     //Amount of ghosts needed to trigger thing
@@ -17,6 +17,9 @@ public sealed partial class UMGhostGroupInteractableComponent : Component
     /// </summary>
     [ViewVariables, AutoNetworkedField]
     public List<EntityUid> CurrentGhosts = new();
+
+    [ViewVariables, AutoNetworkedField]
+    public Dictionary<EntityUid, GhostGroupAction> Votes = new();
 
     [DataField, AutoNetworkedField]
     public TimeSpan Cooldown = TimeSpan.FromSeconds(15);

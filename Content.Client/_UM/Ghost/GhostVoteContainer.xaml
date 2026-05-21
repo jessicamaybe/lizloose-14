@@ -1,0 +1,6 @@
+<controls:GhostVoteContainer
+    xmlns="https://spacestation14.io"
+    xmlns:controls="clr-namespace:Content.Client._UM.Ghost">
+    <BoxContainer Name="Container" Orientation="Horizontal"/>
+
+</controls:GhostVoteContainer>

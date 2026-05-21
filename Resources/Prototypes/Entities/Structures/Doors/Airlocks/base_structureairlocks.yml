@@ -5,7 +5,7 @@
   description: It opens, it closes, and maybe crushes you.
   components:
   - type: UMGhostGroupInteractable
-    amount: 2
+    amount: 6
   - type: Anchorable
     flags:
     - Anchorable
